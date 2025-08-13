@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
 
 class NilaiAkhir extends Model
 {
@@ -24,7 +23,6 @@ class NilaiAkhir extends Model
         return $this->belongsTo(Alternatif::class,'alternatif_id');
     }
 
-    // Scopes
     public function scopePeriode(Builder $q, ?int $periodeId): Builder
     {
         if ($periodeId !== null && Schema::hasColumn($this->getTable(), 'periode_id')) {
@@ -33,28 +31,17 @@ class NilaiAkhir extends Model
         return $q;
     }
 
-    public function scopeForUser(Builder $q, ?User $user): Builder
-    {
-        if ($user && ($user->role ?? null) === 'wali_kelas') {
-            $q->whereHas('alternatif', fn(Builder $s) => $s->where('kelas', $user->kelas));
-        }
-        return $q;
-    }
-
-    // Hitung total & ranking
-    public static function hitungTotal(?int $periodeId = null, ?User $user = null): void
+    // Update method tanpa parameter User
+    public static function hitungTotal(?int $periodeId = null): void
     {
         $hasPeriodeNA = Schema::hasColumn('nilai_akhirs', 'periode_id');
-        $hasPeriodePN = Schema::hasColumn('penilaians',  'periode_id');
+        $hasPeriodePN = Schema::hasColumn('penilaians', 'periode_id');
 
-        $bobot = Kriteria::pluck('bobot_roc','id'); // [kriteria_id => w]
+        $bobot = Kriteria::pluck('bobot_roc','id');
 
         $penQ = Penilaian::query();
         if ($periodeId !== null && $hasPeriodePN) {
             $penQ->where('periode_id', $periodeId);
-        }
-        if ($user && ($user->role ?? null) === 'wali_kelas') {
-            $penQ->whereHas('alternatif', fn(Builder $s) => $s->where('kelas', $user->kelas));
         }
 
         $altIds = $penQ->select('alternatif_id')->distinct()->pluck('alternatif_id');

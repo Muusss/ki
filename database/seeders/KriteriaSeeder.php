@@ -13,39 +13,45 @@ class KriteriaSeeder extends Seeder
         $kriterias = [
             [
                 'kode' => 'C1',
-                'kriteria' => 'Nilai Raport Umum',
+                'kriteria' => 'Kesesuain Jenis Kulit',
                 'atribut' => 'benefit',
                 'urutan_prioritas' => 1
             ],
             [
                 'kode' => 'C2',
-                'kriteria' => 'Nilai Raport Diniyah',
+                'kriteria' => 'SPF',
                 'atribut' => 'benefit',
                 'urutan_prioritas' => 2
             ],
             [
                 'kode' => 'C3',
-                'kriteria' => 'Akhlak',
-                'atribut' => 'benefit',
+                'kriteria' => 'Harga',
+                'atribut' => 'cost',
                 'urutan_prioritas' => 3
             ],
             [
                 'kode' => 'C4',
-                'kriteria' => 'Hafalan Al-Quran',
-                'atribut' => 'benefit',
+                'kriteria' => 'Komposisi',
+                'atribut' => 'cost',
                 'urutan_prioritas' => 4
             ],
             [
                 'kode' => 'C5',
-                'kriteria' => 'Kehadiran',
-                'atribut' => 'benefit',
+                'kriteria' => 'Efek Samping',
+                'atribut' => 'cost',
                 'urutan_prioritas' => 5
             ],
             [
                 'kode' => 'C6',
-                'kriteria' => 'Ekstrakurikuler',
+                'kriteria' => 'Tekstur',
                 'atribut' => 'benefit',
                 'urutan_prioritas' => 6
+            ],
+            [
+                'kode' => 'C7',
+                'kriteria' => 'Ukuran',
+                'atribut' => 'cost',
+                'urutan_prioritas' => 7
             ]
         ];
 

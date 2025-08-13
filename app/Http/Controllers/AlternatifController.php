@@ -16,67 +16,30 @@ use App\Models\NilaiAkhir;
 
 class AlternatifController extends Controller
 {
-    // (opsional) aktifkan kalau sudah punya AlternatifPolicy
-    // public function __construct()
-    // {
-    //     $this->authorizeResource(Alternatif::class, 'alternatif');
-    // }
-
-    /** Helper sederhana: cek wali_kelas */
-    private function isWali(?User $u): bool
-    {
-        return $u && ($u->role ?? null) === 'wali_kelas';
-    }
-
     /** LIST */
     public function index(Request $request): View
     {
-        $title = 'Data Siswa';
-        $user  = Auth::user();
+        $title = 'Data Produk Sunscreen';
         
-        // Get filter kelas
-        $kelasFilter = $request->get('kelas', 'all');
-        
-        // Force filter untuk wali kelas
-        if ($this->isWali($user) && $user->kelas) {
-            $kelasFilter = $user->kelas;
-        }
+        $alternatif = Alternatif::orderBy('kode_produk', 'asc')->get();
 
-        $q = Alternatif::query();
-        
-        // Apply filter
-        if ($kelasFilter && $kelasFilter !== 'all') {
-            $q->where('kelas', $kelasFilter);
-        }
-
-        $alternatif = $q->orderBy('kelas', 'asc')->orderBy('nis', 'asc')->get();
-        
-        $kelasList = ['6A', '6B', '6C', '6D'];
-
-        return view('dashboard.alternatif.index', compact('title', 'alternatif', 'kelasFilter', 'kelasList'));
+        return view('dashboard.alternatif.index', compact('title', 'alternatif'));
     }
 
     /** STORE */
     public function store(Request $request): RedirectResponse
     {
-        $user = Auth::user();
-
         $data = $request->validate([
-            'nis'        => ['required','string','max:30','unique:alternatifs,nis'],
-            'nama_siswa' => ['required','string','max:100'],
-            'jk'         => ['required', Rule::in(['Lk','Pr'])],
-            'kelas'      => ['required', Rule::in(['6A','6B','6C','6D'])],
+            'kode_produk' => ['required','string','max:50','unique:alternatifs,kode_produk'],
+            'nama_produk' => ['required','string','max:100'],
+            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi','sensitif'])],
         ]);
-
-        if ($this->isWali($user) && $user->kelas) {
-            $data['kelas'] = $user->kelas; // wali hanya bisa ke kelasnya
-        }
 
         $ok = Alternatif::create($data);
 
         return to_route('alternatif')->with(
             $ok ? 'success' : 'error',
-            $ok ? 'Siswa berhasil disimpan' : 'Siswa gagal disimpan'
+            $ok ? 'Produk berhasil disimpan' : 'Produk gagal disimpan'
         );
     }
 
@@ -90,25 +53,19 @@ class AlternatifController extends Controller
     /** UPDATE */
     public function update(Request $request): RedirectResponse
     {
-        $row  = Alternatif::findOrFail($request->id);
-        $user = Auth::user();
+        $row = Alternatif::findOrFail($request->id);
 
         $data = $request->validate([
-            'nis'        => ['required','string','max:30', Rule::unique('alternatifs','nis')->ignore($row->id)],
-            'nama_siswa' => ['required','string','max:100'],
-            'jk'         => ['required', Rule::in(['Lk','Pr'])],
-            'kelas'      => ['required', Rule::in(['6A','6B','6C','6D'])],
+            'kode_produk' => ['required','string','max:50', Rule::unique('alternatifs','kode_produk')->ignore($row->id)],
+            'nama_produk' => ['required','string','max:100'],
+            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi','sensitif'])],
         ]);
-
-        if ($this->isWali($user) && $user->kelas) {
-            $data['kelas'] = $user->kelas;
-        }
 
         $ok = $row->update($data);
 
         return to_route('alternatif')->with(
             $ok ? 'success' : 'error',
-            $ok ? 'Siswa berhasil diperbarui' : 'Siswa gagal diperbarui'
+            $ok ? 'Produk berhasil diperbarui' : 'Produk gagal diperbarui'
         );
     }
 
@@ -116,52 +73,38 @@ class AlternatifController extends Controller
     public function delete(Request $request): RedirectResponse
     {
         $row = Alternatif::findOrFail($request->id);
-        $ok  = $row->delete();
+        $ok = $row->delete();
 
         return to_route('alternatif')->with(
             $ok ? 'success' : 'error',
-            $ok ? 'Siswa berhasil dihapus' : 'Siswa gagal dihapus'
+            $ok ? 'Produk berhasil dihapus' : 'Produk gagal dihapus'
         );
     }
 
-    /** === PERHITUNGAN ROC + SMART === */
+    /** PERHITUNGAN ROC + SMART */
     public function perhitunganNilaiAkhir(): RedirectResponse
     {
         Kriteria::hitungROC();
-        Penilaian::normalisasiSMART(null, Auth::user());
-        NilaiAkhir::hitungTotal(null, Auth::user());
+        Penilaian::normalisasiSMART();
+        NilaiAkhir::hitungTotal();
 
         return to_route('alternatif')->with('success', 'Perhitungan ROC + SMART selesai');
     }
 
-    // Tambahkan method ini di AlternatifController
     public function indexPerhitungan()
     {
         $title = "Hasil Perhitungan ROC + SMART";
-        $user  = Auth::user();
 
         $kriteria = Kriteria::orderBy('kode', 'asc')->get();
         $sumBobotKriteria = (float) $kriteria->sum('bobot_roc');
 
-        $hasil = NilaiAkhir::query()
-            ->when($this->isWali($user), function ($q) use ($user) {
-                $q->whereHas('alternatif', fn($s) => $s->where('kelas', $user->kelas));
-            })
-            ->with('alternatif')
+        $hasil = NilaiAkhir::with('alternatif')
             ->orderByDesc('total')
             ->get();
 
-        $alternatif = Alternatif::query()
-            ->when($this->isWali($user), fn($q) => $q->where('kelas', $user->kelas))
-            ->orderBy('nis','asc')
-            ->get();
+        $alternatif = Alternatif::orderBy('kode_produk','asc')->get();
             
-        // Data untuk tabel normalisasi
-        $penilaian = Penilaian::with(['alternatif', 'kriteria'])
-            ->when($this->isWali($user), function($q) use ($user) {
-                $q->whereHas('alternatif', fn($s) => $s->where('kelas', $user->kelas));
-            })
-            ->get();
+        $penilaian = Penilaian::with(['alternatif', 'kriteria'])->get();
 
         return view('dashboard.perhitungan.index', compact(
             'title','kriteria','sumBobotKriteria','hasil','alternatif','penilaian'

@@ -9,13 +9,15 @@ class Alternatif extends Model
 {
     use HasFactory;
 
-    // PAKAI TABEL PLURAL
     protected $table = 'alternatifs';
 
-    // Field siswa
-    protected $fillable = ['nis','nama_siswa','jk','kelas'];
+    protected $fillable = [
+        'kode_produk',
+        'nama_produk', 
+        'jenis_kulit'
+    ];
 
-    // Relasi
+    // Relasi tetap sama
     public function penilaians()
     {
         return $this->hasMany(Penilaian::class, 'alternatif_id');
@@ -23,7 +25,6 @@ class Alternatif extends Model
 
     public function nilaiAkhir()
     {
-        // kalau nanti pakai periode, ganti ke hasMany
         return $this->hasOne(NilaiAkhir::class, 'alternatif_id');
     }
 }

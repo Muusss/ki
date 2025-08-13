@@ -10,12 +10,20 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name','email','password','role','kelas'];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
 
-    public function isAdmin(): bool { return ($this->role ?? null) === 'admin'; }
-    public function isWaliKelas(): bool { return ($this->role ?? null) === 'wali_kelas'; }
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
 }

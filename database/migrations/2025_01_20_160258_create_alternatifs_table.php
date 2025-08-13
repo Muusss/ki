@@ -9,10 +9,9 @@ return new class extends Migration {
     {
         Schema::create('alternatifs', function (Blueprint $t) {
             $t->id();
-            $t->string('nis',30)->unique();
-            $t->string('nama_siswa',100);
-            $t->enum('jk',['Lk','Pr']);
-            $t->enum('kelas',['6A','6B','6C','6D']);
+            $t->string('kode_produk',30)->unique();
+            $t->string('nama_produk',100);
+            $t->enum('jenis_kulit',['normal','berminyak','kering','kombinasi']);
             $t->timestamps();
         });
     }

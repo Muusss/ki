@@ -15,13 +15,14 @@ class KriteriaController extends Controller
     // app/Http/Controllers/KriteriaController.php
     public function __construct()
     {
-        $this->middleware('admin')->except(['index']); // index boleh semua user login
+        $this->middleware('admin');
     }
-    public function index() {
-    $title='Data Kriteria';
-    $kriteria = Kriteria::orderBy('kode')->get();
-    $sumBobotKriteria = (float)$kriteria->sum('bobot_roc');
-    return view('dashboard.kriteria.index', compact('title','kriteria','sumBobotKriteria'));
+    public function index() 
+    {
+        $title = 'Data Kriteria';
+        $kriteria = Kriteria::orderBy('kode')->get();
+        $sumBobotKriteria = (float)$kriteria->sum('bobot_roc');
+        return view('dashboard.kriteria.index', compact('title','kriteria','sumBobotKriteria'));
     }
 
 
@@ -73,8 +74,8 @@ class KriteriaController extends Controller
     public function proses()
     {
         Kriteria::hitungROC();
-        Penilaian::normalisasiSMART(null, Auth::user());
-        NilaiAkhir::hitungTotal(null, Auth::user());
+        Penilaian::normalisasiSMART(); // Tanpa parameter User
+        NilaiAkhir::hitungTotal();     // Tanpa parameter User
 
         return to_route('kriteria')->with('success','Perhitungan ROC + SMART selesai');
     }

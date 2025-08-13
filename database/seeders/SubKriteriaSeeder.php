@@ -31,52 +31,57 @@ class SubKriteriaSeeder extends Seeder
             }
         };
 
-        /* C1: Nilai Raport Umum (benefit) — URUT 1→4 */
         $add('C1', [
-            ['label'=>'≤ 80',  'skor'=>1, 'min_val'=>0,  'max_val'=>80],
-            ['label'=>'81–85', 'skor'=>2, 'min_val'=>81, 'max_val'=>85],
-            ['label'=>'86–90', 'skor'=>3, 'min_val'=>86, 'max_val'=>90],
-            ['label'=>'≥ 91',  'skor'=>4, 'min_val'=>91, 'max_val'=>100],
+            ['label'=>'Tidak terdapat Kandungan',       'skor'=>1],
+            ['label'=>'Terdapat 1 Kandungan',        'skor'=>2],
+            ['label'=>'Terdapat 2 Kandungan',         'skor'=>3],
+            ['label'=>'Terdapat >2 Kandungan',  'skor'=>4],
         ], true);
 
-        /* C2: Nilai Raport Diniyah (benefit) — URUT 1→4 */
+        
         $add('C2', [
-            ['label'=>'≤ 80',  'skor'=>1, 'min_val'=>0,  'max_val'=>80],
-            ['label'=>'81–85', 'skor'=>2, 'min_val'=>81, 'max_val'=>85],
-            ['label'=>'86–90', 'skor'=>3, 'min_val'=>86, 'max_val'=>90],
-            ['label'=>'≥ 91',  'skor'=>4, 'min_val'=>91, 'max_val'=>100],
+            ['label'=>'30',  'skor'=>1, 'min_val'=>30,  'max_val'=>30],
+            ['label'=>'35', 'skor'=>2, 'min_val'=>35, 'max_val'=>35],
+            ['label'=>'40', 'skor'=>3, 'min_val'=>40, 'max_val'=>40],
+            ['label'=>'50+',  'skor'=>4, 'min_val'=>50, 'max_val'=>60],
         ], true);
 
-        /* C3: Sikap (benefit) — URUT 1→4 */
+       
         $add('C3', [
-            ['label'=>'Kurang',       'skor'=>1],
-            ['label'=>'Cukup',        'skor'=>2],
-            ['label'=>'Baik',         'skor'=>3],
-            ['label'=>'Sangat Baik',  'skor'=>4],
+            ['label'=>'>80k',  'skor'=>1, 'min_val'=>80000,  'max_val'=>150000],
+            ['label'=>'61-80k', 'skor'=>2, 'min_val'=>61000, 'max_val'=>80000],
+            ['label'=>'40k-60k', 'skor'=>3, 'min_val'=>40000, 'max_val'=>60000],
+            ['label'=>'<40k',  'skor'=>4, 'min_val'=>10000, 'max_val'=>40000],
         ], true);
 
-        /* C4: Hafalan Al-Qur’an (benefit) — URUT 1→4 (sesuai permintaanmu) */
+        
         $add('C4', [
-            ['label'=>'1/2 Juz', 'skor'=>1],
-            ['label'=>'1 Juz',   'skor'=>2],
-            ['label'=>'2 Juz',   'skor'=>3],
-            ['label'=>'> 2 Juz', 'skor'=>4],
+            ['label'=>'Terdapat Kandungan Paraben dan Fragrance', 'skor'=>1],
+            ['label'=>'Terdapat Kandungan Paraben',   'skor'=>2],
+            ['label'=>'Terdapat Kandungan Fragrance',   'skor'=>3],
+            ['label'=>'Tidak Terdapat Kandungan Paraben dan Fragrance', 'skor'=>4],
         ], true);
 
-        /* C5: Ekstrakurikuler (benefit) — URUT 1→4 */
+        
         $add('C5', [
-            ['label'=>'Tidak Aktif',                'skor'=>1],
-            ['label'=>'Kurang Aktif',               'skor'=>2],
-            ['label'=>'Aktif (1 kegiatan)',         'skor'=>3],
-            ['label'=>'Sangat Aktif (≥2 kegiatan)', 'skor'=>4],
+            ['label'=>'Menimbulkan Whitecast dan Comedogenic',                'skor'=>1],
+            ['label'=>'Menimbulkan Comedogenic',               'skor'=>2],
+            ['label'=>'Menimbulkan Whitecast',         'skor'=>3],
+            ['label'=>'Tidak Menimbulkan Whitecast dan Comedogenic', 'skor'=>4],
         ], true);
 
-        /* C6: Kehadiran (benefit) — URUT 1→4 */
+       
         $add('C6', [
-            ['label'=>'≤ 85%',  'skor'=>1, 'min_val'=>0,  'max_val'=>85],
-            ['label'=>'86–90%', 'skor'=>2, 'min_val'=>86, 'max_val'=>90],
-            ['label'=>'91–95%', 'skor'=>3, 'min_val'=>91, 'max_val'=>95],
-            ['label'=>'≥ 96%',  'skor'=>4, 'min_val'=>96, 'max_val'=>100],
+            ['label'=>'Spray', 'skor'=>1],
+            ['label'=>'Lotion',   'skor'=>2],
+            ['label'=>'Gel',   'skor'=>3],
+            ['label'=>'Krim', 'skor'=>4],
+        ], true);
+        $add('C7', [
+            ['label'=>'15-25 ml',  'skor'=>1, 'min_val'=>15,  'max_val'=>25],
+            ['label'=>'26-40 ml', 'skor'=>2, 'min_val'=>26, 'max_val'=>40],
+            ['label'=>'41-55 ml', 'skor'=>3, 'min_val'=>41, 'max_val'=>55],
+            ['label'=>'>55 ml',  'skor'=>4, 'min_val'=>56, 'max_val'=>100],
         ], true);
     }
 }
