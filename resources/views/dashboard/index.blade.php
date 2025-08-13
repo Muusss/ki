@@ -2,64 +2,14 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Page Heading dengan Filter -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            @if(auth()->user()->role !== 'wali_kelas')
-            <!-- Filter Kelas untuk Admin -->
-            <div class="ms-3">
-                <select class="form-select form-select-sm" id="filterKelas" onchange="filterByKelas()">
-                    <option value="all" {{ $kelasFilter == 'all' ? 'selected' : '' }}>Semua Kelas</option>
-                    @foreach($kelasList as $kelas)
-                        <option value="{{ $kelas }}" {{ $kelasFilter == $kelas ? 'selected' : '' }}>
-                            Kelas {{ $kelas }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            @else
-            <!-- Badge untuk Wali Kelas -->
-            <span class="badge bg-info ms-3">Kelas {{ auth()->user()->kelas }}</span>
-            @endif
-        </div>
+        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
         <a href="{{ route('spk.proses') }}" class="btn btn-custom btn-custom-primary">
             <i class="bi bi-calculator me-2"></i>Proses Perhitungan
         </a>
     </div>
 
-    <!-- Info Box Filter -->
-    @if($kelasFilter && $kelasFilter !== 'all')
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <i class="bi bi-funnel me-2"></i>
-        Menampilkan data untuk <strong>Kelas {{ $kelasFilter }}</strong>
-        @if(auth()->user()->role !== 'wali_kelas')
-        <a href="{{ route('dashboard') }}" class="btn btn-sm btn-light ms-2">
-            <i class="bi bi-x-circle"></i> Reset Filter
-        </a>
-        @endif
     </div>
-    @endif
-
-    <!-- Stats Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="stat-card primary">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-muted">
-                            Total Siswa
-                        </div>
-                        <div class="h4 mb-0 font-weight-bold">{{ $jumlahSiswa ?? 0 }}</div>
-                        <small class="text-muted">
-                            {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : 'Semua Kelas' }}
-                        </small>
-                    </div>
-                    <div class="icon">
-                        <i class="bi bi-people"></i>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
@@ -70,8 +20,7 @@
                             Kriteria Penilaian
                         </div>
                         <div class="h4 mb-0 font-weight-bold">{{ $jumlahKriteria ?? 0 }}</div>
-                        <small class="text-muted">Aktif</small>
-                    </div>
+                        </div>
                     <div class="icon">
                         <i class="bi bi-list-check"></i>
                     </div>
@@ -87,10 +36,7 @@
                             Data Penilaian
                         </div>
                         <div class="h4 mb-0 font-weight-bold">{{ $jumlahPenilaian ?? 0 }}</div>
-                        <small class="text-muted">
-                            {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : 'Terisi' }}
-                        </small>
-                    </div>
+                        </div>
                     <div class="icon">
                         <i class="bi bi-clipboard-data"></i>
                     </div>
@@ -103,18 +49,15 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-xs font-weight-bold text-uppercase mb-1 text-muted">
-                            Siswa Teladan
+                            Produk Teratas
                         </div>
                         @php
                             $first = $nilaiAkhir->first();
-                            $topName = $first ? $first->alternatif->nama_siswa : '-';
+                            $topName = $first ? $first->alternatif->nama_produk : '-';
                         @endphp
                         <div class="h5 mb-0 font-weight-bold">{{ $topName }}</div>
                         @if($first)
-                            <small class="text-muted">
-                                Peringkat 1 {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : '' }}
-                            </small>
-                        @endif
+                            @endif
                     </div>
                     <div class="icon">
                         <i class="bi bi-trophy"></i>
@@ -131,8 +74,8 @@
             <div class="custom-table">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        Grafik Nilai Siswa 
-                        {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : '' }}
+                        Grafik Nilai Produk 
+                        
                     </h6>
                 </div>
                 <div id="chart_peringkat" style="min-height: 350px;"></div>
@@ -143,10 +86,10 @@
         <div class="col-xl-4 col-lg-5">
             <div class="custom-table">
                 <h6 class="m-0 font-weight-bold text-primary mb-3">
-                    Top 5 Siswa Teladan
-                    {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : '' }}
+                    Top 5 Produk Teratas
+                    
                 </h6>
-                @forelse($top5 ?? [] as $index => $siswa)
+                @forelse($top5 ?? [] as $index => $item)
                     <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
                         <div class="me-3">
                             @if($index == 0)
@@ -158,12 +101,8 @@
                             @endif
                         </div>
                         <div class="flex-grow-1">
-                            <h6 class="mb-0">{{ $siswa->alternatif->nama_siswa ?? '-' }}</h6>
-                            <small class="text-muted">
-                                {{ $siswa->alternatif->kelas ?? '-' }} | 
-                                NIS: {{ $siswa->alternatif->nis ?? '-' }}
-                            </small>
-                        </div>
+                            <h6 class="mb-0">{{ $item->alternatif->nama_produk ?? '-' }}</h6>
+                            </div>
                         <div>
                             <span class="badge bg-primary">
                                 {{ number_format((float) ($siswa->total ?? 0), 3) }}
@@ -183,8 +122,8 @@
             <div class="custom-table">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        Hasil Perankingan Siswa 
-                        {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : '' }}
+                        Hasil Perankingan Produk 
+                        
                     </h6>
                     <div>
                         <button class="btn btn-sm btn-info" onclick="exportToExcel()">
@@ -200,37 +139,36 @@
                         <thead>
                             <tr>
                                 <th>Rank</th>
-                                <th>NIS</th>
-                                <th>Nama Siswa</th>
-                                <th>Kelas</th>
-                                <th>JK</th>
+                                <th>Kode</th>
+                                <th>Nama Produk</th>
+                                <th>Jenis Kulit</th>
+                                
                                 <th>Nilai Total</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($nilaiAkhir as $row)
-                                <tr class="{{ $row->peringkat_kelas <= 3 ? 'table-success' : '' }}">
+                                <tr class="{{ $loop->iteration <= 3 ? 'table-success' : '' }}">
                                     <td>
-                                        <span class="badge bg-{{ $row->peringkat_kelas == 1 ? 'warning text-dark' : ($row->peringkat_kelas <= 3 ? 'info' : 'secondary') }}">
-                                            {{ $row->peringkat_kelas }}
+                                        <span class="badge bg-{{ $loop->iteration == 1 ? 'warning text-dark' : ($loop->iteration <= 3 ? 'info' : 'secondary') }}">
+                                            {{ $loop->iteration }}
                                         </span>
                                     </td>
-                                    <td>{{ $row->alternatif->nis ?? '-' }}</td>
-                                    <td><strong>{{ $row->alternatif->nama_siswa ?? '-' }}</strong></td>
+                                    <td>{{ $row->alternatif->kode_produk ?? '-' }}</td>
+                                    <td><strong>{{ $row->alternatif->nama_produk ?? '-' }}</strong></td>
                                     <td>
-                                        <span class="badge bg-primary">{{ $row->alternatif->kelas ?? '-' }}</span>
+                                        <span class="badge bg-primary">{{ $row->alternatif->jenis_kulit ?? '-' }}</span>
                                     </td>
-                                    <td>{{ $row->alternatif->jk ?? '-' }}</td>
                                     <td>
                                         <span class="badge bg-success">
                                             {{ number_format((float) ($row->total ?? 0), 4) }}
                                         </span>
                                     </td>
                                     <td>
-                                        @if($row->peringkat_kelas == 1)
-                                            <span class="badge bg-success">Siswa Teladan</span>
-                                        @elseif($row->peringkat_kelas <= 3)
+                                        @if($loop->iteration == 1)
+                                            <span class="badge bg-success">Produk Teratas</span>
+                                        @elseif($loop->iteration <= 3)
                                             <span class="badge bg-info">Nominasi</span>
                                         @else
                                             <span class="badge bg-light text-dark">Partisipan</span>
@@ -253,10 +191,7 @@
 
 @section('js')
 <script>
-// Filter by Kelas
-function filterByKelas() {
-    const kelas = document.getElementById('filterKelas').value;
-    window.location.href = '{{ route("dashboard") }}?kelas=' + kelas;
+;
 }
 
 // Export functions
@@ -266,12 +201,7 @@ function exportToExcel() {
 }
 
 function exportToPDF() {
-    const kelas = '{{ $kelasFilter }}';
-    const url = kelas && kelas !== 'all' 
-        ? '{{ route("pdf.hasilAkhir") }}?kelas=' + kelas
-        : '{{ route("pdf.hasilAkhir") }}';
-    window.open(url, '_blank');
-}
+    window.open('{{ route("pdf.hasilAkhir") }}', '_blank');}
 
 $(document).ready(function() {
     // Chart

@@ -9,9 +9,6 @@ use App\Models\Kriteria;
 
 class SubKriteriaController extends Controller
 {
-    // public function __construct() { $this->middleware(['auth','admin']); }
-
-    // app/Http/Controllers/SubKriteriaController.php
     public function index()
     {
         $title = 'Data Sub Kriteria';

@@ -7,8 +7,8 @@
     <title>Laravel SMART | {{ $title ?? 'Dashboard' }}</title>
     
     <!-- Update favicon dengan logo baru -->
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/logo-yac.png') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('img/logo-yac.png') }}" />
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/logo-ss.png') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-ss.png') }}" />
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,8 +23,8 @@
     <style>
         :root {
             --sidebar-width: 250px;
-            --primary-color: #4e73df;
-            --primary-dark: #2e59d9;
+            --primary-color: #ff99cc;   /* Pink muda utama */
+            --primary-dark: #ff66b2;    /* Pink sedikit lebih gelap */
             --secondary-color: #858796;
             --success-color: #1cc88a;
             --info-color: #36b9cc;
@@ -404,7 +404,7 @@
 
         .btn-custom-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 153, 204, 0.3);
             color: white;
         }
 
@@ -448,9 +448,9 @@
     <nav class="sidebar" id="sidebar">
         <div class="logo-section">
             <!-- Update logo di sidebar -->
-            <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
-            <h5>SPK SDIT As Sunnah</h5>
-            <small style="color: rgba(255,255,255,0.8); font-size: 0.75rem;">Cirebon</small>
+            <img src="{{ asset('img/logo-ss.png') }}" alt="Logo SS">
+            <h5>ReGlow</h5>
+            <small style="color: rgba(255,255,255,0.8); font-size: 0.75rem;">Beauty Inside and Outside</small>
         </div>
         
         <div class="sidebar-menu">
@@ -482,7 +482,13 @@
             <div class="nav-item">
                 <a href="{{ route('alternatif') }}" class="nav-link {{ request()->routeIs('alternatif*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i>
-                    <span>Data Siswa</span>
+                    <span>Data Produk</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ route('permintaan') }}" class="nav-link {{ request()->routeIs('permintaan*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i>
+                    <span>Permintaan</span>
                 </a>
             </div>
             
@@ -580,30 +586,21 @@
                 <div class="footer-left">
                 <div class="footer-logo">
                     <!-- Update logo di footer -->
-                    <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
+                    <img src="{{ asset('img/logo-ss.png') }}" alt="Logo YAC">
                     <div class="footer-logo-text">
-                        <h6>SDIT As Sunnah Cirebon</h6>
-                        <p>Yayasan As Sunnah Cirebon</p>
+                        <h6>ReGlow</h6>
+                        <p>Beuty Inside and Outside</p>
                     </div>
                 </div>
                     
-                    <div class="footer-links">
-                        <a href="{{ route('dashboard') }}">Dashboard</a>
-                        <a href="{{ route('alternatif') }}">Data Siswa</a>
-                        <a href="{{ route('perhitungan') }}">Perhitungan</a>
-                        <a href="{{ route('hasil-akhir') }}">Hasil</a>
-                    </div>
                 </div>
                 
                 <div class="footer-right">
                     <div class="footer-social">
-                        <a href="https://web.facebook.com/assunnahcirebonofficial" title="Facebook">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="https://www.instagram.com/assunnahcirebonofficial/" title="Instagram">
+                        <a href="https://www.instagram.com/creme.boba29?igsh=MWIwaDBjaDY1cnlrNQ%3D%3D&utm_source=qr" title="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
-                        <a href="https://www.youtube.com/@Assunnahcirebonofficial" title="YouTube">
+                        <a href="https://youtube.com/@selvyajyt4062?si=j1tdCzgXoK6I6I2w" title="YouTube">
                             <i class="bi bi-youtube"></i>
                         </a>
                     </div>
@@ -620,7 +617,7 @@
                 <small class="text-muted">
                     <i class="bi bi-code-slash me-1"></i>
                     Developed with <i></i> by 
-                    <strong>SDIT As Sunnah Cirebon</strong> | 
+                    <strong>Selvya</strong> | 
                     Metode ROC & SMART | 
                     Laravel v{{ Illuminate\Foundation\Application::VERSION }}
                 </small>

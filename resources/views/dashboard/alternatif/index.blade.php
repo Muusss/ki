@@ -2,121 +2,53 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex align-items-center">
-        <h3 class="mb-0">Data Siswa</h3>
-        @if(auth()->user()->role !== 'wali_kelas')
-        <!-- Filter Kelas untuk Admin -->
-        <div class="ms-3">
-            <select class="form-select form-select-sm" id="filterKelas" onchange="filterByKelas()">
-                <option value="all" {{ $kelasFilter == 'all' ? 'selected' : '' }}>Semua Kelas</option>
-                @foreach($kelasList as $kelas)
-                    <option value="{{ $kelas }}" {{ $kelasFilter == $kelas ? 'selected' : '' }}>
-                        Kelas {{ $kelas }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        @else
-        <span class="badge bg-info ms-3">Kelas {{ auth()->user()->kelas }}</span>
-        @endif
-    </div>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="create_button()">
-        Tambah Siswa
-    </button>
-</div>
-
-<!-- Statistik per Kelas -->
-<div class="row mb-3">
-    @php
-        $stats = $alternatif->groupBy('kelas')->map(function($group, $kelas) {
-            return [
-                'total' => $group->count(),
-                'lk' => $group->where('jk', 'Lk')->count(),
-                'pr' => $group->where('jk', 'Pr')->count()
-            ];
-        });
-    @endphp
-    
-    @if($kelasFilter && $kelasFilter !== 'all')
-        <!-- Tampilkan stat untuk kelas terfilter -->
-        @if(isset($stats[$kelasFilter]))
-        <div class="col-md-12">
-            <div class="alert alert-info">
-                <strong>Kelas {{ $kelasFilter }}:</strong> 
-                Total {{ $stats[$kelasFilter]['total'] }} siswa 
-                ({{ $stats[$kelasFilter]['lk'] }} Laki-laki, {{ $stats[$kelasFilter]['pr'] }} Perempuan)
-            </div>
-        </div>
-        @endif
-    @else
-        <!-- Tampilkan semua stat kelas -->
-        @foreach(['6A', '6B', '6C', '6D'] as $kelas)
-            <div class="col-md-3">
-                <div class="card mb-2">
-                    <div class="card-body p-3">
-                        <h6 class="card-title mb-0">Kelas {{ $kelas }}</h6>
-                        <p class="mb-0">
-                            <small>
-                                Total: {{ $stats[$kelas]['total'] ?? 0 }} siswa<br>
-                                L: {{ $stats[$kelas]['lk'] ?? 0 }}, P: {{ $stats[$kelas]['pr'] ?? 0 }}
-                            </small>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    @endif
+  <h3 class="mb-0">{{ $title ?? 'Data Produk Sunscreen' }}</h3>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="create_button()">
+    Tambah Produk
+  </button>
 </div>
 
 <div class="card">
   <div class="card-body">
     <div class="table-responsive">
-      <table id="myTable" class="table table-striped table-bordered w-100">
+      <table id="tblAlternatif" class="table table-striped table-bordered w-100 datatable">
         <thead>
           <tr>
             <th>#</th>
-            <th>NIS</th>
-            <th>Nama Siswa</th>
-            <th>JK</th>
-            <th>Kelas</th>
+            <th>Kode</th>
+            <th>Nama Produk</th>
+            <th>Jenis Kulit</th>
             <th style="width:130px;">Aksi</th>
           </tr>
         </thead>
         <tbody>
-        @forelse ($alternatif as $s)
-            <tr>
+        @forelse ($alternatif as $row)
+          <tr>
             <td>{{ $loop->iteration }}</td>
-            <td>{{ $s->nis }}</td>
-            <td>{{ $s->nama_siswa }}</td>
-            <td>
-                <span class="badge bg-{{ $s->jk == 'Lk' ? 'primary' : 'danger' }}">
-                    {{ $s->jk }}
-                </span>
-            </td>
-            <td>
-                <span class="badge bg-success">{{ $s->kelas }}</span>
-            </td>
+            <td><span class="badge bg-primary">{{ $row->kode_produk }}</span></td>
+            <td><strong>{{ $row->nama_produk }}</strong></td>
+            <td class="text-capitalize">{{ $row->jenis_kulit }}</td>
             <td class="text-nowrap">
-                <button class="btn btn-sm btn-warning"
-                        data-bs-toggle="modal" data-bs-target="#modalForm"
-                        onclick="show_button({{ $s->id }})">
+              <button class="btn btn-sm btn-warning"
+                      data-bs-toggle="modal" data-bs-target="#modalForm"
+                      onclick="show_button({{ $row->id }})">
                 Edit
-                </button>
-                <form action="{{ route('alternatif.delete') }}" method="POST" class="d-inline" 
-                      onsubmit="return confirm('Hapus siswa ini?')">
+              </button>
+
+              <form action="{{ route('alternatif.delete') }}"
+                    method="POST"
+                    class="d-inline"
+                    onsubmit="return confirm('Hapus produk {{ $row->nama_produk }} ?')">
                 @csrf
-                <input type="hidden" name="id" value="{{ $s->id }}">
+                <input type="hidden" name="id" value="{{ $row->id }}">
                 <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                </form>
+              </form>
             </td>
-            </tr>
+          </tr>
         @empty
-            <tr>
-            <td colspan="6" class="text-center text-muted">
-                Belum ada data siswa
-                {{ $kelasFilter && $kelasFilter !== 'all' ? 'untuk Kelas '.$kelasFilter : '' }}.
-            </td>
-            </tr>
+          <tr>
+            <td colspan="5" class="text-center text-muted">Belum ada data produk.</td>
+          </tr>
         @endforelse
         </tbody>
       </table>
@@ -124,37 +56,117 @@
   </div>
 </div>
 
-<!-- Modal tetap sama -->
+{{-- Modal Create / Edit --}}
+<div class="modal fade" id="modalForm" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <form id="formAlternatif" method="POST" action="{{ route('alternatif.store') }}">
+        @csrf
+        <input type="hidden" name="id"> {{-- diisi saat edit --}}
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Tambah Produk</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Kode Produk</label>
+              <input type="text" class="form-control" name="kode_produk" required maxlength="50" placeholder="SPF001">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Nama Produk</label>
+              <input type="text" class="form-control" name="nama_produk" required maxlength="100" placeholder="Nama Sunscreen">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Jenis Kulit</label>
+              <select class="form-select" name="jenis_kulit" required>
+                <option value="" disabled selected>Pilih</option>
+                <option value="normal">Normal</option>
+                <option value="berminyak">Berminyak</option>
+                <option value="kering">Kering</option>
+                <option value="kombinasi">Kombinasi</option>
+                <option value="sensitif">Sensitif</option>
+              </select>
+            </div>
+          </div>
 
+          @if ($errors->any())
+            <div class="alert alert-danger mt-3">
+              <ul class="mb-0">
+                @foreach ($errors->all() as $err)
+                  <li>{{ $err }}</li>
+                @endforeach
+              </ul>
+            </div>
+          @endif
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmit">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('js')
 <script>
-// Filter function
-function filterByKelas() {
-    const kelas = document.getElementById('filterKelas').value;
-    window.location.href = '{{ route("alternatif") }}?kelas=' + kelas;
-}
-
+// Initialize DataTables globally (guarded: tidak re-init)
 $(function () {
-  $('#myTable').DataTable({
-    responsive: true,
-    pagingType: 'full_numbers',
-    order: [[4, 'asc'], [1, 'asc']], // urut Kelas, lalu NIS
-    language: {
-        search: "Cari:",
-        lengthMenu: "Tampilkan _MENU_ data",
-        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-        paginate: {
-            first: "Pertama",
-            last: "Terakhir",
-            next: "Selanjutnya",
-            previous: "Sebelumnya"
+    $('.datatable').each(function () {
+        if (!$.fn.DataTable.isDataTable(this)) {
+            $(this).DataTable({
+                responsive: true,
+                language: {
+                    search: "Cari:",
+                    lengthMenu: "Tampilkan _MENU_ data",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    }
+                }
+            });
         }
-    }
-  });
+    });
 });
 
-// Fungsi create_button dan show_button tetap sama
+
+function create_button() {
+  $('#modalTitle').text('Tambah Produk');
+  $('#formAlternatif').attr('action', '{{ route('alternatif.store') }}');
+  $('#formAlternatif input[name=_method]').remove();
+
+  $('#formAlternatif input[name=id]').val('');
+  $('#formAlternatif input[name=kode_produk]').val('');
+  $('#formAlternatif input[name=nama_produk]').val('');
+  $('#formAlternatif select[name=jenis_kulit]').val('');
+}
+
+function show_button(alternatif_id) {
+  $('#modalTitle').text('Edit Produk');
+  $('#formAlternatif').attr('action', '{{ route('alternatif.update') }}');
+  if (!$('#formAlternatif input[name=_method]').length) {
+    $('#formAlternatif').append('<input type="hidden" name="_method" value="POST">'); // rute update menerima POST
+  }
+  $('#btnSubmit').prop('disabled', true).text('Memuat...');
+
+  $.ajax({
+    type: 'GET',
+    url: '{{ route('alternatif.edit') }}',
+    data: { _token: '{{ csrf_token() }}', alternatif_id: alternatif_id },
+    success: function (d) {
+      $('#formAlternatif input[name=id]').val(d.id);
+      $('#formAlternatif input[name=kode_produk]').val(d.kode_produk);
+      $('#formAlternatif input[name=nama_produk]').val(d.nama_produk);
+      $('#formAlternatif select[name=jenis_kulit]').val(d.jenis_kulit);
+    },
+    error: function () { alert('Gagal memuat data produk.'); },
+    complete: function () { $('#btnSubmit').prop('disabled', false).text('Simpan'); }
+  });
+}
 </script>
 @endsection

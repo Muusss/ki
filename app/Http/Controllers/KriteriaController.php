@@ -15,7 +15,7 @@ class KriteriaController extends Controller
     // app/Http/Controllers/KriteriaController.php
     public function __construct()
     {
-        $this->middleware('admin');
+        $this->middleware('auth');
     }
     public function index() 
     {

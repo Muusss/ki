@@ -1,15 +1,14 @@
 @extends('dashboard.layouts.main')
 
 @section('content')
-@php $isAdmin = auth()->check() && (auth()->user()->role === 'admin'); @endphp
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Data Kriteria</h3>
+  <h3 class="mb-0">{{ $title ?? 'Data Kriteria' }}</h3>
 
-  @if($isAdmin)
+  <div class="d-flex gap-2">
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="create_button()">
       Tambah Kriteria
     </button>
-  @endif
+  </div>
 </div>
 
 <div class="card">
@@ -43,20 +42,26 @@
                 @endif
               </td>
               <td class="text-nowrap">
-                @if($isAdmin)
-                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="show_button({{ $k->id }})">Edit</button>
-                    <form action="{{ route('kriteria.delete') }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus kriteria {{ $k->kode }} ?')">
-                    @csrf
-                    <input type="hidden" name="id" value="{{ $k->id }}">
-                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                    </form>
-                @else
-                    <span class="text-muted">-</span>
-                @endif
+                <button class="btn btn-sm btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalForm"
+                        onclick="show_button({{ $k->id }})">
+                  Edit
+                </button>
+
+                <form action="{{ route('kriteria.delete') }}"
+                      method="POST"
+                      class="d-inline"
+                      onsubmit="return confirm('Hapus kriteria {{ $k->kode }} ?')">
+                  @csrf
+                  <input type="hidden" name="id" value="{{ $k->id }}">
+                  <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                </form>
               </td>
             </tr>
           @endforeach
         </tbody>
+
         @if(isset($sumBobotKriteria))
         <tfoot>
           <tr>
@@ -71,7 +76,7 @@
   </div>
 </div>
 
-{{-- Modal Create / Edit (tetap sama) --}}
+{{-- Modal Create / Edit --}}
 <div class="modal fade" id="modalForm" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -156,6 +161,8 @@ function create_button() {
 function show_button(kriteria_id) {
   $('#modalTitle').text('Edit Kriteria');
   $('#formKriteria').attr('action', '{{ route('kriteria.update') }}');
+
+  // pastikan metode POST (controller.update menerima POST /update)
   if (!$('#formKriteria input[name=_method]').length) {
     $('#formKriteria').append('<input type="hidden" name="_method" value="POST">');
   }
