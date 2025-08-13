@@ -2,7 +2,7 @@
     @csrf
 
     <div class="mb-2">
-        <strong>{{ $alternatif->nis }} - {{ $alternatif->nama_siswa }}</strong>
+        <strong>{{ $alternatif->kode_produk }} - {{ $alternatif->nama_produk }}</strong>
     </div>
 
     <table class="table table-bordered">

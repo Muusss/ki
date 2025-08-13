@@ -6,7 +6,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3>Hasil Akhir Perankingan Siswa Teladan</h3>
+                    <h3>Hasil Akhir Perankingan Produk Terbaik</h3>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
@@ -27,13 +27,13 @@
         </div>
     </div>
 
-    @if($nilaiAkhir && $nilaiAkhir->count() > 0)
+    @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
         <!-- Ringkasan Top 3 -->
         <div class="row mb-4">
             @php
                 $top3 = $nilaiAkhir->take(3);
             @endphp
-            @foreach($top3 as $index => $siswa)
+            @foreach($top3 as $index => $produk)
             <div class="col-md-4">
                 <div class="card {{ $index == 0 ? 'border-warning' : ($index == 1 ? 'border-secondary' : 'border-danger') }} border-2">
                     <div class="card-body text-center">
@@ -49,11 +49,11 @@
                                 <h5 class="mt-2 text-danger">JUARA 3</h5>
                             @endif
                         </div>
-                        <h4 class="card-title">{{ $siswa->alternatif->nama_siswa ?? '-' }}</h4>
-                        <p class="text-muted mb-1">NIS: {{ $siswa->alternatif->nis ?? '-' }}</p>
-                        <p class="text-muted mb-3">Kelas: {{ $siswa->alternatif->kelas ?? '-' }}</p>
-                        <h3 class="text-primary">{{ number_format($siswa->total ?? 0, 4) }}</h3>
-                        <span class="badge bg-success">Siswa Teladan</span>
+                        <h4 class="card-title">{{ $produk->alternatif->nama_produk ?? '-' }}</h4>
+                        <p class="text-muted mb-1">Kode: {{ $produk->alternatif->kode_produk ?? '-' }}</p>
+                        <p class="text-muted mb-3">Jenis Kulit: {{ $produk->alternatif->jenis_kulit ?? '-' }}</p>
+                        <h3 class="text-primary">{{ number_format($produk->total ?? 0, 4) }}</h3>
+                        <span class="badge bg-success">Produk Terbaik</span>
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Tabel Perankingan Siswa Teladan</h5>
+                        <h5 class="mb-0">Tabel Perankingan Produk Sunscreen</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -73,10 +73,9 @@
                                 <thead>
                                     <tr>
                                         <th width="80">Peringkat</th>
-                                        <th>NIS</th>
-                                        <th>Nama Siswa</th>
-                                        <th>Jenis Kelamin</th>
-                                        <th>Kelas</th>
+                                        <th>Kode Produk</th>
+                                        <th>Nama Produk</th>
+                                        <th>Jenis Kulit</th>
                                         <th class="text-center">Total Nilai</th>
                                         <th>Status</th>
                                     </tr>
@@ -101,17 +100,14 @@
                                                 <span class="badge bg-info">{{ $row->peringkat ?? $loop->iteration }}</span>
                                             @endif
                                         </td>
-                                        <td>{{ $row->alternatif->nis ?? '-' }}</td>
+                                        <td>{{ $row->alternatif->kode_produk ?? '-' }}</td>
                                         <td>
-                                            <strong>{{ $row->alternatif->nama_siswa ?? '-' }}</strong>
+                                            <strong>{{ $row->alternatif->nama_produk ?? '-' }}</strong>
                                             @if($loop->iteration == 1)
                                                 <i class="bi bi-star-fill text-warning ms-2"></i>
                                             @endif
                                         </td>
-                                        <td>{{ $row->alternatif->jk ?? '-' }}</td>
-                                        <td>
-                                            <span class="badge bg-primary">{{ $row->alternatif->kelas ?? '-' }}</span>
-                                        </td>
+                                        <td>{{ $row->alternatif->jenis_kulit ?? '-' }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-primary fs-6">
                                                 {{ number_format($row->total ?? 0, 4) }}
@@ -119,7 +115,7 @@
                                         </td>
                                         <td>
                                             @if($loop->iteration == 1)
-                                                <span class="badge bg-success">Siswa Teladan</span>
+                                                <span class="badge bg-success">Produk Terbaik</span>
                                             @elseif($loop->iteration <= 3)
                                                 <span class="badge bg-info">Nominasi</span>
                                             @elseif($loop->iteration <= 10)
@@ -144,7 +140,7 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <h3 class="text-primary">{{ $nilaiAkhir->count() }}</h3>
-                        <p class="text-muted mb-0">Total Siswa</p>
+                        <p class="text-muted mb-0">Total Produk</p>
                     </div>
                 </div>
             </div>
@@ -196,7 +192,7 @@
 @section('js')
 <script>
 $(document).ready(function() {
-    @if($nilaiAkhir && $nilaiAkhir->count() > 0)
+    @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
     $('#tblHasil').DataTable({
         responsive: true,
         pageLength: 25,

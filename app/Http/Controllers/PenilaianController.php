@@ -15,7 +15,7 @@ class PenilaianController extends Controller
 {
     public function index()
     {
-        $alternatif = Alternatif::orderBy('nis')->get();
+        $alternatif = Alternatif::orderBy('kode_produk')->get(); // Ganti dari 'nis' ke 'kode_produk'
         $kriteria   = Kriteria::orderBy('kode')->get();
 
         // Ambil semua penilaian lalu indeks per alternatif dan kriteria
@@ -24,7 +24,6 @@ class PenilaianController extends Controller
 
         return view('dashboard.penilaian.index', compact('alternatif','kriteria','penilaian'));
     }
-
 
     public function edit($id)
     {
@@ -37,8 +36,6 @@ class PenilaianController extends Controller
         }
         return view('dashboard.penilaian.edit', compact('alternatif','kriteria','rows'));
     }
-
-
 
     public function store(PenilaianStoreRequest $request)
     {
@@ -68,7 +65,6 @@ class PenilaianController extends Controller
         return back()->with($row ? 'success' : 'error', $row ? 'Nilai tersimpan.' : 'Gagal menyimpan nilai.');
     }
 
-    // PenilaianController.php
     public function update(Request $request, $id)
     {
         $alternatif = Alternatif::findOrFail($id);
@@ -88,7 +84,6 @@ class PenilaianController extends Controller
         // JANGAN pakai back(); supaya balik ke tabel dan render ulang
         return redirect()->route('penilaian')->with('success', 'Penilaian disimpan.');
     }
-
 
     private function resolveSubAndSkor(int $kriteriaId, ?float $nilaiAngka, ?int $subId, ?string $label): array
     {

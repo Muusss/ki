@@ -27,7 +27,7 @@
           </tr>
         </thead>
         <tbody>
-        @forelse ($permintaan as $row)
+        @forelse (($permintaan ?? []) as $row)
           <tr>
             <td>{{ $loop->iteration }}</td>
             <td><strong>{{ $row->nama_produk }}</strong></td>
@@ -46,7 +46,7 @@
               <button class="btn btn-sm btn-warning"
                       data-bs-toggle="modal"
                       data-bs-target="#modalForm"
-                      onclick="openEdit({{ $row->id }}, @json($row->nama_produk), @json($row->komposisi), @json($row->harga), @json($row->spf))">
+                      onclick="openEdit({{ $row->id }}, @js($row->nama_produk), @js($row->komposisi), @js($row->harga), @js($row->spf))">
                 Edit
               </button>
 

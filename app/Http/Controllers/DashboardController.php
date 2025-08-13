@@ -15,47 +15,77 @@ class DashboardController extends Controller
     {
         $title = 'Dashboard';
         
-        // Tidak perlu filter kelas lagi
-        $jumlahProduk = Alternatif::count();
-        $jumlahKriteria = Kriteria::count();
-        $jumlahPenilaian = Penilaian::count();
+        try {
+            // Statistik dasar
+            $jumlahProduk = Alternatif::count();
+            $jumlahKriteria = Kriteria::count();
+            $jumlahPenilaian = Penilaian::count();
 
-        // Ranking produk
-        $nilaiAkhir = NilaiAkhir::with(['alternatif:id,kode_produk,nama_produk,jenis_kulit'])
-            ->orderByDesc('total')
-            ->get(['id','alternatif_id','total','peringkat']);
+            // Ranking produk - dengan pengecekan data
+            $nilaiAkhir = collect();
+            $top5 = collect();
+            $chartLabels = [];
+            $chartSeries = [];
 
-        // Top 5 produk
-        $top5 = $nilaiAkhir->take(5);
+            // Cek apakah ada data nilai akhir
+            if (NilaiAkhir::count() > 0) {
+                $nilaiAkhir = NilaiAkhir::with('alternatif')
+                    ->orderByDesc('total')
+                    ->get();
 
-        // Data untuk chart
-        $chartLabels = [];
-        $chartSeries = [];
-        foreach ($nilaiAkhir->take(10) as $row) {
-            $chartLabels[] = $row->alternatif->nama_produk ?? ('Produk '.$row->alternatif_id);
-            $chartSeries[] = round((float) $row->total, 3);
+                // Top 5 produk
+                $top5 = $nilaiAkhir->take(5);
+
+                // Data untuk chart
+                foreach ($nilaiAkhir->take(10) as $row) {
+                    if ($row->alternatif) {
+                        $chartLabels[] = $row->alternatif->nama_produk ?? ('Produk '.$row->alternatif_id);
+                        $chartSeries[] = round((float) ($row->total ?? 0), 3);
+                    }
+                }
+            }
+
+            return view('dashboard.index', compact(
+                'title',
+                'jumlahProduk',
+                'jumlahKriteria',
+                'jumlahPenilaian',
+                'nilaiAkhir',
+                'top5',
+                'chartLabels',
+                'chartSeries'
+            ));
+
+        } catch (\Exception $e) {
+            // Jika ada error, return dengan data kosong
+            return view('dashboard.index', [
+                'title' => 'Dashboard',
+                'jumlahProduk' => 0,
+                'jumlahKriteria' => 0,
+                'jumlahPenilaian' => 0,
+                'nilaiAkhir' => collect(),
+                'top5' => collect(),
+                'chartLabels' => [],
+                'chartSeries' => []
+            ]);
         }
-
-        return view('dashboard.index', compact(
-            'title',
-            'jumlahProduk',
-            'jumlahKriteria',
-            'jumlahPenilaian',
-            'nilaiAkhir',
-            'top5',
-            'chartLabels',
-            'chartSeries'
-        ));
     }
 
     public function hasilAkhir(Request $request)
     {
         $title = 'Hasil Akhir';
         
-        $nilaiAkhir = NilaiAkhir::with('alternatif')
-            ->orderByDesc('total')
-            ->get();
+        try {
+            $nilaiAkhir = NilaiAkhir::with('alternatif')
+                ->orderByDesc('total')
+                ->get();
 
-        return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir'));
+            return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir'));
+        } catch (\Exception $e) {
+            return view('dashboard.hasil-akhir.index', [
+                'title' => 'Hasil Akhir',
+                'nilaiAkhir' => collect()
+            ]);
+        }
     }
 }

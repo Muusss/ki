@@ -8,26 +8,30 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            {{-- resources/views/dashboard/penilaian/index.blade.php --}}
             <table id="tblPenilaian" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Alternatif</th>
-                        @foreach($kriteria as $k)
+                        @forelse(($kriteria ?? []) as $k)
                             <th class="text-center">{{ $k->kriteria }}</th>
-                        @endforeach
+                        @empty
+                            <th class="text-center">Kriteria</th>
+                        @endforelse
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                @foreach($alternatif as $alt)
+                @forelse(($alternatif ?? []) as $alt)
                     <tr>
-                        <td>{{ $alt->nis }} - {{ $alt->nama_siswa }}</td>
+                        <td>{{ $alt->kode_produk }} - {{ $alt->nama_produk }}</td>
 
-                        @foreach($kriteria as $k)
+                        @forelse(($kriteria ?? []) as $k)
                             @php
-                                // Ambil baris penilaian utk alternatif & kriteria (aman utk array/koleksi/null)
-                                $row = collect(data_get($penilaian, "{$alt->id}.{$k->id}", []))->first();
+                                // Ambil baris penilaian untuk alternatif & kriteria
+                                $row = null;
+                                if (isset($penilaian) && isset($penilaian[$alt->id][$k->id])) {
+                                    $row = collect($penilaian[$alt->id][$k->id])->first();
+                                }
                             @endphp
                             <td class="text-center">
                                 @if($row && $row->nilai_asli !== null)
@@ -36,18 +40,26 @@
                                     -
                                 @endif
                             </td>
-                        @endforeach
+                        @empty
+                            <td class="text-center">-</td>
+                        @endforelse
 
                         <td class="text-center">
                             <button
                                 type="button"
                                 class="btn btn-sm btn-warning"
-                                onclick="editPenilaian({{ $alt->id }}, @js($alt->nama_siswa))">
+                                onclick="editPenilaian({{ $alt->id }}, @js($alt->nama_produk))">
                                 Edit
                             </button>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="{{ 2 + (isset($kriteria) ? $kriteria->count() : 0) }}" class="text-center">
+                            Belum ada data alternatif
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
@@ -60,7 +72,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    Edit Penilaian: <span id="nama_siswa">-</span>
+                    Edit Penilaian: <span id="nama_produk">-</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
@@ -74,9 +86,9 @@
 
 @section('js')
 <script>
-function editPenilaian(alternatifId, namaSiswa) {
+function editPenilaian(alternatifId, namaProduk) {
     const $modal = $('#modalPenilaian');
-    $modal.find('#nama_siswa').text(namaSiswa);
+    $modal.find('#nama_produk').text(namaProduk);
     $modal.find('.modal-body').html('<div class="text-center py-4">Memuat formulir...</div>');
     $modal.modal('show');
 
@@ -108,4 +120,3 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endsection
-

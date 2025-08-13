@@ -58,31 +58,110 @@ class Penilaian extends Model
         $this->attributes['nilai_asli'] = max(1, min(4, $v));
     }
 
-    // Update method tanpa parameter User
+    /**
+     * Normalisasi SMART dengan pembedaan benefit dan cost
+     * 
+     * @param int|null $periodeId
+     * @return void
+     */
     public static function normalisasiSMART(?int $periodeId = null): void
     {
         $kriterias = Kriteria::all();
-        foreach ($kriterias as $kr) {
-            $q = static::query()
-                ->where('kriteria_id', $kr->id)
+        
+        foreach ($kriterias as $kriteria) {
+            // Ambil semua penilaian untuk kriteria ini
+            $query = static::query()
+                ->where('kriteria_id', $kriteria->id)
                 ->periode($periodeId);
 
-            $min = (clone $q)->min('nilai_asli');
-            $max = (clone $q)->max('nilai_asli');
+            $min = (clone $query)->min('nilai_asli');
+            $max = (clone $query)->max('nilai_asli');
 
-            $rows = $q->get(['id','nilai_asli']);
+            $rows = $query->get(['id', 'nilai_asli']);
+            
             if ($rows->isEmpty()) continue;
 
             foreach ($rows as $row) {
+                $nilaiUtility = 0;
+                
                 if ($max == $min) {
-                    $u = 1.0;
+                    // Jika semua nilai sama, utility = 1
+                    $nilaiUtility = 1.0;
                 } else {
-                    $u = ($kr->atribut === 'cost')
-                        ? ($max - $row->nilai_asli) / ($max - $min)
-                        : ($row->nilai_asli - $min) / ($max - $min);
+                    // Hitung utility berdasarkan jenis kriteria
+                    if ($kriteria->atribut === 'benefit') {
+                        // Untuk kriteria benefit: semakin tinggi semakin baik
+                        // Formula: (Xi - Xmin) / (Xmax - Xmin)
+                        $nilaiUtility = ($row->nilai_asli - $min) / ($max - $min);
+                    } else {
+                        // Untuk kriteria cost: semakin rendah semakin baik
+                        // Formula: (Xmax - Xi) / (Xmax - Xmin)
+                        $nilaiUtility = ($max - $row->nilai_asli) / ($max - $min);
+                    }
                 }
-                static::where('id', $row->id)->update(['nilai_normal' => round($u, 6)]);
+
+                // Update nilai normal dengan hasil perhitungan utility
+                static::where('id', $row->id)->update([
+                    'nilai_normal' => round($nilaiUtility, 6)
+                ]);
             }
         }
+    }
+
+    /**
+     * Hitung utility untuk satu nilai spesifik
+     * 
+     * @param float $nilai
+     * @param float $min
+     * @param float $max
+     * @param string $atribut ('benefit' atau 'cost')
+     * @return float
+     */
+    public static function hitungUtility(float $nilai, float $min, float $max, string $atribut): float
+    {
+        if ($max == $min) {
+            return 1.0;
+        }
+
+        if ($atribut === 'benefit') {
+            // Benefit: nilai tinggi = utility tinggi
+            return ($nilai - $min) / ($max - $min);
+        } else {
+            // Cost: nilai rendah = utility tinggi
+            return ($max - $nilai) / ($max - $min);
+        }
+    }
+
+    /**
+     * Get informasi normalisasi untuk debugging
+     * 
+     * @return array
+     */
+    public static function getInfoNormalisasi(): array
+    {
+        $kriterias = Kriteria::all();
+        $info = [];
+
+        foreach ($kriterias as $kriteria) {
+            $penilaians = static::where('kriteria_id', $kriteria->id)->get();
+            
+            if ($penilaians->isEmpty()) continue;
+
+            $min = $penilaians->min('nilai_asli');
+            $max = $penilaians->max('nilai_asli');
+
+            $info[] = [
+                'kriteria' => $kriteria->kode . ' - ' . $kriteria->kriteria,
+                'atribut' => $kriteria->atribut,
+                'min' => $min,
+                'max' => $max,
+                'range' => $max - $min,
+                'formula' => $kriteria->atribut === 'benefit' 
+                    ? '(Xi - ' . $min . ') / (' . $max . ' - ' . $min . ')'
+                    : '(' . $max . ' - Xi) / (' . $max . ' - ' . $min . ')'
+            ];
+        }
+
+        return $info;
     }
 }

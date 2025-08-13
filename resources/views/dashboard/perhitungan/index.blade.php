@@ -16,7 +16,6 @@
                 </div>
                 
                 {{-- Tombol Proses ROC + SMART --}}
-                @if(auth()->user()->role === 'admin')
                 <div class="d-flex gap-2">
                     <button class="btn btn-success" onclick="prosesROCSMART()">
                         <i class="bi bi-calculator"></i> Proses ROC + SMART
@@ -25,7 +24,6 @@
                         <i class="bi bi-file-pdf"></i> Cetak PDF
                     </a>
                 </div>
-                @endif
             </div>
         </div>
     </div>
@@ -38,7 +36,7 @@
                     <div class="steps-progress">
                         <div class="step-item completed">
                             <div class="step-number">1</div>
-                            <div class="step-title">Data Siswa</div>
+                            <div class="step-title">Data Produk</div>
                         </div>
                         <div class="step-item completed">
                             <div class="step-number">2</div>
@@ -71,7 +69,7 @@
                 <ul class="mb-0 mt-2">
                     <li>Bobot kriteria dengan metode ROC (Rank Order Centroid)</li>
                     <li>Normalisasi nilai dengan metode SMART</li>
-                    <li>Nilai akhir dan perankingan siswa</li>
+                    <li>Nilai akhir dan perankingan produk</li>
                 </ul>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -91,30 +89,40 @@
                             <tr>
                                 <th>Kode</th>
                                 <th>Kriteria</th>
+                                <th>Atribut</th>
                                 <th>Prioritas</th>
                                 <th>Bobot ROC</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($kriteria as $k)
+                            @forelse(($kriteria ?? []) as $k)
                             <tr>
                                 <td>{{ $k->kode }}</td>
                                 <td>{{ $k->kriteria }}</td>
+                                <td>
+                                    <span class="badge bg-{{ $k->atribut === 'benefit' ? 'success' : 'warning' }}">
+                                        {{ ucfirst($k->atribut) }}
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="badge bg-info">{{ $k->urutan_prioritas }}</span>
                                 </td>
                                 <td>
                                     <span class="badge bg-success">
-                                        {{ number_format($k->bobot_roc, 4) }}
+                                        {{ number_format($k->bobot_roc ?? 0, 4) }}
                                     </span>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center">Belum ada data kriteria</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                         <tfoot>
                             <tr class="table-active">
                                 <th colspan="3">Total Bobot</th>
-                                <th>{{ number_format($sumBobotKriteria, 4) }}</th>
+                                <th>{{ number_format(($sumBobotKriteria ?? 0), 4) }}</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -126,7 +134,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Formula ROC</h5>
+                    <h5 class="mb-0">Formula ROC & SMART</h5>
                 </div>
                 <div class="card-body">
                     <div class="formula-box">
@@ -134,18 +142,28 @@
                         <div class="text-center my-3">
                             <code>W_m = (1/m) × Σ(1/i)</code>
                         </div>
-                        <p class="small">Dimana:</p>
-                        <ul class="small">
-                            <li>W<sub>m</sub> = Bobot kriteria ke-m</li>
-                            <li>m = Jumlah total kriteria ({{ $kriteria->count() }})</li>
-                            <li>i = Urutan prioritas kriteria</li>
-                        </ul>
                         
-                        <div class="alert alert-success mt-3">
-                            <strong>Contoh Perhitungan C1:</strong><br>
-                            W<sub>1</sub> = (1/1 + 1/2 + 1/3 + 1/4 + 1/5 + 1/6) / 6<br>
-                            W<sub>1</sub> = 2.45 / 6 = 0.4083
+                        <h6 class="mt-4">Rumus SMART Normalisasi:</h6>
+                        <div class="my-3">
+                            <strong>Benefit (semakin tinggi semakin baik):</strong><br>
+                            <code>U_i = (X_i - X_min) / (X_max - X_min)</code><br><br>
+                            
+                            <strong>Cost (semakin rendah semakin baik):</strong><br>
+                            <code>U_i = (X_max - X_i) / (X_max - X_min)</code>
                         </div>
+                        
+                        @if(isset($infoNormalisasi) && count($infoNormalisasi) > 0)
+                        <div class="alert alert-success mt-3">
+                            <strong>Info Perhitungan per Kriteria:</strong>
+                            @foreach($infoNormalisasi as $info)
+                            <div class="mt-2">
+                                <strong>{{ $info['kriteria'] }}</strong> ({{ ucfirst($info['atribut']) }})<br>
+                                <small>Range: {{ $info['min'] }} - {{ $info['max'] }}</small><br>
+                                <small>Formula: {{ $info['formula'] }}</small>
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -165,27 +183,29 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th rowspan="2">No</th>
-                                    <th rowspan="2">Nama Siswa</th>
-                                    <th colspan="{{ $kriteria->count() }}" class="text-center">
+                                    <th rowspan="2">Nama Produk</th>
+                                    <th colspan="{{ isset($kriteria) ? $kriteria->count() : 0 }}" class="text-center">
                                         Nilai Normalisasi (0-1)
                                     </th>
                                 </tr>
                                 <tr>
-                                    @foreach($kriteria as $k)
+                                    @forelse(($kriteria ?? []) as $k)
                                         <th class="text-center">{{ $k->kode }}</th>
-                                    @endforeach
+                                    @empty
+                                        <th class="text-center">Belum ada kriteria</th>
+                                    @endforelse
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($alternatif->take(10) as $alt)
+                                @forelse(($alternatif ?? collect())->take(10) as $alt)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $alt->nama_siswa }}</td>
-                                    @foreach($kriteria as $k)
+                                    <td>{{ $alt->nama_produk }}</td>
+                                    @forelse(($kriteria ?? []) as $k)
                                         @php
-                                            $nilai = $penilaian->where('alternatif_id', $alt->id)
-                                                              ->where('kriteria_id', $k->id)
-                                                              ->first();
+                                            $nilai = isset($penilaian) ? $penilaian->where('alternatif_id', $alt->id)
+                                                                      ->where('kriteria_id', $k->id)
+                                                                      ->first() : null;
                                         @endphp
                                         <td class="text-center">
                                             @if($nilai && $nilai->nilai_normal !== null)
@@ -196,9 +216,17 @@
                                                 -
                                             @endif
                                         </td>
-                                    @endforeach
+                                    @empty
+                                        <td class="text-center">-</td>
+                                    @endforelse
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="{{ 2 + (isset($kriteria) ? $kriteria->count() : 1) }}" class="text-center">
+                                        Belum ada data produk
+                                    </td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -206,58 +234,11 @@
                     <div class="alert alert-info mt-3">
                         <strong>Formula Normalisasi SMART:</strong><br>
                         Benefit: U<sub>i</sub> = (X<sub>i</sub> - X<sub>min</sub>) / (X<sub>max</sub> - X<sub>min</sub>)<br>
-                        Cost: U<sub>i</sub> = (X<sub>max</sub> - X<sub>i</sub>) / (X<sub>max</sub> - X<sub>min</sub>)
+                        Cost: U<sub>i</sub> = (X<sub>max</sub> - X<sub>i</sub>) / (X<sub>max</sub> - X<sub>min</sub>)<br><br>
+                        <a href="{{ route('smart.detail.benefit.cost') }}" class="btn btn-sm btn-info">
+                            <i class="bi bi-info-circle"></i> Lihat Detail Benefit vs Cost
+                        </a>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Nilai Utility -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">3. Nilai Utility (Normalisasi)</h5>
-                </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-bordered table-sm">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Nama Siswa</th>
-                                @foreach ($kriteria as $krit)
-                                    <th class="text-center">{{ $krit->kode }}</th>
-                                @endforeach
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($alternatif as $alt)
-                                @php
-                                    $rows = $nilaiUtility->where('alternatif_id', $alt->id);
-                                    $nilaiPerKrit = [];
-                                    foreach ($kriteria as $krit) {
-                                        $rec = $rows->firstWhere('kriteria_id', $krit->id);
-                                        $nilaiPerKrit[$krit->id] = $rec->nilai ?? null;
-                                    }
-                                @endphp
-                                <tr>
-                                    <td>
-                                        <p class="text-left align-middle text-base font-semibold leading-tight">
-                                            {{ $alt->nama_siswa }}
-                                        </p>
-                                    </td>
-                                    @foreach ($kriteria as $krit)
-                                        @php $v = $nilaiPerKrit[$krit->id]; @endphp
-                                        <td class="text-center">
-                                            <p class="align-middle text-base font-semibold leading-tight">
-                                                {{ $v === null ? '-' : number_format((float)$v, 3) }}
-                                            </p>
-                                        </td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -268,52 +249,54 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">4. Nilai Akhir (ROC × Utility)</h5>
+                    <h5 class="mb-0">3. Nilai Akhir (ROC × Utility)</h5>
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table table-bordered table-sm">
                         <thead class="table-dark">
                             <tr>
-                                <th>Nama Siswa</th>
-                                @foreach ($kriteria as $krit)
+                                <th>Nama Produk</th>
+                                @forelse(($kriteria ?? []) as $krit)
                                     <th class="text-center">{{ $krit->kode }}</th>
-                                @endforeach
+                                @empty
+                                    <th class="text-center">Kriteria</th>
+                                @endforelse
                                 <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($alternatif as $alt)
+                            @forelse(($alternatif ?? []) as $alt)
                                 @php
-                                    $rows = $nilaiAkhir->where('alternatif_id', $alt->id);
-                                    $nilaiPerKrit = [];
-                                    $total = 0;
-                                    foreach ($kriteria as $krit) {
-                                        $rec = $rows->firstWhere('kriteria_id', $krit->id);
-                                        $nilaiPerKrit[$krit->id] = $rec->nilai ?? null;
-                                        $total += ($rec->nilai ?? 0);
-                                    }
+                                    $total = isset($hasil) ? $hasil->where('alternatif_id', $alt->id)->first()->total ?? 0 : 0;
                                 @endphp
                                 <tr>
                                     <td>
                                         <p class="text-left align-middle text-base font-semibold leading-tight">
-                                            {{ $alt->nama_siswa }}
+                                            {{ $alt->nama_produk }}
                                         </p>
                                     </td>
-                                    @foreach ($kriteria as $krit)
-                                        @php $v = $nilaiPerKrit[$krit->id]; @endphp
+                                    @forelse(($kriteria ?? []) as $krit)
                                         <td class="text-center">
                                             <p class="align-middle text-base font-semibold leading-tight">
-                                                {{ $v === null ? '-' : number_format((float)$v, 3) }}
+                                                {{ number_format(0, 3) }}
                                             </p>
                                         </td>
-                                    @endforeach
+                                    @empty
+                                        <td class="text-center">-</td>
+                                    @endforelse
                                     <td class="text-center">
                                         <p class="align-middle text-base font-bold leading-tight">
                                             {{ number_format($total, 3) }}
                                         </p>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="{{ 2 + (isset($kriteria) ? $kriteria->count() : 0) }}" class="text-center">
+                                        Belum ada data produk
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -328,7 +311,7 @@
                 <div class="card-body text-center py-5">
                     <i class="bi bi-trophy-fill text-warning" style="font-size: 3rem;"></i>
                     <h4 class="mt-3">Lihat Hasil Akhir Perankingan</h4>
-                    <p class="text-muted">Hasil perhitungan telah selesai. Klik tombol di bawah untuk melihat perankingan siswa teladan.</p>
+                    <p class="text-muted">Hasil perhitungan telah selesai. Klik tombol di bawah untuk melihat perankingan produk terbaik.</p>
                     <a href="{{ route('hasil-akhir') }}" class="btn btn-primary btn-lg">
                         <i class="bi bi-arrow-right-circle"></i> Lihat Hasil Akhir
                     </a>
@@ -465,23 +448,6 @@ $(document).ready(function() {
             confirmButtonColor: '#28a745'
         });
     @endif
-    
-    $('#tblHasil').DataTable({
-        responsive: true,
-        pageLength: 25,
-        order: [[0, 'asc']],
-        language: {
-            search: "Cari:",
-            lengthMenu: "Tampilkan _MENU_ data",
-            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-            paginate: {
-                first: "Pertama",
-                last: "Terakhir",
-                next: "Selanjutnya",
-                previous: "Sebelumnya"
-            }
-        }
-    });
 });
 </script>
 @endsection

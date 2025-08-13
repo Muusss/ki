@@ -85,7 +85,6 @@
                 <option value="berminyak">Berminyak</option>
                 <option value="kering">Kering</option>
                 <option value="kombinasi">Kombinasi</option>
-                <option value="sensitif">Sensitif</option>
               </select>
             </div>
           </div>
