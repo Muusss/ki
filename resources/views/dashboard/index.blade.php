@@ -4,9 +4,6 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-        <a href="{{ route('spk.proses') }}" class="btn btn-custom btn-custom-primary">
-            <i class="bi bi-calculator me-2"></i>Proses Perhitungan
-        </a>
     </div>
 
     <!-- Statistik Cards -->

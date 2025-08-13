@@ -1,6 +1,14 @@
 @extends('dashboard.layouts.main')
 
 @section('content')
+@php
+    // Paksa jadi collection agar aman dari null
+    $alternatif = collect($alternatif ?? []);
+    $kriteria   = collect($kriteria ?? []);
+    // Struktur penilaian diasumsikan: $penilaian[alt_id][kriteria_id][0]->nilai_asli
+    $penilaian  = $penilaian ?? [];
+@endphp
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Penilaian Alternatif</h3>
 </div>
@@ -12,8 +20,8 @@
                 <thead>
                     <tr>
                         <th>Alternatif</th>
-                        @forelse(($kriteria ?? []) as $k)
-                            <th class="text-center">{{ $k->kriteria }}</th>
+                        @forelse($kriteria as $k)
+                            <th class="text-center">{{ $k->kriteria ?? '-' }}</th>
                         @empty
                             <th class="text-center">Kriteria</th>
                         @endforelse
@@ -21,24 +29,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                @forelse(($alternatif ?? []) as $alt)
+                @forelse($alternatif as $alt)
                     <tr>
-                        <td>{{ $alt->kode_produk }} - {{ $alt->nama_produk }}</td>
+                        <td>{{ ($alt->kode_produk ?? '-') . ' - ' . ($alt->nama_produk ?? '-') }}</td>
 
-                        @forelse(($kriteria ?? []) as $k)
+                        @forelse($kriteria as $k)
                             @php
-                                // Ambil baris penilaian untuk alternatif & kriteria
-                                $row = null;
-                                if (isset($penilaian) && isset($penilaian[$alt->id][$k->id])) {
-                                    $row = collect($penilaian[$alt->id][$k->id])->first();
-                                }
+                                // Aman dari undefined index:
+                                $row = $penilaian[$alt->id][$k->id][0] ?? null;
                             @endphp
                             <td class="text-center">
-                                @if($row && $row->nilai_asli !== null)
-                                    {{ number_format((float) $row->nilai_asli, 2) }}
-                                @else
-                                    -
-                                @endif
+                                {{ ($row && $row->nilai_asli !== null) ? number_format((float) $row->nilai_asli, 2) : '-' }}
                             </td>
                         @empty
                             <td class="text-center">-</td>
@@ -48,14 +49,14 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-warning"
-                                onclick="editPenilaian({{ $alt->id }}, @js($alt->nama_produk))">
+                                onclick="editPenilaian({{ (int) $alt->id }}, @json($alt->nama_produk ?? '-') )">
                                 Edit
                             </button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ 2 + (isset($kriteria) ? $kriteria->count() : 0) }}" class="text-center">
+                        <td colspan="{{ 2 + $kriteria->count() }}" class="text-center">
                             Belum ada data alternatif
                         </td>
                     </tr>
@@ -88,11 +89,11 @@
 <script>
 function editPenilaian(alternatifId, namaProduk) {
     const $modal = $('#modalPenilaian');
-    $modal.find('#nama_produk').text(namaProduk);
+    $modal.find('#nama_produk').text(namaProduk || '-');
     $modal.find('.modal-body').html('<div class="text-center py-4">Memuat formulir...</div>');
     $modal.modal('show');
 
-    // Buat URL dari named route dengan placeholder, lalu replace
+    // Bentuk URL secara aman dari named route
     let url = @json(route('penilaian.edit', ['id' => '__ID__']));
     url = url.replace('__ID__', encodeURIComponent(alternatifId));
 

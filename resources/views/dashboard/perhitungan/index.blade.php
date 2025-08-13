@@ -256,18 +256,23 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>Nama Produk</th>
-                                @forelse(($kriteria ?? []) as $krit)
+                                @foreach ($kriteria as $krit)
                                     <th class="text-center">{{ $krit->kode }}</th>
-                                @empty
-                                    <th class="text-center">Kriteria</th>
-                                @endforelse
+                                @endforeach
                                 <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(($alternatif ?? []) as $alt)
+                            @foreach ($alternatif as $alt)
                                 @php
-                                    $total = isset($hasil) ? $hasil->where('alternatif_id', $alt->id)->first()->total ?? 0 : 0;
+                                    $rows = $nilaiAkhir->where('alternatif_id', $alt->id);
+                                    $nilaiPerKrit = [];
+                                    $total = 0;
+                                    foreach ($kriteria as $krit) {
+                                        $rec = $rows->firstWhere('kriteria_id', $krit->id);
+                                        $nilaiPerKrit[$krit->id] = $rec->nilai ?? null;
+                                        $total += ($rec->nilai ?? 0);
+                                    }
                                 @endphp
                                 <tr>
                                     <td>
@@ -275,28 +280,21 @@
                                             {{ $alt->nama_produk }}
                                         </p>
                                     </td>
-                                    @forelse(($kriteria ?? []) as $krit)
+                                    @foreach ($kriteria as $krit)
+                                        @php $v = $nilaiPerKrit[$krit->id]; @endphp
                                         <td class="text-center">
                                             <p class="align-middle text-base font-semibold leading-tight">
-                                                {{ number_format(0, 3) }}
+                                                {{ $v === null ? '-' : number_format((float)$v, 3) }}
                                             </p>
                                         </td>
-                                    @empty
-                                        <td class="text-center">-</td>
-                                    @endforelse
+                                    @endforeach
                                     <td class="text-center">
                                         <p class="align-middle text-base font-bold leading-tight">
                                             {{ number_format($total, 3) }}
                                         </p>
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="{{ 2 + (isset($kriteria) ? $kriteria->count() : 0) }}" class="text-center">
-                                        Belum ada data produk
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

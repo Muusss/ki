@@ -3,29 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Masuk | SMART SDIT As Sunnah</title>
-  <link rel="icon" type="image/png" href="{{ asset('img/logo.jpg') }}">
+  <title>Masuk | SMART ReGlow</title>
+  <link rel="icon" type="image/png" href="{{ asset('img/logo-ss.jpg') }}">
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full bg-slate-100">
   <div class="min-h-full grid lg:grid-cols-2">
     {{-- Kiri: Panel Informasi --}}
-    <section class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-indigo-600 to-violet-700 p-12 text-white">
+    <section class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-pink-600 to-violet-700 p-12 text-white">
       <div class="flex items-center gap-3">
-        <img src="{{ asset('img/logo.jpg') }}" class="h-12 w-12 rounded-lg object-cover" alt="Logo">
+        <img src="{{ asset('img/logo-ss.jpg') }}" class="h-12 w-12 rounded-lg object-cover" alt="logo-ss">
         <div>
-          <div class="text-lg font-bold">SMART SDIT As Sunnah</div>
-          <p class="text-sm text-white/80">Cirebon</p>
+          <div class="text-lg font-bold">SMART ReGlow</div>
+          <p class="text-sm text-white/80">Beuaty Inside and Outside</p>
         </div>
       </div>
 
       <div class="max-w-md">
-        <h1 class="text-4xl font-bold leading-tight">Penilaian Siswa Metode <span class="underline decoration-white/40 decoration-4">SMART + ROC</span></h1>
-        <p class="mt-4 text-white/90">
+        <h1 class="text-4xl font-bold leading-tight">Rekomendasi Sunscreen Metode <span class="underline decoration-white/40 decoration-4">SMART + ROC</span></h1>
+        {{-- <p class="mt-4 text-white/90">
           Aplikasi ini digunakan oleh <b>Admin</b> dan <b>Wali Kelas</b>.
           Wali kelas otomatis hanya dapat melihat dan mengelola siswa di kelasnya (6A–6D).
-        </p>
-        <ul class="mt-8 space-y-3 text-white/90">
+        </p> --}}
+        {{-- <ul class="mt-8 space-y-3 text-white/90">
           <li class="flex items-start gap-3">
             <svg class="h-6 w-6 flex-shrink-0 text-white/80" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -44,10 +44,10 @@
             </svg>
             <span>Perhitungan otomatis bobot (ROC) & nilai utility (SMART).</span>
           </li>
-        </ul>
+        </ul> --}}
       </div>
 
-      <p class="text-sm text-white/60">© {{ date('Y') }} - SDIT As Sunnah Cirebon</p>
+      <p class="text-sm text-white/60">© {{ date('Y') }} - Cirebon</p>
     </section>
 
     {{-- Kanan: Form Login --}}
@@ -78,7 +78,7 @@
               <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
               <input type="email" id="email" name="email" required autofocus
                      class="mt-1 block w-full rounded-lg border-slate-300 text-black shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500"
-                     placeholder="nama@sekolah.sch.id" value="{{ old('email') }}">
+                     placeholder="" value="{{ old('email') }}">
             </div>
 
             <div>
@@ -86,7 +86,7 @@
               <div class="mt-1 relative">
                 <input :type="showPassword ? 'text' : 'password'" id="password" name="password" required
                        class="block w-full rounded-lg border-slate-300 text-black pr-12 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500"
-                       placeholder="••••••••">
+                       placeholder="">
                 <button type="button" class="absolute inset-y-0 right-0 flex items-center px-4 text-slate-500 text-sm hover:text-slate-700"
                         @click="showPassword = !showPassword" x-text="showPassword ? 'Sembunyi' : 'Lihat'"></button>
               </div>
@@ -98,13 +98,13 @@
                 Ingat saya
               </label>
               @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline">Lupa kata sandi?</a>
+                <a href="{{ route('password.request') }}" class="text-sm font-medium text-purple-600 hover:text-indigo-800 hover:underline">Lupa kata sandi?</a>
               @endif
             </div>
 
             <div class="pt-2">
               <button type="submit"
-                      class="w-full rounded-lg bg-indigo-600 py-3 text-white font-semibold shadow-sm transition-colors duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      class="w-full rounded-lg bg-pink-600 py-3 text-white font-semibold shadow-sm transition-colors duration-200 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Masuk
               </button>
             </div>

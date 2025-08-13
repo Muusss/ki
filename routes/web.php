@@ -80,7 +80,7 @@ Route::middleware(['auth'])->group(function () {
     // Shortcut untuk penilaian
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
 
-    // Permintaan Routes - PERBAIKAN LENGKAP
+    // Permintaan Routes
     Route::prefix('permintaan')->name('permintaan.')->group(function () {
         Route::get('/', [PermintaanController::class, 'index'])->name('index');
         Route::post('/', [PermintaanController::class, 'store'])->name('store');
@@ -91,13 +91,12 @@ Route::middleware(['auth'])->group(function () {
     // Shortcut untuk permintaan
     Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan');
 
-    // SMART Routes
+    // SMART Routes - PERBAIKAN
     Route::prefix('smart')->name('smart.')->group(function () {
         Route::get('/perhitungan', [SMARTController::class, 'indexPerhitungan'])->name('perhitungan');
         Route::post('/perhitungan', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.store');
-        Route::get('/detail-benefit-cost', function() {
-            return view('dashboard.smart.detail-benefit-cost');
-        })->name('detail.benefit.cost');
+        // FIX: Gunakan view yang sudah ada atau buat method di controller
+        Route::get('/detail-benefit-cost', [SMARTController::class, 'detailBenefitCost'])->name('detail.benefit.cost');
     });
     
     // Shortcut untuk perhitungan

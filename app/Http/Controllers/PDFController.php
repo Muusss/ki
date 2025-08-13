@@ -21,10 +21,6 @@ class PDFController extends Controller
         // Ambil filter kelas dari query (?kelas=...); default 'all'
         $kelasFilter = request()->get('kelas', 'all');
 
-        // Paksa filter kelas untuk role wali_kelas
-        if ($user && isset($user->role) && $user->role === 'wali_kelas') {
-            $kelasFilter = $user->kelas ?? $kelasFilter;
-        }
 
         // Update judul bila ada filter kelas
         if ($kelasFilter && $kelasFilter !== 'all') {
@@ -43,13 +39,10 @@ class PDFController extends Controller
         
         // Data alternatif
         $alternatif = Alternatif::query()
-            ->when($user && $user->role === 'wali_kelas', function($q) use ($user) {
-                $q->where('kelas', $user->kelas);
-            })
             ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
                 $q->where('kelas', $kelasFilter);
             })
-            ->orderBy('nis')
+            ->orderBy('kode_produk')
             ->get();
         
         // Data penilaian dengan fix null handling
@@ -69,24 +62,15 @@ class PDFController extends Controller
         // Data hasil akhir dengan ranking
         $tabelPerankingan = NilaiAkhir::query()
             ->join('alternatifs as a', 'a.id', '=', 'nilai_akhirs.alternatif_id')
-            ->selectRaw("a.nis as kode, a.nama_siswa as alternatif, nilai_akhirs.total as nilai")
+            ->selectRaw("a.kode_produk as kode, a.nama_produk as alternatif, nilai_akhirs.total as nilai")
             ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
                 $q->where('a.kelas', $kelasFilter);
             })
             ->orderBy('nilai', 'desc')
             ->get();
         
-        // Info Sekolah
-        $sekolah = (object)[
-            'nama' => 'SDIT As Sunnah Cirebon',
-            'alamat' => 'Jl. Pendidikan No. 123, Cirebon',
-            'tahun_ajaran' => date('Y') . '/' . (date('Y') + 1),
-            'semester' => 'Ganjil'
-        ];
-        
         // Info tambahan
         $tanggal_cetak = now()->format('d F Y');
-        $kelas_filter = ($user && $user->role === 'wali_kelas') ? $user->kelas : 'Semua Kelas';
 
         // Generate PDF
         $pdf = PDF::setOptions([
@@ -96,9 +80,7 @@ class PDFController extends Controller
             'isRemoteEnabled' => true
         ])->loadview('dashboard.pdf.hasil_akhir', compact(
             'judul',
-            'sekolah',
             'tanggal_cetak',
-            'kelas_filter',
             'tabelPenilaian', 
             'tabelPerankingan',
             'kriteria',
@@ -106,6 +88,6 @@ class PDFController extends Controller
         ));
 
         $pdf->setPaper('A4', 'portrait');
-        return $pdf->stream('Laporan_Siswa_Teladan_' . date('Y-m-d') . '.pdf');
+        return $pdf->stream('Laporan_Produk_' . date('Y-m-d') . '.pdf');
     }
 }
