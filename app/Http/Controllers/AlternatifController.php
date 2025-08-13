@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -17,23 +19,29 @@ use App\Models\NilaiAkhir;
 class AlternatifController extends Controller
 {
     /** LIST */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $title = 'Data Produk Sunscreen';
-        
         $alternatif = Alternatif::orderBy('kode_produk', 'asc')->get();
-
         return view('dashboard.alternatif.index', compact('title', 'alternatif'));
     }
 
-    /** STORE */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'kode_produk' => ['required','string','max:50','unique:alternatifs,kode_produk'],
             'nama_produk' => ['required','string','max:100'],
-            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi','sensitif'])],
+            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi'])],
+            'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
         ]);
+
+        // Handle upload gambar
+        if ($request->hasFile('gambar')) {
+            $gambar = $request->file('gambar');
+            $nama_file = time() . '_' . $gambar->getClientOriginalName();
+            $gambar->move(public_path('img/produk'), $nama_file);
+            $data['gambar'] = $nama_file;
+        }
 
         $ok = Alternatif::create($data);
 
@@ -43,14 +51,20 @@ class AlternatifController extends Controller
         );
     }
 
-    /** EDIT (AJAX) */
     public function edit(Request $request)
     {
         $row = Alternatif::findOrFail($request->alternatif_id);
-        return response()->json($row);
+        
+        // Return dengan data gambar
+        return response()->json([
+            'id' => $row->id,
+            'kode_produk' => $row->kode_produk,
+            'nama_produk' => $row->nama_produk,
+            'jenis_kulit' => $row->jenis_kulit,
+            'gambar' => $row->gambar
+        ]);
     }
 
-    /** UPDATE */
     public function update(Request $request): RedirectResponse
     {
         $row = Alternatif::findOrFail($request->id);
@@ -58,8 +72,22 @@ class AlternatifController extends Controller
         $data = $request->validate([
             'kode_produk' => ['required','string','max:50', Rule::unique('alternatifs','kode_produk')->ignore($row->id)],
             'nama_produk' => ['required','string','max:100'],
-            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi','sensitif'])],
+            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi'])],
+            'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
         ]);
+
+        // Handle upload gambar
+        if ($request->hasFile('gambar')) {
+            // Hapus gambar lama jika ada
+            if ($row->gambar && file_exists(public_path('img/produk/'.$row->gambar))) {
+                unlink(public_path('img/produk/'.$row->gambar));
+            }
+            
+            $gambar = $request->file('gambar');
+            $nama_file = time() . '_' . $gambar->getClientOriginalName();
+            $gambar->move(public_path('img/produk'), $nama_file);
+            $data['gambar'] = $nama_file;
+        }
 
         $ok = $row->update($data);
 
@@ -69,10 +97,15 @@ class AlternatifController extends Controller
         );
     }
 
-    /** DELETE */
     public function delete(Request $request): RedirectResponse
     {
         $row = Alternatif::findOrFail($request->id);
+        
+        // Hapus file gambar jika ada
+        if ($row->gambar && file_exists(public_path('img/produk/'.$row->gambar))) {
+            unlink(public_path('img/produk/'.$row->gambar));
+        }
+        
         $ok = $row->delete();
 
         return to_route('alternatif')->with(

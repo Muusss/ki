@@ -91,7 +91,8 @@
             </div>
         </div>
 
-        <!-- Top 5 -->
+        {{-- Tambahkan di resources/views/dashboard/index.blade.php --}}
+        <!-- Top 5 dengan Gambar -->
         <div class="col-xl-4 col-lg-5">
             <div class="custom-table">
                 <h6 class="m-0 font-weight-bold text-primary mb-3">
@@ -100,16 +101,14 @@
                 @forelse(($top5 ?? []) as $index => $item)
                     <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
                         <div class="me-3">
-                            @if($index == 0)
-                                <div class="badge bg-warning text-dark rounded-circle p-3">
-                                    <i class="bi bi-trophy-fill"></i>
-                                </div>
-                            @else
-                                <div class="badge bg-secondary rounded-circle p-3">{{ $index + 1 }}</div>
-                            @endif
+                            <img src="{{ $item->alternatif->gambar_url ?? asset('img/no-image.png') }}" 
+                                alt="{{ $item->alternatif->nama_produk ?? '-' }}"
+                                class="rounded"
+                                style="width: 50px; height: 50px; object-fit: cover;">
                         </div>
                         <div class="flex-grow-1">
                             <h6 class="mb-0">{{ $item->alternatif->nama_produk ?? '-' }}</h6>
+                            <small class="text-muted">{{ $item->alternatif->kode_produk ?? '-' }}</small>
                         </div>
                         <div>
                             <span class="badge bg-primary">
