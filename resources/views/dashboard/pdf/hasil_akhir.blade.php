@@ -1,4 +1,4 @@
-{{-- resources/views/dashboard/pdf/hasil_akhir.blade.php --}}
+{{-- resources/views/dashboard/pdf/hasil_produk.blade.php --}}
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,7 +6,7 @@
     <title>{{ $judul }}</title>
     <style>
         @page {
-            margin: 2cm; /* Margin untuk semua sisi */
+            margin: 2cm;
         }
         
         * {
@@ -31,9 +31,10 @@
         }
         
         .header h1 {
-            font-size: 16pt;
+            font-size: 18pt;
             font-weight: bold;
             margin-bottom: 5px;
+            color: #2c3e50;
         }
         
         .header h2 {
@@ -66,6 +67,7 @@
             padding: 10px;
             background-color: #f5f5f5;
             border: 1px solid #ddd;
+            border-radius: 5px;
         }
         
         .info-row {
@@ -92,7 +94,7 @@
         }
         
         table thead {
-            background-color: #4a5568;
+            background-color: #3498db;
             color: white;
         }
         
@@ -105,17 +107,13 @@
         }
         
         table td {
-            padding: 6px 8px; /* Tambah padding horizontal */
+            padding: 6px 8px;
             font-size: 10pt;
             border: 1px solid #ddd;
         }
         
         table tbody tr:nth-child(even) {
             background-color: #f9f9f9;
-        }
-        
-        table tbody tr:hover {
-            background-color: #f5f5f5;
         }
         
         /* Special Rows */
@@ -137,7 +135,7 @@
             margin-top: 30px;
             padding: 15px;
             background-color: #e8f4f8;
-            border: 2px solid #2c5282;
+            border: 2px solid #3498db;
             border-radius: 5px;
         }
         
@@ -162,14 +160,10 @@
         
         .signature-box {
             display: table-cell;
-            width: 33%;
+            width: 50%;
             text-align: center;
             vertical-align: top;
-            padding: 0 10px; /* Tambah padding horizontal */
-        }
-        
-        .signature-box p {
-            margin: 5px 0;
+            padding: 0 10px;
         }
         
         .signature-line {
@@ -199,34 +193,33 @@
 <body>
     {{-- Header --}}
     <div class="header">
-        <h1>{{ $sekolah->nama }}</h1>
-        <p>{{ $sekolah->alamat }}</p>
-        <p>Tahun Ajaran {{ $sekolah->tahun_ajaran }} - Semester {{ $sekolah->semester }}</p>
+        <h1>SISTEM REKOMENDASI SUNSCREEN</h1>
+        <p>Metode ROC (Rank Order Centroid) & SMART</p>
+        <p>Tanggal Cetak: {{ $tanggal_cetak }}</p>
     </div>
 
     {{-- Title --}}
     <div class="title-section">
-        <h3>LAPORAN HASIL PEMILIHAN SISWA TELADAN</h3>
-        <p>Metode ROC (Rank Order Centroid) & SMART</p>
+        <h3>{{ strtoupper($judul) }}</h3>
     </div>
 
     {{-- Info Box --}}
     <div class="info-box">
         <div class="info-row">
-            <span class="info-label">Tanggal Cetak</span>
-            <span class="info-value">: {{ $tanggal_cetak }}</span>
+            <span class="info-label">Filter Jenis Kulit</span>
+            <span class="info-value">: {{ $filter_info }}</span>
         </div>
         <div class="info-row">
-            <span class="info-label">Kelas</span>
-            <span class="info-value">: {{ $kelas_filter }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Jumlah Siswa</span>
-            <span class="info-value">: {{ $alternatif->count() }} Siswa</span>
+            <span class="info-label">Jumlah Produk</span>
+            <span class="info-value">: {{ $alternatif->count() }} Produk</span>
         </div>
         <div class="info-row">
             <span class="info-label">Jumlah Kriteria</span>
             <span class="info-value">: {{ $kriteria->count() }} Kriteria</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Petugas</span>
+            <span class="info-value">: {{ $user->name ?? 'Administrator' }}</span>
         </div>
     </div>
 
@@ -235,12 +228,12 @@
     <table>
         <thead>
             <tr>
-                <th width="10%">No</th>
-                <th width="15%">Kode</th>
+                <th width="8%">No</th>
+                <th width="12%">Kode</th>
                 <th width="35%">Kriteria</th>
                 <th width="15%">Prioritas</th>
                 <th width="15%">Bobot ROC</th>
-                <th width="10%">Atribut</th>
+                <th width="15%">Atribut</th>
             </tr>
         </thead>
         <tbody>
@@ -263,31 +256,29 @@
     </table>
 
     {{-- Tabel Hasil Perankingan --}}
-    <h4 class="mt-20 mb-10">2. HASIL PERANKINGAN SISWA TELADAN</h4>
+    <h4 class="mt-20 mb-10">2. HASIL PERANKINGAN PRODUK SUNSCREEN</h4>
     <table>
         <thead>
             <tr>
                 <th width="8%">Rank</th>
-                <th width="12%">NIS</th>
-                <th width="30%">Nama Siswa</th>
-                <th width="10%">Kelas</th>
-                <th width="8%">JK</th>
+                <th width="15%">Kode</th>
+                <th width="35%">Nama Produk</th>
+                <th width="17%">Jenis Kulit</th>
                 <th width="12%">Nilai Total</th>
-                <th width="20%">Keterangan</th>
+                <th width="13%">Status</th>
             </tr>
         </thead>
         <tbody>
             @foreach($tabelPerankingan as $item)
             <tr class="{{ $item->peringkat == 1 ? 'ranking-1' : ($item->peringkat == 2 ? 'ranking-2' : ($item->peringkat == 3 ? 'ranking-3' : '')) }}">
                 <td class="text-center font-bold">{{ $item->peringkat }}</td>
-                <td class="text-center">{{ $item->nis }}</td>
-                <td>{{ $item->nama_siswa }}</td>
-                <td class="text-center">{{ $item->kelas }}</td>
-                <td class="text-center">{{ $item->jk }}</td>
+                <td class="text-center">{{ $item->kode_produk }}</td>
+                <td>{{ $item->nama_produk }}</td>
+                <td class="text-center">{{ ucfirst($item->jenis_kulit) }}</td>
                 <td class="text-center font-bold">{{ number_format($item->nilai, 4) }}</td>
                 <td class="text-center">
                     @if($item->peringkat == 1)
-                        <strong>SISWA TELADAN</strong>
+                        <strong>TERBAIK</strong>
                     @elseif($item->peringkat <= 3)
                         Nominasi
                     @else
@@ -304,21 +295,25 @@
     <div class="summary-box">
         <h4>KESIMPULAN</h4>
         <p>Berdasarkan hasil perhitungan menggunakan metode ROC (Rank Order Centroid) untuk pembobotan kriteria 
-        dan metode SMART untuk normalisasi nilai, maka siswa yang terpilih sebagai <strong>SISWA TELADAN</strong> adalah:</p>
+        dan metode SMART untuk normalisasi nilai, maka produk sunscreen yang direkomendasikan 
+        @if($filter_info !== 'Semua Jenis')
+        untuk jenis kulit <strong>{{ $filter_info }}</strong>
+        @endif
+        adalah:</p>
         
-        <div style="margin: 15px 0; padding: 10px; background: white; border-left: 4px solid #2c5282;">
+        <div style="margin: 15px 0; padding: 10px; background: white; border-left: 4px solid #3498db;">
             <table style="border: none; margin: 0;">
                 <tr>
-                    <td style="border: none; width: 120px;"><strong>Nama</strong></td>
-                    <td style="border: none;">: {{ $tabelPerankingan->first()->nama_siswa }}</td>
+                    <td style="border: none; width: 120px;"><strong>Nama Produk</strong></td>
+                    <td style="border: none;">: {{ $tabelPerankingan->first()->nama_produk }}</td>
                 </tr>
                 <tr>
-                    <td style="border: none;"><strong>NIS</strong></td>
-                    <td style="border: none;">: {{ $tabelPerankingan->first()->nis }}</td>
+                    <td style="border: none;"><strong>Kode</strong></td>
+                    <td style="border: none;">: {{ $tabelPerankingan->first()->kode_produk }}</td>
                 </tr>
                 <tr>
-                    <td style="border: none;"><strong>Kelas</strong></td>
-                    <td style="border: none;">: {{ $tabelPerankingan->first()->kelas }}</td>
+                    <td style="border: none;"><strong>Jenis Kulit</strong></td>
+                    <td style="border: none;">: {{ ucfirst($tabelPerankingan->first()->jenis_kulit) }}</td>
                 </tr>
                 <tr>
                     <td style="border: none;"><strong>Nilai Total</strong></td>
@@ -329,67 +324,15 @@
     </div>
     @endif
 
-    {{-- Page Break --}}
-    <div class="page-break"></div>
-
-    {{-- Detail Penilaian --}}
-    <h4 class="mt-20 mb-10">3. DETAIL PENILAIAN SISWA</h4>
-    <table>
-        <thead>
-            <tr>
-                <th rowspan="2" width="8%">No</th>
-                <th rowspan="2" width="20%">Nama Siswa</th>
-                <th colspan="{{ $kriteria->count() }}" class="text-center">Kriteria Penilaian</th>
-            </tr>
-            <tr>
-                @foreach($kriteria as $k)
-                <th width="{{ 72 / $kriteria->count() }}%">{{ $k->kode }}</th>
-                @endforeach
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($alternatif as $index => $alt)
-            <tr>
-                <td class="text-center">{{ $index + 1 }}</td>
-                <td>{{ $alt->nama_siswa }}</td>
-                @foreach($kriteria as $k)
-                    @php
-                        $nilai = $tabelPenilaian->where('alternatif.id', $alt->id)
-                                              ->where('kriteria.id', $k->id)
-                                              ->first();
-                    @endphp
-                    <td class="text-center" style="font-size: 9pt;">
-                        {{ $nilai ? $nilai->sub_kriteria : '-' }}
-                    </td>
-                @endforeach
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
     {{-- Footer / Tanda Tangan --}}
     <div class="footer">
+        <p class="text-center mb-20">{{ now()->isoFormat('D MMMM Y') }}</p>
         <div class="signature-section">
             <div class="signature-box">
                 <p>Mengetahui,</p>
-                <p>Kepala Sekolah</p>
-                <div class="signature-line"></div>
-                <p class="font-bold">(.................................)</p>
-                <p>NIP. </p>
-            </div>
-            <div class="signature-box">
-                <p>&nbsp;</p>
-                <p>Wali Kelas</p>
+                <p>Administrator</p>
                 <div class="signature-line"></div>
                 <p class="font-bold">{{ $user->name ?? '(.................................)' }}</p>
-                <p>NIP. </p>
-            </div>
-            <div class="signature-box">
-                <p>Cirebon, {{ $tanggal_cetak }}</p>
-                <p>Petugas Admin</p>
-                <div class="signature-line"></div>
-                <p class="font-bold">(.................................)</p>
-                <p>NIP. </p>
             </div>
         </div>
     </div>

@@ -83,15 +83,60 @@ class DashboardController extends Controller
         $title = 'Hasil Akhir';
         
         try {
-            $nilaiAkhir = NilaiAkhir::with('alternatif')
-                ->orderByDesc('total')
-                ->get();
+            // Ambil filter jenis kulit dari request
+            $jenisKulit = $request->get('jenis_kulit', 'all');
+            
+            // Query dengan filter
+            $query = NilaiAkhir::with('alternatif');
+            
+            if ($jenisKulit !== 'all') {
+                $query->whereHas('alternatif', function($q) use ($jenisKulit) {
+                    $q->where('jenis_kulit', $jenisKulit);
+                });
+            }
+            
+            $nilaiAkhir = $query->orderByDesc('total')->get();
+            
+            // Re-rank setelah filter
+            $nilaiAkhir = $nilaiAkhir->map(function ($item, $index) {
+                $item->peringkat_filter = $index + 1;
+                return $item;
+            });
+            
+            // Ambil data untuk setiap jenis kulit (untuk tab)
+            $hasilPerJenis = [];
+            $jenisKulitList = ['normal', 'berminyak', 'kering', 'kombinasi'];
+            
+            foreach ($jenisKulitList as $jenis) {
+                $hasil = NilaiAkhir::with('alternatif')
+                    ->whereHas('alternatif', function($q) use ($jenis) {
+                        $q->where('jenis_kulit', $jenis);
+                    })
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(function ($item, $index) {
+                        $item->peringkat_jenis = $index + 1;
+                        return $item;
+                    });
+                    
+                $hasilPerJenis[$jenis] = $hasil;
+            }
 
-            return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir'));
+            return view('dashboard.hasil-akhir.index', compact(
+                'title', 
+                'nilaiAkhir', 
+                'jenisKulit',
+                'hasilPerJenis',
+                'jenisKulitList'
+            ));
+            
         } catch (\Exception $e) {
             return view('dashboard.hasil-akhir.index', [
                 'title' => 'Hasil Akhir',
-                'nilaiAkhir' => collect()
+                'nilaiAkhir' => collect(),
+                'jenisKulit' => 'all',
+                'hasilPerJenis' => [],
+                'jenisKulitList' => ['normal', 'berminyak', 'kering', 'kombinasi']
             ]);
         }
     }
