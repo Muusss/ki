@@ -1,0 +1,98 @@
+<?php
+// Simpan file ini sebagai create-no-image.php di root project Laravel
+// Jalankan dengan: php create-no-image.php
+
+// Buat folder jika belum ada
+$imgPath = __DIR__ . '/public/img';
+$produkPath = __DIR__ . '/public/img/produk';
+
+if (!file_exists($imgPath)) {
+    mkdir($imgPath, 0755, true);
+}
+
+if (!file_exists($produkPath)) {
+    mkdir($produkPath, 0755, true);
+}
+
+// Buat gambar placeholder 400x400
+$width = 400;
+$height = 400;
+
+// Buat gambar
+$image = imagecreatetruecolor($width, $height);
+
+// Warna background (abu-abu muda)
+$bgColor = imagecolorallocate($image, 248, 249, 250);
+imagefill($image, 0, 0, $bgColor);
+
+// Warna border dan icon (abu-abu)
+$borderColor = imagecolorallocate($image, 206, 212, 218);
+$iconColor = imagecolorallocate($image, 108, 117, 125);
+
+// Gambar border
+imagerectangle($image, 0, 0, $width-1, $height-1, $borderColor);
+
+// Gambar icon placeholder (kotak dengan gunung sederhana)
+// Kotak luar
+imagerectangle($image, 100, 100, 300, 250, $iconColor);
+
+// Lingkaran (matahari)
+imagefilledellipse($image, 250, 150, 40, 40, $iconColor);
+
+// Gunung (segitiga)
+$points = [
+    120, 230,  // Kiri bawah
+    180, 170,  // Puncak kiri
+    240, 230,  // Tengah bawah
+    200, 190,  // Lembah
+    280, 230   // Kanan bawah
+];
+imagefilledpolygon($image, $points, 5, $iconColor);
+
+// Tambahkan teks
+$fontFile = null; // Menggunakan font bawaan
+$fontSize = 5; // Font size untuk imagestring
+$text = "No Image";
+$textWidth = imagefontwidth($fontSize) * strlen($text);
+$textX = ($width - $textWidth) / 2;
+$textY = 280;
+
+imagestring($image, $fontSize, $textX, $textY, $text, $iconColor);
+
+// Simpan gambar
+imagepng($image, __DIR__ . '/public/img/no-image.png');
+imagedestroy($image);
+
+echo "File no-image.png berhasil dibuat di public/img/no-image.png\n";
+
+// Buat juga versi yang lebih kecil untuk thumbnail
+$thumbWidth = 150;
+$thumbHeight = 150;
+
+$thumb = imagecreatetruecolor($thumbWidth, $thumbHeight);
+$bgColor = imagecolorallocate($thumb, 248, 249, 250);
+imagefill($thumb, 0, 0, $bgColor);
+
+$iconColor = imagecolorallocate($thumb, 108, 117, 125);
+imagerectangle($thumb, 30, 30, 120, 90, $iconColor);
+imagefilledellipse($thumb, 95, 50, 20, 20, $iconColor);
+
+$points = [
+    40, 80,
+    60, 60,
+    80, 80,
+    70, 70,
+    110, 80
+];
+imagefilledpolygon($thumb, $points, 5, $iconColor);
+
+$text = "No Image";
+$textWidth = imagefontwidth(2) * strlen($text);
+$textX = ($thumbWidth - $textWidth) / 2;
+imagestring($thumb, 2, $textX, 105, $text, $iconColor);
+
+imagepng($thumb, __DIR__ . '/public/img/no-image-thumb.png');
+imagedestroy($thumb);
+
+echo "File no-image-thumb.png berhasil dibuat di public/img/no-image-thumb.png\n";
+echo "Setup selesai!\n";

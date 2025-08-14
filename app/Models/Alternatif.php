@@ -5,7 +5,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\Storage;
 
 class Alternatif extends Model
 {
@@ -17,16 +16,26 @@ class Alternatif extends Model
         'kode_produk',
         'nama_produk', 
         'jenis_kulit',
-        'gambar' // Tambah field gambar
+        'gambar'
     ];
 
-    // Accessor untuk URL gambar
+    // Accessor untuk URL gambar yang diperbaiki
     public function getGambarUrlAttribute()
     {
         if ($this->gambar) {
-            return Storage::url('produk/' . $this->gambar);
+            // Cek apakah file ada di public/img/produk
+            if (file_exists(public_path('img/produk/' . $this->gambar))) {
+                return asset('img/produk/' . $this->gambar);
+            }
         }
-        return asset('img/no-image.png'); // Default image
+        // Default image jika tidak ada gambar
+        return asset('img/no-image.png');
+    }
+
+    // Accessor untuk cek apakah gambar ada
+    public function getHasGambarAttribute()
+    {
+        return $this->gambar && file_exists(public_path('img/produk/' . $this->gambar));
     }
 
     // Relasi tetap sama

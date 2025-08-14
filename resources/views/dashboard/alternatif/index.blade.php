@@ -115,18 +115,14 @@
         <div class="col-xl-3 col-lg-4 col-md-6 mb-4 product-item" data-skin="{{ $row->jenis_kulit }}">
             <div class="product-card h-100">
                 <div class="product-image">
-                    @if($row->gambar && file_exists(public_path('img/produk/'.$row->gambar)))
-                        <img src="{{ asset('img/produk/'.$row->gambar) }}" alt="{{ $row->nama_produk }}">
+                    @if($row->has_gambar)
+                        <img src="{{ $row->gambar_url }}" alt="{{ $row->nama_produk }}" loading="lazy">
                     @else
                         <div class="no-image">
                             <i class="bi bi-image"></i>
+                            <span>No Image</span>
                         </div>
                     @endif
-                    <div class="product-overlay">
-                        <button class="btn btn-light btn-sm" onclick="quickView({{ $row->id }})">
-                            <i class="bi bi-eye"></i> Quick View
-                        </button>
-                    </div>
                     <span class="badge-code">{{ $row->kode_produk }}</span>
                 </div>
                 <div class="product-content">
@@ -135,8 +131,7 @@
                         <span class="skin-type badge bg-{{ 
                             $row->jenis_kulit == 'normal' ? 'success' : 
                             ($row->jenis_kulit == 'berminyak' ? 'warning' : 
-                            ($row->jenis_kulit == 'kering' ? 'info' : 
-                            ($row->jenis_kulit == 'kombinasi' ? 'secondary' : 'danger'))) 
+                            ($row->jenis_kulit == 'kering' ? 'info' : 'secondary')) 
                         }}">
                             <i class="bi bi-droplet-fill"></i> {{ ucfirst($row->jenis_kulit) }}
                         </span>
@@ -181,7 +176,7 @@
                 <thead>
                     <tr>
                         <th width="60">#</th>
-                        <th width="80">Gambar</th>
+                        <th width="100">Gambar</th>
                         <th>Kode</th>
                         <th>Nama Produk</th>
                         <th>Jenis Kulit</th>
@@ -193,10 +188,11 @@
                     <tr class="product-item" data-skin="{{ $row->jenis_kulit }}">
                         <td>{{ $loop->iteration }}</td>
                         <td>
-                            @if($row->gambar && file_exists(public_path('img/produk/'.$row->gambar)))
-                                <img src="{{ asset('img/produk/'.$row->gambar) }}" 
+                            @if($row->has_gambar)
+                                <img src="{{ $row->gambar_url }}" 
                                      alt="{{ $row->nama_produk }}" 
-                                     class="table-image">
+                                     class="table-image"
+                                     loading="lazy">
                             @else
                                 <div class="table-no-image">
                                     <i class="bi bi-image"></i>
@@ -209,8 +205,7 @@
                             <span class="badge bg-{{ 
                                 $row->jenis_kulit == 'normal' ? 'success' : 
                                 ($row->jenis_kulit == 'berminyak' ? 'warning' : 
-                                ($row->jenis_kulit == 'kering' ? 'info' : 
-                                ($row->jenis_kulit == 'kombinasi' ? 'secondary' : 'danger'))) 
+                                ($row->jenis_kulit == 'kering' ? 'info' : 'secondary')) 
                             }}">
                                 {{ ucfirst($row->jenis_kulit) }}
                             </span>
@@ -276,7 +271,7 @@
                                    id="imageInput" 
                                    name="gambar" 
                                    class="d-none" 
-                                   accept="image/*"
+                                   accept="image/jpeg,image/jpg,image/png"
                                    onchange="handleImageSelect(this)">
                             
                             <div class="image-preview" id="imagePreview" onclick="document.getElementById('imageInput').click()">
@@ -403,6 +398,7 @@
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     margin: -1.5rem -1.5rem 2rem -1.5rem;
     padding: 2rem 1.5rem;
+    border-radius: 0 0 20px 20px;
 }
 
 .page-title {
@@ -512,11 +508,17 @@
 
 .no-image {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
     font-size: 3rem;
     color: #dee2e6;
+}
+
+.no-image span {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
 }
 
 .product-overlay {
@@ -560,6 +562,9 @@
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: #2c3e50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product-meta {
@@ -607,15 +612,15 @@
 }
 
 .table-image {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
     border-radius: 10px;
 }
 
 .table-no-image {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -631,8 +636,8 @@
 
 .image-preview {
     width: 100%;
-    max-width: 300px;
-    height: 200px;
+    max-width: 400px;
+    height: 250px;
     margin: 0 auto;
     border: 3px dashed #dee2e6;
     border-radius: 15px;
@@ -643,17 +648,19 @@
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    background: #f8f9fa;
 }
 
 .image-preview:hover {
     border-color: #667eea;
-    background: #f8f9fa;
+    background: #f0f3ff;
 }
 
 .image-preview img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    border-radius: 12px;
 }
 
 .upload-placeholder {
@@ -725,6 +732,10 @@
         width: 100%;
         margin-bottom: 0.5rem;
     }
+    
+    .image-preview {
+        max-width: 100%;
+    }
 }
 
 /* Animations */
@@ -745,6 +756,11 @@
 .btn-outline-secondary:hover {
     background: #f8f9fa;
     color: #495057;
+}
+
+/* Z-index fix for modal */
+.z-index-1 {
+    z-index: 1050;
 }
 </style>
 @endsection
@@ -805,6 +821,19 @@ function handleImageSelect(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         
+        // Validate file type
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!validTypes.includes(file.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Format Tidak Valid',
+                text: 'Hanya file JPG dan PNG yang diperbolehkan',
+                confirmButtonColor: '#667eea'
+            });
+            input.value = '';
+            return;
+        }
+        
         // Validate file size
         if (file.size > 2 * 1024 * 1024) {
             Swal.fire({
@@ -840,12 +869,14 @@ function removeImage() {
 function create_button() {
     $('#modalTitle').html('<i class="bi bi-plus-circle"></i> Tambah Produk');
     $('#formAlternatif')[0].reset();
+    $('#formAlternatif').attr('action', '{{ route("alternatif.store") }}');
     removeImage();
 }
 
 // Edit Product
 function show_button(id) {
     $('#modalTitle').html('<i class="bi bi-pencil"></i> Edit Produk');
+    $('#formAlternatif').attr('action', '{{ route("alternatif.update") }}');
     
     // Show loading
     Swal.fire({
@@ -873,6 +904,8 @@ function show_button(id) {
                 $('#previewImg').attr('src', '/img/produk/' + data.gambar).show();
                 $('#uploadPlaceholder').hide();
                 $('#removeImageBtn').show();
+            } else {
+                removeImage();
             }
             
             Swal.close();
@@ -892,15 +925,13 @@ function quickView(id) {
     $('#quickViewModal').modal('show');
     $('#quickViewContent').html('<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>');
     
-    // Simulate loading content
+    // Simulate loading content (You can implement AJAX call here)
     setTimeout(() => {
-        // Load content via AJAX
         $('#quickViewContent').html(`
             <div class="quick-view-content">
-                <img src="/img/produk/sample.jpg" class="w-100">
-                <div class="p-3">
-                    <h5>Product Name</h5>
-                    <p>Product details here...</p>
+                <div class="p-4">
+                    <h5>Detail Produk</h5>
+                    <p>Fitur ini akan segera tersedia...</p>
                 </div>
             </div>
         `);

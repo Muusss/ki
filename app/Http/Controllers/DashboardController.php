@@ -21,6 +21,11 @@ class DashboardController extends Controller
             $jumlahKriteria = Kriteria::count();
             $jumlahPenilaian = Penilaian::count();
 
+            // Ambil produk untuk showcase (8 produk terbaru)
+            $products = Alternatif::orderBy('created_at', 'desc')
+                                  ->limit(8)
+                                  ->get();
+
             // Ranking produk - dengan pengecekan data
             $nilaiAkhir = collect();
             $top5 = collect();
@@ -53,7 +58,8 @@ class DashboardController extends Controller
                 'nilaiAkhir',
                 'top5',
                 'chartLabels',
-                'chartSeries'
+                'chartSeries',
+                'products'
             ));
 
         } catch (\Exception $e) {
@@ -66,7 +72,8 @@ class DashboardController extends Controller
                 'nilaiAkhir' => collect(),
                 'top5' => collect(),
                 'chartLabels' => [],
-                'chartSeries' => []
+                'chartSeries' => [],
+                'products' => collect()
             ]);
         }
     }

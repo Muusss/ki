@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\File;
 
 use App\Models\User;
 use App\Models\Alternatif;
@@ -35,11 +36,21 @@ class AlternatifController extends Controller
             'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
         ]);
 
+        // Pastikan folder ada
+        $uploadPath = public_path('img/produk');
+        if (!File::exists($uploadPath)) {
+            File::makeDirectory($uploadPath, 0755, true);
+        }
+
         // Handle upload gambar
         if ($request->hasFile('gambar')) {
             $gambar = $request->file('gambar');
-            $nama_file = time() . '_' . $gambar->getClientOriginalName();
-            $gambar->move(public_path('img/produk'), $nama_file);
+            
+            // Generate nama file unik
+            $nama_file = time() . '_' . Str::slug($data['nama_produk']) . '.' . $gambar->getClientOriginalExtension();
+            
+            // Pindahkan file ke folder public/img/produk
+            $gambar->move($uploadPath, $nama_file);
             $data['gambar'] = $nama_file;
         }
 
@@ -76,16 +87,25 @@ class AlternatifController extends Controller
             'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
         ]);
 
+        // Pastikan folder ada
+        $uploadPath = public_path('img/produk');
+        if (!File::exists($uploadPath)) {
+            File::makeDirectory($uploadPath, 0755, true);
+        }
+
         // Handle upload gambar
         if ($request->hasFile('gambar')) {
             // Hapus gambar lama jika ada
-            if ($row->gambar && file_exists(public_path('img/produk/'.$row->gambar))) {
-                unlink(public_path('img/produk/'.$row->gambar));
+            if ($row->gambar && File::exists(public_path('img/produk/'.$row->gambar))) {
+                File::delete(public_path('img/produk/'.$row->gambar));
             }
             
             $gambar = $request->file('gambar');
-            $nama_file = time() . '_' . $gambar->getClientOriginalName();
-            $gambar->move(public_path('img/produk'), $nama_file);
+            // Generate nama file unik
+            $nama_file = time() . '_' . Str::slug($data['nama_produk']) . '.' . $gambar->getClientOriginalExtension();
+            
+            // Pindahkan file ke folder public/img/produk
+            $gambar->move($uploadPath, $nama_file);
             $data['gambar'] = $nama_file;
         }
 
@@ -102,8 +122,8 @@ class AlternatifController extends Controller
         $row = Alternatif::findOrFail($request->id);
         
         // Hapus file gambar jika ada
-        if ($row->gambar && file_exists(public_path('img/produk/'.$row->gambar))) {
-            unlink(public_path('img/produk/'.$row->gambar));
+        if ($row->gambar && File::exists(public_path('img/produk/'.$row->gambar))) {
+            File::delete(public_path('img/produk/'.$row->gambar));
         }
         
         $ok = $row->delete();
