@@ -604,19 +604,19 @@
             });
 
             // Sweet Alert for success/error messages
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: '{{ session("success") }}',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    toast: true,
-                    position: 'top-end',
-                    background: 'linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%)',
-                    color: '#2d7a3e'
-                });
-            @endif
+            // @if(session('success'))
+            //     Swal.fire({
+            //         icon: 'success',
+            //         title: 'Berhasil!',
+            //         text: '{{ session("success") }}',
+            //         showConfirmButton: false,
+            //         timer: 3000,
+            //         toast: true,
+            //         position: 'top-end',
+            //         background: 'linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%)',
+            //         color: '#2d7a3e'
+            //     });
+            // @endif
 
             @if(session('error'))
                 Swal.fire({

@@ -8,6 +8,7 @@ use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use App\Models\NilaiAkhir;
+use App\Models\SubKriteria;
 
 class DashboardController extends Controller
 {
@@ -83,15 +84,43 @@ class DashboardController extends Controller
         $title = 'Hasil Akhir';
         
         try {
-            // Ambil filter jenis kulit dari request
+            // Ambil filter dari request
             $jenisKulit = $request->get('jenis_kulit', 'all');
+            $filterHarga = $request->get('harga', 'all');
+            $filterSpf = $request->get('spf', 'all');
             
-            // Query dengan filter
-            $query = NilaiAkhir::with('alternatif');
+            // Query dengan filter jenis kulit
+            $query = NilaiAkhir::with(['alternatif', 'alternatif.penilaians.subKriteria']);
             
             if ($jenisKulit !== 'all') {
                 $query->whereHas('alternatif', function($q) use ($jenisKulit) {
                     $q->where('jenis_kulit', $jenisKulit);
+                });
+            }
+            
+            // Filter berdasarkan harga (dari sub kriteria)
+            if ($filterHarga !== 'all') {
+                $query->whereHas('alternatif.penilaians', function($q) use ($filterHarga) {
+                    $kriteriaHarga = Kriteria::where('kode', 'C3')->first(); // C3 adalah Harga
+                    if ($kriteriaHarga) {
+                        $q->where('kriteria_id', $kriteriaHarga->id)
+                          ->whereHas('subKriteria', function($sq) use ($filterHarga) {
+                              $sq->where('label', 'LIKE', '%' . $filterHarga . '%');
+                          });
+                    }
+                });
+            }
+            
+            // Filter berdasarkan SPF
+            if ($filterSpf !== 'all') {
+                $query->whereHas('alternatif.penilaians', function($q) use ($filterSpf) {
+                    $kriteriaSpf = Kriteria::where('kode', 'C2')->first(); // C2 adalah SPF
+                    if ($kriteriaSpf) {
+                        $q->where('kriteria_id', $kriteriaSpf->id)
+                          ->whereHas('subKriteria', function($sq) use ($filterSpf) {
+                              $sq->where('label', $filterSpf);
+                          });
+                    }
                 });
             }
             
@@ -103,7 +132,7 @@ class DashboardController extends Controller
                 return $item;
             });
             
-            // Ambil data untuk setiap jenis kulit (untuk tab)
+            // Data untuk setiap jenis kulit
             $hasilPerJenis = [];
             $jenisKulitList = ['normal', 'berminyak', 'kering', 'kombinasi'];
             
@@ -121,13 +150,69 @@ class DashboardController extends Controller
                     
                 $hasilPerJenis[$jenis] = $hasil;
             }
+            
+            // Data untuk filter harga
+            $hasilPerHarga = [];
+            $hargaList = ['<40k', '40k-60k', '61-80k', '>80k'];
+            
+            foreach ($hargaList as $harga) {
+                $hasil = NilaiAkhir::with(['alternatif', 'alternatif.penilaians.subKriteria'])
+                    ->whereHas('alternatif.penilaians', function($q) use ($harga) {
+                        $kriteriaHarga = Kriteria::where('kode', 'C3')->first();
+                        if ($kriteriaHarga) {
+                            $q->where('kriteria_id', $kriteriaHarga->id)
+                              ->whereHas('subKriteria', function($sq) use ($harga) {
+                                  $sq->where('label', $harga);
+                              });
+                        }
+                    })
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(function ($item, $index) {
+                        $item->peringkat_harga = $index + 1;
+                        return $item;
+                    });
+                    
+                $hasilPerHarga[$harga] = $hasil;
+            }
+            
+            // Data untuk filter SPF
+            $hasilPerSpf = [];
+            $spfList = ['30', '35', '40', '50+'];
+            
+            foreach ($spfList as $spf) {
+                $hasil = NilaiAkhir::with(['alternatif', 'alternatif.penilaians.subKriteria'])
+                    ->whereHas('alternatif.penilaians', function($q) use ($spf) {
+                        $kriteriaSpf = Kriteria::where('kode', 'C2')->first();
+                        if ($kriteriaSpf) {
+                            $q->where('kriteria_id', $kriteriaSpf->id)
+                              ->whereHas('subKriteria', function($sq) use ($spf) {
+                                  $sq->where('label', $spf);
+                              });
+                        }
+                    })
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(function ($item, $index) {
+                        $item->peringkat_spf = $index + 1;
+                        return $item;
+                    });
+                    
+                $hasilPerSpf[$spf] = $hasil;
+            }
 
             return view('dashboard.hasil-akhir.index', compact(
                 'title', 
-                'nilaiAkhir', 
+                'nilaiAkhir',
                 'jenisKulit',
+                'filterHarga',
+                'filterSpf',
                 'hasilPerJenis',
-                'jenisKulitList'
+                'hasilPerHarga',
+                'hasilPerSpf',
+                'jenisKulitList',
+                'hargaList',
+                'spfList'
             ));
             
         } catch (\Exception $e) {
@@ -135,8 +220,14 @@ class DashboardController extends Controller
                 'title' => 'Hasil Akhir',
                 'nilaiAkhir' => collect(),
                 'jenisKulit' => 'all',
+                'filterHarga' => 'all',
+                'filterSpf' => 'all',
                 'hasilPerJenis' => [],
-                'jenisKulitList' => ['normal', 'berminyak', 'kering', 'kombinasi']
+                'hasilPerHarga' => [],
+                'hasilPerSpf' => [],
+                'jenisKulitList' => ['normal', 'berminyak', 'kering', 'kombinasi'],
+                'hargaList' => ['<40k', '40k-60k', '61-80k', '>80k'],
+                'spfList' => ['30', '35', '40', '50+']
             ]);
         }
     }

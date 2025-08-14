@@ -105,6 +105,35 @@
                         <li><a class="dropdown-item filter-skin" href="#" data-filter="kombinasi">Kulit Kombinasi</a></li>
                     </ul>
                 </div>
+
+                {{-- Filter Harga --}}
+                <div class="btn-group ms-2" role="group">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="bi bi-cash"></i> Harga
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item filter-price" href="#" data-min="0" data-max="">Semua</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-min="0" data-max="50000">< Rp 50.000</a></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-min="50000" data-max="100000">Rp 50.000 - 100.000</a></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-min="100000" data-max="">> Rp 100.000</a></li>
+                    </ul>
+                </div>
+
+                {{-- Filter SPF --}}
+                <div class="btn-group ms-2" role="group">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="bi bi-sun"></i> SPF
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item filter-spf" href="#" data-spf="all">Semua</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item filter-spf" href="#" data-spf="30">SPF 30</a></li>
+                        <li><a class="dropdown-item filter-spf" href="#" data-spf="35">SPF 35</a></li>
+                        <li><a class="dropdown-item filter-spf" href="#" data-spf="40">SPF 40</a></li>
+                        <li><a class="dropdown-item filter-spf" href="#" data-spf="50+">SPF 50</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -127,15 +156,31 @@
                 </div>
                 <div class="product-content">
                     <h5 class="product-title">{{ $row->nama_produk }}</h5>
-                    <div class="product-meta">
-                        <span class="skin-type badge bg-{{ 
-                            $row->jenis_kulit == 'normal' ? 'success' : 
-                            ($row->jenis_kulit == 'berminyak' ? 'warning' : 
-                            ($row->jenis_kulit == 'kering' ? 'info' : 'secondary')) 
-                        }}">
-                            <i class="bi bi-droplet-fill"></i> {{ ucfirst($row->jenis_kulit) }}
+                    <div class="product-meta mb-2">
+                    {{-- Jenis Kulit --}}
+                    <span class="skin-type badge bg-{{ 
+                        $row->jenis_kulit == 'normal' ? 'success' : 
+                        ($row->jenis_kulit == 'berminyak' ? 'warning' : 
+                        ($row->jenis_kulit == 'kering' ? 'info' : 'secondary')) 
+                    }}">
+                        <i class="bi bi-droplet-fill"></i> {{ ucfirst($row->jenis_kulit) }}
+                    </span>
+
+                    {{-- Harga (tampilkan jika ada) --}}
+                    @if(!is_null($row->harga))
+                        <span class="badge bg-light text-success border ms-1">
+                            <i class="bi bi-cash"></i> {{ $row->harga_format ?? number_format($row->harga, 0, ',', '.') }}
                         </span>
-                    </div>
+                    @endif
+
+                    {{-- SPF (tampilkan jika ada) --}}
+                    @if(!is_null($row->spf) && $row->spf !== '')
+                        <span class="badge bg-warning text-dark ms-1">
+                            <i class="bi bi-sun"></i>
+                            SPF {{ $row->spf_label ?? ( ($row->spf >= 60) ? '50+' : $row->spf ) }}
+                        </span>
+                    @endif
+                </div>
                     <div class="product-actions">
                         <button class="btn btn-sm btn-outline-warning" 
                                 data-bs-toggle="modal" 
@@ -337,6 +382,31 @@
                                 </select>
                                 <label for="jenis_kulit">
                                     <i class="bi bi-droplet"></i> Jenis Kulit
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="harga"
+                                       name="harga" placeholder="Harga" min="0">
+                                <label for="harga">
+                                    <i class="bi bi-cash"></i> Harga (Rp)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="spf" name="spf">
+                                    <option value="">Pilih SPF...</option>
+                                    <option value="30">SPF 30</option>
+                                    <option value="35">SPF 35</option>
+                                    <option value="40">SPF 40</option>
+                                    <option value="50">SPF 50</option>
+                                </select>
+                                <label for="spf">
+                                    <i class="bi bi-sun"></i> SPF Protection
                                 </label>
                             </div>
                         </div>
@@ -629,6 +699,33 @@
     color: #dee2e6;
 }
 
+.badge-spf {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 193, 7, 0.9);
+    color: #333;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.product-price {
+    font-size: 1.1rem;
+    color: #28a745;
+}
+
+.filter-section .btn-group {
+    margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .filter-section .btn-group {
+        margin-bottom: 0;
+    }
+}
+
 /* Image Upload */
 .image-upload-container {
     text-align: center;
@@ -799,22 +896,75 @@ $('#searchInput').on('keyup', function() {
     });
 });
 
-// Filter by Skin Type
+// Filter management
+let currentFilters = {
+    skin: 'all',
+    priceMin: 0,
+    priceMax: null,
+    spf: 'all',
+    search: ''
+};
+
+// Filter by skin type
 $('.filter-skin').click(function(e) {
     e.preventDefault();
-    const filter = $(this).data('filter');
-    
-    if (filter === 'all') {
-        $('.product-item').show();
-    } else {
-        $('.product-item').hide();
-        $('.product-item[data-skin="' + filter + '"]').show();
-    }
-    
-    // Update active state
-    $('.filter-skin').removeClass('active');
-    $(this).addClass('active');
+    currentFilters.skin = $(this).data('filter');
+    applyFilters();
 });
+
+// Filter by price
+$('.filter-price').click(function(e) {
+    e.preventDefault();
+    currentFilters.priceMin = $(this).data('min') || 0;
+    currentFilters.priceMax = $(this).data('max') || null;
+    applyFilters();
+});
+
+// Filter by SPF
+$('.filter-spf').click(function(e) {
+    e.preventDefault();
+    currentFilters.spf = $(this).data('spf');
+    applyFilters();
+});
+
+// Search
+$('#searchInput').on('keyup', function() {
+    currentFilters.search = $(this).val().toLowerCase();
+    applyFilters();
+});
+
+// Apply all filters
+function applyFilters() {
+    $('.product-item').each(function() {
+        let show = true;
+        const $item = $(this);
+        
+        // Skin filter
+        if (currentFilters.skin !== 'all') {
+            if ($item.data('skin') !== currentFilters.skin) show = false;
+        }
+        
+        // Price filter
+        const price = parseInt($item.data('price'));
+        if (currentFilters.priceMin && price < currentFilters.priceMin) show = false;
+        if (currentFilters.priceMax && price > currentFilters.priceMax) show = false;
+        
+        // SPF filter
+        if (currentFilters.spf !== 'all') {
+            const itemSpf = $item.data('spf');
+            if (currentFilters.spf === '50+' && itemSpf < 50) show = false;
+            else if (currentFilters.spf !== '50+' && itemSpf != currentFilters.spf) show = false;
+        }
+        
+        // Search filter
+        if (currentFilters.search) {
+            const text = $item.text().toLowerCase();
+            if (text.indexOf(currentFilters.search) === -1) show = false;
+        }
+        
+        $item.toggle(show);
+    });
+}
 
 // Image Upload Handler
 function handleImageSelect(input) {
@@ -920,6 +1070,54 @@ function show_button(id) {
     });
 }
 
+// Update edit function
+function show_button(id) {
+    $('#modalTitle').html('<i class="bi bi-pencil"></i> Edit Produk');
+    $('#formAlternatif').attr('action', '{{ route("alternatif.update") }}');
+    
+    Swal.fire({
+        title: 'Loading...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    $.ajax({
+        url: '{{ route("alternatif.edit") }}',
+        type: 'GET',
+        data: {
+            _token: '{{ csrf_token() }}',
+            alternatif_id: id
+        },
+        success: function(data) {
+            $('#formAlternatif input[name=id]').val(data.id);
+            $('#kode_produk').val(data.kode_produk);
+            $('#nama_produk').val(data.nama_produk);
+            $('#jenis_kulit').val(data.jenis_kulit);
+            $('#harga').val(data.harga);
+            $('#spf').val(data.spf);
+            
+            if (data.gambar) {
+                $('#previewImg').attr('src', '/img/produk/' + data.gambar).show();
+                $('#uploadPlaceholder').hide();
+                $('#removeImageBtn').show();
+            } else {
+                removeImage();
+            }
+            
+            Swal.close();
+        },
+        error: function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Gagal memuat data'
+            });
+        }
+    });
+}
+
 // Quick View
 function quickView(id) {
     $('#quickViewModal').modal('show');
@@ -959,17 +1157,17 @@ function animateOnScroll() {
 }
 
 // Toast Notification
-@if(session('success'))
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: '{{ session("success") }}',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
-@endif
+// @if(session('success'))
+//     Swal.fire({
+//         toast: true,
+//         position: 'top-end',
+//         icon: 'success',
+//         title: '{{ session("success") }}',
+//         showConfirmButton: false,
+//         timer: 3000,
+//         timerProgressBar: true
+//     });
+// @endif
 
 @if(session('error'))
     Swal.fire({

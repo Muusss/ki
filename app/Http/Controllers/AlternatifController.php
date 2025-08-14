@@ -23,33 +23,57 @@ class AlternatifController extends Controller
     public function index(Request $request)
     {
         $title = 'Data Produk Sunscreen';
-        $alternatif = Alternatif::orderBy('kode_produk', 'asc')->get();
+        
+        // Filter query
+        $query = Alternatif::query();
+        
+        // Filter jenis kulit
+        if ($request->has('jenis_kulit') && $request->jenis_kulit != 'all') {
+            $query->where('jenis_kulit', $request->jenis_kulit);
+        }
+        
+        // Filter harga
+        if ($request->has('harga_min') && $request->harga_min) {
+            $query->where('harga', '>=', $request->harga_min);
+        }
+        if ($request->has('harga_max') && $request->harga_max) {
+            $query->where('harga', '<=', $request->harga_max);
+        }
+        
+        // Filter SPF
+        if ($request->has('spf') && $request->spf != 'all') {
+            if ($request->spf == '50+') {
+                $query->where('spf', '>=', 50);
+            } else {
+                $query->where('spf', $request->spf);
+            }
+        }
+        
+        $alternatif = $query->orderBy('kode_produk', 'asc')->get();
+        
         return view('dashboard.alternatif.index', compact('title', 'alternatif'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $data = $request->validate([
             'kode_produk' => ['required','string','max:50','unique:alternatifs,kode_produk'],
             'nama_produk' => ['required','string','max:100'],
             'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi'])],
+            'harga' => ['nullable','integer','min:0'],
+            'spf' => ['nullable','integer','min:15','max:100'],
             'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
         ]);
 
-        // Pastikan folder ada
-        $uploadPath = public_path('img/produk');
-        if (!File::exists($uploadPath)) {
-            File::makeDirectory($uploadPath, 0755, true);
-        }
-
         // Handle upload gambar
         if ($request->hasFile('gambar')) {
+            $uploadPath = public_path('img/produk');
+            if (!File::exists($uploadPath)) {
+                File::makeDirectory($uploadPath, 0755, true);
+            }
+
             $gambar = $request->file('gambar');
-            
-            // Generate nama file unik
             $nama_file = time() . '_' . Str::slug($data['nama_produk']) . '.' . $gambar->getClientOriginalExtension();
-            
-            // Pindahkan file ke folder public/img/produk
             $gambar->move($uploadPath, $nama_file);
             $data['gambar'] = $nama_file;
         }
@@ -62,21 +86,23 @@ class AlternatifController extends Controller
         );
     }
 
+
     public function edit(Request $request)
     {
         $row = Alternatif::findOrFail($request->alternatif_id);
         
-        // Return dengan data gambar
         return response()->json([
             'id' => $row->id,
             'kode_produk' => $row->kode_produk,
             'nama_produk' => $row->nama_produk,
             'jenis_kulit' => $row->jenis_kulit,
+            'harga' => $row->harga,
+            'spf' => $row->spf,
             'gambar' => $row->gambar
         ]);
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request)
     {
         $row = Alternatif::findOrFail($request->id);
 
@@ -84,27 +110,25 @@ class AlternatifController extends Controller
             'kode_produk' => ['required','string','max:50', Rule::unique('alternatifs','kode_produk')->ignore($row->id)],
             'nama_produk' => ['required','string','max:100'],
             'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi'])],
+            'harga' => ['nullable','integer','min:0'],
+            'spf' => ['nullable','integer','min:15','max:100'],
             'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
         ]);
 
-        // Pastikan folder ada
-        $uploadPath = public_path('img/produk');
-        if (!File::exists($uploadPath)) {
-            File::makeDirectory($uploadPath, 0755, true);
-        }
-
         // Handle upload gambar
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada
+            $uploadPath = public_path('img/produk');
+            if (!File::exists($uploadPath)) {
+                File::makeDirectory($uploadPath, 0755, true);
+            }
+
+            // Hapus gambar lama
             if ($row->gambar && File::exists(public_path('img/produk/'.$row->gambar))) {
                 File::delete(public_path('img/produk/'.$row->gambar));
             }
             
             $gambar = $request->file('gambar');
-            // Generate nama file unik
             $nama_file = time() . '_' . Str::slug($data['nama_produk']) . '.' . $gambar->getClientOriginalExtension();
-            
-            // Pindahkan file ke folder public/img/produk
             $gambar->move($uploadPath, $nama_file);
             $data['gambar'] = $nama_file;
         }
