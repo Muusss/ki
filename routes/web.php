@@ -18,7 +18,7 @@ Route::get('/', function () {
 
 // Semua route memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
-    
+
     // Profile Routes
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
@@ -42,8 +42,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/delete', [KriteriaController::class, 'delete'])->name('delete');
         Route::post('/proses', [KriteriaController::class, 'proses'])->name('proses');
     });
-    
-    // Shortcut untuk kriteria
+    // Shortcut
     Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria');
 
     // Sub-Kriteria Routes
@@ -54,30 +53,32 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/update', [SubKriteriaController::class, 'update'])->name('update');
         Route::post('/delete', [SubKriteriaController::class, 'delete'])->name('delete');
     });
-    
-    // Shortcut untuk subkriteria
+    // Shortcut
     Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria');
 
     // Alternatif (Produk) Routes
     Route::prefix('alternatif')->name('alternatif.')->group(function () {
         Route::get('/', [AlternatifController::class, 'index'])->name('index');
         Route::post('/simpan', [AlternatifController::class, 'store'])->name('store');
-        Route::get('/ubah', [AlternatifController::class, 'edit'])->name('edit');
+        Route::get('/ubah', [AlternatifController::class, 'edit'])->name('edit');      // expects ?alternatif_id=...
         Route::post('/ubah', [AlternatifController::class, 'update'])->name('update');
         Route::post('/hapus', [AlternatifController::class, 'delete'])->name('delete');
     });
-    
-    // Shortcut untuk alternatif
+    // Shortcut
     Route::get('/alternatif', [AlternatifController::class, 'index'])->name('alternatif');
 
-    // Penilaian Routes
+    // Penilaian Routes (mendukung query ?skin=... sebagai filter server-side)
     Route::prefix('penilaian')->name('penilaian.')->group(function () {
         Route::get('/', [PenilaianController::class, 'index'])->name('index');
-        Route::get('/{id}/ubah', [PenilaianController::class, 'edit'])->name('edit');
-        Route::post('/{id}/ubah', [PenilaianController::class, 'update'])->name('update');
+        Route::get('/{id}/ubah', [PenilaianController::class, 'edit'])->whereNumber('id')->name('edit');
+        Route::post('/{id}/ubah', [PenilaianController::class, 'update'])->whereNumber('id')->name('update');
+
+        // HALAMAN BARU: input full page
+        Route::get('/input/{id}', [PenilaianController::class, 'inputPage'])
+            ->whereNumber('id')
+            ->name('input');
     });
-    
-    // Shortcut untuk penilaian
+    // Shortcut (digunakan oleh view/JS sebagai route('penilaian'))
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
 
     // Permintaan Routes
@@ -87,19 +88,16 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [PermintaanController::class, 'update'])->name('update');
         Route::delete('/{id}', [PermintaanController::class, 'destroy'])->name('destroy');
     });
-    
-    // Shortcut untuk permintaan
+    // Shortcut
     Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan');
 
-    // SMART Routes - PERBAIKAN
+    // SMART Routes
     Route::prefix('smart')->name('smart.')->group(function () {
         Route::get('/perhitungan', [SMARTController::class, 'indexPerhitungan'])->name('perhitungan');
         Route::post('/perhitungan', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.store');
-        // FIX: Gunakan view yang sudah ada atau buat method di controller
         Route::get('/detail-benefit-cost', [SMARTController::class, 'detailBenefitCost'])->name('detail.benefit.cost');
     });
-    
-    // Shortcut untuk perhitungan
+    // Shortcut perhitungan
     Route::get('/perhitungan', [SMARTController::class, 'indexPerhitungan'])->name('perhitungan');
     Route::post('/perhitungan', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.smart');
 
