@@ -49,27 +49,17 @@ class DashboardController extends Controller
             $chartSeries = [];
             $needsCalculation = false;
 
-            // Cek apakah ada data nilai akhir
-            if ($jumlahNilaiAkhir > 0) {
-                $nilaiAkhir = NilaiAkhir::with('alternatif')
-                    ->orderByDesc('total')
-                    ->get();
-
-                // Top 5 produk
-                $top5 = $nilaiAkhir->take(5);
-
-                // Data untuk chart
-                foreach ($nilaiAkhir->take(10) as $row) {
-                    if ($row->alternatif) {
-                        $chartLabels[] = $row->alternatif->nama_produk ?? ('Produk '.$row->alternatif_id);
-                        $chartSeries[] = round((float) ($row->total ?? 0), 3);
-                    }
-                }
-            } else {
-                // Cek apakah ada data penilaian tapi belum dihitung
-                if ($jumlahPenilaian > 0) {
-                    $needsCalculation = true;
-                }
+            // Eager load relationships
+            $nilaiAkhir = NilaiAkhir::with('alternatif')
+                ->orderByDesc('total')
+                ->get();
+            
+            $top5 = $nilaiAkhir->take(5);
+            
+            // Gunakan data yang sudah di-load
+            foreach ($nilaiAkhir->take(10) as $row) {
+                $chartLabels[] = $row->alternatif->nama_produk ?? ('Produk '.$row->alternatif_id);
+                $chartSeries[] = round((float) ($row->total ?? 0), 3);
             }
 
             // Info sistem untuk debugging

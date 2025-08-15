@@ -86,8 +86,14 @@ class PenilaianController extends Controller
             $request->input('label')
         );
 
-        if (!$subId || !$skor) {
-            return back()->with('error','Tidak menemukan sub kriteria yang cocok. Periksa input.');
+        // Perbaikan validasi
+        if ($subId === null) { // Cek null explicitly
+            return back()->with('error', 'Tidak menemukan sub kriteria yang cocok.');
+        }
+        
+        // Skor 0 adalah valid
+        if (!is_numeric($skor)) {
+            return back()->with('error', 'Skor tidak valid.');
         }
 
         $row = Penilaian::updateOrCreate(
@@ -102,7 +108,8 @@ class PenilaianController extends Controller
             ]
         );
 
-        return back()->with($row ? 'success' : 'error', $row ? 'Nilai tersimpan.' : 'Gagal menyimpan nilai.');
+        return back()->with($row ? 'success' : 'error', 
+                            $row ? 'Nilai tersimpan.' : 'Gagal menyimpan nilai.');
     }
 
     public function update(Request $request, $id)
@@ -129,7 +136,9 @@ class PenilaianController extends Controller
     private function resolveSubAndSkor(int $kriteriaId, ?float $nilaiAngka, ?int $subId, ?string $label): array
     {
         if ($subId) {
-            $sub = SubKriteria::where('kriteria_id',$kriteriaId)->where('id',$subId)->first();
+            $sub = SubKriteria::where('kriteria_id', $kriteriaId)
+                            ->where('id', $subId)
+                            ->first();
             return $sub ? [$sub->id, (int)$sub->skor] : [null, null];
         }
 

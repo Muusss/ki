@@ -57,12 +57,59 @@ class AlternatifController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'kode_produk' => ['required','string','max:50','unique:alternatifs,kode_produk'],
-            'nama_produk' => ['required','string','max:100'],
-            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi'])],
-            'harga' => ['nullable','integer','min:0'],
-            'spf' => ['nullable','integer','min:15','max:100'],
-            'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
+            'kode_produk' => ['required', 'string', 'max:50', 'unique:alternatifs,kode_produk'],
+            'nama_produk' => ['required', 'string', 'max:100'],
+            'jenis_kulit' => ['required', Rule::in(['normal', 'berminyak', 'kering', 'kombinasi'])],
+            'harga' => ['nullable', 'integer', 'min:0'],
+            'spf' => ['nullable', 'integer', 'min:15', 'max:100'],
+            'gambar' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg',
+                'max:2048',
+                function ($attribute, $value, $fail) {
+                    // Validasi MIME type
+                    $mimeType = $value->getMimeType();
+                    if (!in_array($mimeType, ['image/jpeg', 'image/png'])) {
+                        $fail('File harus berupa gambar JPG atau PNG.');
+                    }
+                    // Validasi konten gambar
+                    $imgInfo = @getimagesize($value->getRealPath());
+                    if (!$imgInfo) {
+                        $fail('File bukan gambar yang valid.');
+                    }
+                }
+            ]
+        ]);
+
+        // Penyimpanan gambar
+        if ($request->hasFile('gambar')) {
+            $gambar = $request->file('gambar');
+            $nama_file = time() . '_' . Str::slug($data['nama_produk']) . '.' . $gambar->getClientOriginalExtension();
+            $path = $gambar->move(public_path('img/produk'), $nama_file); // Simpan di public/img/produk
+            $data['gambar'] = $nama_file;
+        }
+
+        // Simpan data produk ke database
+        $ok = Alternatif::create($data);
+
+        return to_route('alternatif')->with(
+            $ok ? 'success' : 'error',
+            $ok ? 'Produk berhasil disimpan' : 'Produk gagal disimpan'
+        );
+    }
+
+    public function update(Request $request)
+    {
+        $row = Alternatif::findOrFail($request->id);
+
+        $data = $request->validate([
+            'kode_produk' => ['required', 'string', 'max:50', Rule::unique('alternatifs', 'kode_produk')->ignore($row->id)],
+            'nama_produk' => ['required', 'string', 'max:100'],
+            'jenis_kulit' => ['required', Rule::in(['normal', 'berminyak', 'kering', 'kombinasi'])],
+            'harga' => ['nullable', 'integer', 'min:0'],
+            'spf' => ['nullable', 'integer', 'min:15', 'max:100'],
+            'gambar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048']
         ]);
 
         // Handle upload gambar
@@ -72,19 +119,26 @@ class AlternatifController extends Controller
                 File::makeDirectory($uploadPath, 0755, true);
             }
 
+            // Hapus gambar lama jika ada
+            if ($row->gambar && File::exists(public_path('img/produk/' . $row->gambar))) {
+                File::delete(public_path('img/produk/' . $row->gambar));
+            }
+
+            // Simpan gambar yang baru
             $gambar = $request->file('gambar');
             $nama_file = time() . '_' . Str::slug($data['nama_produk']) . '.' . $gambar->getClientOriginalExtension();
             $gambar->move($uploadPath, $nama_file);
             $data['gambar'] = $nama_file;
         }
 
-        $ok = Alternatif::create($data);
+        $ok = $row->update($data);
 
         return to_route('alternatif')->with(
             $ok ? 'success' : 'error',
-            $ok ? 'Produk berhasil disimpan' : 'Produk gagal disimpan'
+            $ok ? 'Produk berhasil diperbarui' : 'Produk gagal diperbarui'
         );
     }
+
 
 
     public function edit(Request $request)
@@ -100,45 +154,6 @@ class AlternatifController extends Controller
             'spf' => $row->spf,
             'gambar' => $row->gambar
         ]);
-    }
-
-    public function update(Request $request)
-    {
-        $row = Alternatif::findOrFail($request->id);
-
-        $data = $request->validate([
-            'kode_produk' => ['required','string','max:50', Rule::unique('alternatifs','kode_produk')->ignore($row->id)],
-            'nama_produk' => ['required','string','max:100'],
-            'jenis_kulit' => ['required', Rule::in(['normal','berminyak','kering','kombinasi'])],
-            'harga' => ['nullable','integer','min:0'],
-            'spf' => ['nullable','integer','min:15','max:100'],
-            'gambar' => ['nullable','image','mimes:jpeg,png,jpg','max:2048']
-        ]);
-
-        // Handle upload gambar
-        if ($request->hasFile('gambar')) {
-            $uploadPath = public_path('img/produk');
-            if (!File::exists($uploadPath)) {
-                File::makeDirectory($uploadPath, 0755, true);
-            }
-
-            // Hapus gambar lama
-            if ($row->gambar && File::exists(public_path('img/produk/'.$row->gambar))) {
-                File::delete(public_path('img/produk/'.$row->gambar));
-            }
-            
-            $gambar = $request->file('gambar');
-            $nama_file = time() . '_' . Str::slug($data['nama_produk']) . '.' . $gambar->getClientOriginalExtension();
-            $gambar->move($uploadPath, $nama_file);
-            $data['gambar'] = $nama_file;
-        }
-
-        $ok = $row->update($data);
-
-        return to_route('alternatif')->with(
-            $ok ? 'success' : 'error',
-            $ok ? 'Produk berhasil diperbarui' : 'Produk gagal diperbarui'
-        );
     }
 
     public function delete(Request $request): RedirectResponse

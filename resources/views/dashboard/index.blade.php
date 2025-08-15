@@ -67,68 +67,49 @@
         </div>
     </div>
 
-    {{-- FILTER (disamakan dengan Hasil Akhir) --}}
+    {{-- FILTER (langsung redirect ke Hasil Akhir) --}}
     <div class="row mb-3">
         <div class="col-12">
             <div class="soft-card filter-section">
-                <form id="dashFilterForm" class="row g-3 align-items-end">
+                <form action="{{ route('hasil-akhir') }}" method="GET" class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label">Jenis Kulit</label>
-                        <select id="f_skin" class="form-select">
-                            <option value="all">Semua</option>
+                        <select name="jenis_kulit" id="f_skin" class="form-select">
+                            @php $jenisReq = request('jenis_kulit','all'); @endphp
+                            <option value="all" {{ $jenisReq==='all' ? 'selected' : '' }}>Semua</option>
                             @foreach(($jenisKulitList ?? ['normal','berminyak','kering','kombinasi']) as $jenis)
-                                <option value="{{ $jenis }}">{{ ucfirst($jenis) }}</option>
+                                <option value="{{ $jenis }}" {{ $jenisReq===$jenis ? 'selected' : '' }}>
+                                    {{ ucfirst($jenis) }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Harga Min</label>
-                        <input type="number" id="f_harga_min" class="form-control" placeholder="0">
+                        <input type="number" name="harga_min" id="f_harga_min" class="form-control"
+                               placeholder="0" value="{{ request('harga_min') }}">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Harga Max</label>
-                        <input type="number" id="f_harga_max" class="form-control" placeholder="999999">
+                        <input type="number" name="harga_max" id="f_harga_max" class="form-control"
+                               placeholder="999999" value="{{ request('harga_max') }}">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">SPF Min</label>
-                        <input type="number" id="f_spf_min" class="form-control" placeholder="15" min="0" max="100">
+                        <input type="number" name="spf_min" id="f_spf_min" class="form-control"
+                               placeholder="15" min="0" max="100" value="{{ request('spf_min') }}">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">SPF Max</label>
-                        <input type="number" id="f_spf_max" class="form-control" placeholder="100" min="0" max="100">
+                        <input type="number" name="spf_max" id="f_spf_max" class="form-control"
+                               placeholder="100" min="0" max="100" value="{{ request('spf_max') }}">
                     </div>
                     <div class="col-md-1 d-grid">
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
                     </div>
                 </form>
-
-                {{-- Chips + Counter --}}
-                <div class="d-flex align-items-center flex-wrap gap-2 mt-2">
-                    <div class="chips d-flex gap-2 flex-wrap">
-                        <span id="chip-skin" class="chip" aria-hidden="true">
-                            <i class="bi bi-droplet"></i><span class="chip-text"></span>
-                            <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-skin',()=>{ currentFilters.skin='all'; document.getElementById('f_skin').value='all'; })" aria-label="Hapus filter kulit">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </span>
-                        <span id="chip-price" class="chip" aria-hidden="true">
-                            <i class="bi bi-cash"></i><span class="chip-text"></span>
-                            <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-price',()=>{ currentFilters.priceMin=0; currentFilters.priceMax=null; document.getElementById('f_harga_min').value=''; document.getElementById('f_harga_max').value=''; })" aria-label="Hapus filter harga">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </span>
-                        <span id="chip-spf" class="chip" aria-hidden="true">
-                            <i class="bi bi-sun"></i><span class="chip-text"></span>
-                            <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-spf',()=>{ currentFilters.spfMin=null; currentFilters.spfMax=null; document.getElementById('f_spf_min').value=''; document.getElementById('f_spf_max').value=''; })" aria-label="Hapus filter SPF">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </span>
-                    </div>
-                    <span id="resultCount" class="result-count ms-auto">0 item ditampilkan</span>
-                    <a href="javascript:void(0)" class="btn btn-sm btn-secondary ms-2" onclick="resetDashFilters()">
-                        <i class="bi bi-arrow-clockwise"></i> Reset
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -150,10 +131,7 @@
                 <h6 class="m-0 mb-3">Top 5 Produk Teratas</h6>
                 @forelse(($top5 ?? []) as $index => $item)
                     @php $alt = $item->alternatif ?? null; @endphp
-                    <div class="top5-item product-card-mini h-100 mb-3"
-                         data-skin="{{ $alt->jenis_kulit ?? '' }}"
-                         data-price="{{ $alt->harga ?? 0 }}"
-                         data-spf="{{ $alt->spf ?? 0 }}">
+                    <div class="top5-item product-card-mini h-100 mb-3">
                         <div class="product-image-mini">
                             @if($alt && $alt->gambar && file_exists(public_path('img/produk/'.$alt->gambar)))
                                 <img src="{{ asset('img/produk/'.$alt->gambar) }}" alt="{{ $alt->nama_produk ?? '-' }}" class="img-fluid">
@@ -184,7 +162,7 @@
         </div>
     </div>
 
-    {{-- Tabel Hasil Perankingan --}}
+    {{-- Tabel Hasil Perankingan (tampilan cepat, tanpa filter/dashboard JS) --}}
     <div class="row">
         <div class="col-12">
             <div class="soft-card">
@@ -223,10 +201,7 @@
                                             default => 'secondary'
                                         };
                                     @endphp
-                                    <tr class="rank-row"
-                                        data-skin="{{ $jenis }}"
-                                        data-price="{{ $alt->harga ?? 0 }}"
-                                        data-spf="{{ $alt->spf ?? 0 }}">
+                                    <tr class="rank-row">
                                         <td>
                                             <span class="badge {{ $loop->iteration==1?'bg-warning text-dark':($loop->iteration==2?'bg-secondary':($loop->iteration==3?'bg-danger':'bg-info')) }} fs-6">{{ $loop->iteration }}</span>
                                         </td>
@@ -309,10 +284,7 @@
                                 default => 'secondary'
                             };
                         @endphp
-                        <div class="col-xl-3 col-lg-4 col-md-6 product-item"
-                             data-skin="{{ $p->jenis_kulit }}"
-                             data-price="{{ $p->harga ?? 0 }}"
-                             data-spf="{{ $p->spf ?? 0 }}">
+                        <div class="col-xl-3 col-lg-4 col-md-6 product-item">
                             <div class="product-card h-100">
                                 <div class="product-image">
                                     @if($p->gambar && file_exists(public_path('img/produk/'.$p->gambar)))
@@ -385,12 +357,8 @@
 .bg-gradient-warning{background:var(--grad-warning)}
 .bg-gradient-info{background:var(--grad-info)}
 
-/* Filter toolbar */
+/* Filter bar */
 .filter-section{position:sticky; top:0; z-index:20; backdrop-filter:saturate(1.05) blur(6px)}
-.result-count{font-size:.9rem; color:#6b7380; background:#f7f9fc; border:1px solid var(--line); padding:6px 10px; border-radius:999px}
-.chip{border:1px solid var(--line); background:#fff; color:#273142; padding:6px 10px; border-radius:999px; font-size:.86rem; display:none}
-.chip.active{display:inline-flex}
-.chip i{margin-right:6px}
 
 /* Product cards */
 .product-card{background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-sm); overflow:hidden; display:flex; flex-direction:column; transition:var(--transition)}
@@ -423,11 +391,8 @@
 .modern-table thead th{background:#f7f9fc; border-bottom:1px solid var(--line); text-transform:uppercase; font-size:.78rem; letter-spacing:.6px; color:#667085}
 .table-image,.table-no-image{width:58px;height:58px;border-radius:10px;object-fit:cover}
 .table-no-image{display:flex;align-items:center;justify-content:center;background:#f0f3f8;color:#c7cfdb}
-/* Matikan overlay processing DataTables dan cegah wrapper bikin stuck */
-.dataTables_processing{display:none !important;}
-.table-responsive{overflow:visible;} /* hindari responsive-wrapper lock saat init */
 
-/* Anim */
+/* Animasi sederhana */
 @keyframes fadeInUp{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
 .product-card, .product-card-mini, .rank-row, .top5-item{animation:fadeInUp .35s ease both}
 </style>
@@ -435,215 +400,13 @@
 
 @section('js')
 <script>
-/* ============= Dashboard Filter – HARDENED ============= */
-
-let dtInstance = null;
-
-// State filter
-const F = { skin:'all', priceMin:0, priceMax:null, spfMin:null, spfMax:null };
-
-/* ---------- Helpers ---------- */
-const fmtIDR = n => Number(n||0).toLocaleString('id-ID');
-const cap    = s => s ? s[0].toUpperCase() + s.slice(1) : s;
-const stripHtml = s => (s||'').toString().replace(/<[^>]*>/g,'').trim();
-const parsePrice = s => { const n = stripHtml(s).replace(/[^\d]/g,''); return n?Number(n):NaN; };
-const parseSPF   = s => { const m = stripHtml(s).match(/\d+/); return m?Number(m[0]):NaN; };
-
-let urlTimer=null;
-function updateURL(){
-  clearTimeout(urlTimer);
-  urlTimer=setTimeout(()=>{
-    const p=new URLSearchParams();
-    if(F.skin!=='all')   p.set('jenis_kulit',F.skin);
-    if(F.priceMin)       p.set('harga_min',F.priceMin);
-    if(F.priceMax!=null) p.set('harga_max',F.priceMax);
-    if(F.spfMin!=null)   p.set('spf_min',F.spfMin);
-    if(F.spfMax!=null)   p.set('spf_max',F.spfMax);
-    history.replaceState(null,'',`${location.pathname}${p.toString()?`?${p.toString()}`:''}`);
-  },120);
-}
-
-function setChip(sel, text){
-  const el=document.querySelector(sel); if(!el) return;
-  if(text){ el.classList.add('active'); el.setAttribute('aria-hidden','false'); el.querySelector('.chip-text').textContent=text; }
-  else { el.classList.remove('active'); el.setAttribute('aria-hidden','true'); }
-}
-function clearChip(sel, cb){ setChip(sel,null); cb&&cb(); applyFilters(); }
-
-// Reset form + state
-function resetDashFilters(){
-  $('#f_skin').val('all');
-  $('#f_harga_min,#f_harga_max,#f_spf_min,#f_spf_max').val('');
-  F.skin='all'; F.priceMin=0; F.priceMax=null; F.spfMin=null; F.spfMax=null;
-  applyFilters();
-}
-window.resetDashFilters = resetDashFilters;
-window.clearChip = clearChip;
-
-/* ---------- Filter untuk kartu (Top5 & Grid) ---------- */
-function shouldShowEl(el){
-  const skin  = (el.getAttribute('data-skin')||'').toLowerCase();
-  const price = Number(el.getAttribute('data-price')||0);
-  const spf   = Number(el.getAttribute('data-spf')||0);
-
-  if(F.skin!=='all' && skin!==F.skin) return false;
-  if(Number.isFinite(F.priceMin) && F.priceMin>0 && price < F.priceMin) return false;
-  if(Number.isFinite(F.priceMax) && F.priceMax!=null && price > F.priceMax) return false;
-  if(F.spfMin!=null && (!Number.isFinite(spf) || spf < F.spfMin)) return false;
-  if(F.spfMax!=null && (!Number.isFinite(spf) || spf > F.spfMax)) return false;
-  return true;
-}
-
-/* ---------- Apply Filters (kartu + tabel) ---------- */
-function applyFilters(){
-  let count = 0;
-
-  // Top 5
-  document.querySelectorAll('.top5-item').forEach(el=>{
-    const show = shouldShowEl(el);
-    el.style.display = show ? '' : 'none';
-    if(show) count++;
-  });
-
-  // Grid Produk
-  document.querySelectorAll('#productShowcase .product-item').forEach(el=>{
-    const show = shouldShowEl(el);
-    el.style.display = show ? '' : 'none';
-    if(show) count++;
-  });
-
-  // Tabel via DataTables (tanpa sentuh <tr>)
-  if(dtInstance){
-    try{
-      dtInstance.draw(false);
-      count += dtInstance.rows({ filter:'applied' }).count();
-    }catch(e){
-      console.warn('DT draw failed, fallback filter only cards/grid', e);
-    }
-  }
-
-  // Counter & Chips
-  const rc=document.getElementById('resultCount');
-  if(rc) rc.textContent = `${count} item ditampilkan`;
-
-  setChip('#chip-skin', F.skin==='all'? null : `Kulit: ${cap(F.skin)}`);
-  const priceLbl = (F.priceMin||0)>0 || F.priceMax!=null
-    ? `Harga ${F.priceMin?('≥ Rp '+fmtIDR(F.priceMin)):'Semua'}${(F.priceMin && F.priceMax!=null)?' – ':''}${F.priceMax!=null?('≤ Rp '+fmtIDR(F.priceMax)) : ''}`
-    : null;
-  setChip('#chip-price', priceLbl);
-  const spfLbl = (F.spfMin!=null || F.spfMax!=null)
-    ? `SPF ${F.spfMin!=null?('≥ '+F.spfMin):'Semua'}${(F.spfMin!=null && F.spfMax!=null)?' – ':''}${F.spfMax!=null?('≤ '+F.spfMax):''}`
-    : null;
-  setChip('#chip-spf', spfLbl);
-
-  updateURL();
-}
-
-/* ---------- DataTables: ext.search (unik & aman) ---------- */
-/* Pastikan hanya satu fungsi filter yang terpasang */
-const DT_FILTER_KEY = 'dashFilterV2';
-function attachDtFilterOnce(){
-  // buang filter lama dengan key kami bila sudah ada
-  $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => fn._dashKey !== DT_FILTER_KEY);
-
-  const extFn = function(settings, data){
-    if(settings.sTableId !== 'rankingTable') return true;
-    try{
-      // Kolom: 0 Rank | 1 Gambar | 2 Kode | 3 Nama | 4 Jenis Kulit | 5 SPF | 6 Harga | 7 Nilai | 8 Status
-      const skinTxt  = (data[4]||'').toString().toLowerCase();
-      const spfVal   = parseSPF(data[5]);
-      const priceVal = parsePrice(data[6]);
-      const skin     = skinTxt.replace(/[^a-z]/g,'');
-
-      // NOTE: kalau harga/SPF tidak ada (NaN) dan user memberi batas, JANGAN blokir baris → biar tabel tetap jalan
-      if(F.skin!=='all' && skin !== F.skin) return false;
-
-      if(Number.isFinite(F.priceMin) && F.priceMin>0){
-        if(Number.isFinite(priceVal) && priceVal < F.priceMin) return false;
-      }
-      if(Number.isFinite(F.priceMax)){
-        if(Number.isFinite(priceVal) && priceVal > F.priceMax) return false;
-      }
-
-      if(F.spfMin!=null){
-        if(Number.isFinite(spfVal) && spfVal < F.spfMin) return false;
-      }
-      if(F.spfMax!=null){
-        if(Number.isFinite(spfVal) && spfVal > F.spfMax) return false;
-      }
-
-      return true;
-    }catch(e){
-      console.warn('DT filter error:', e);
-      return true;
-    }
-  };
-  extFn._dashKey = DT_FILTER_KEY;
-  $.fn.dataTable.ext.search.push(extFn);
-}
-
-/* ---------- Init ---------- */
-$(function(){
-
-  attachDtFilterOnce();
-
-  const $tbl = $('#rankingTable');
-  if ($tbl.length){
-    // Anti double-init
-    if ($.fn.dataTable.isDataTable($tbl)) {
-      dtInstance = $tbl.DataTable();
-      $tbl.one('draw.dt', ()=> applyFilters());
-      $('.loading, .loading-badge, .loading-pill, [data-loading="true"]').hide();
-      applyFilters();
-    } else {
-      $tbl.on('init.dt', function(){
-        $('.loading, .loading-badge, .loading-pill, [data-loading="true"]').hide();
-        applyFilters();
-      });
-      dtInstance = $tbl.DataTable({
-        responsive:false,
-        stateSave:false,
-        processing:false,
-        deferRender:false,
-        autoWidth:false,
-        pageLength:10,
-        // jaga agar tidak ada auto-order/auto-search yg bikin redraw dobel saat first-use
-        order: [],
-        search: { smart: false, regex: false, caseInsensitive: true },
-        language:{
-          search:"Cari:", lengthMenu:"Tampilkan _MENU_ data", info:"Menampilkan _START_–_END_ dari _TOTAL_ data",
-          paginate:{ first:"Pertama", last:"Terakhir", next:"Selanjutnya", previous:"Sebelumnya" },
-          emptyTable:"Tidak ada data tersedia"
-        }
-      });
-    }
-  } else {
-    // Tidak ada tabel → tetap apply untuk Top5 & Grid
-    applyFilters();
-  }
-
-  // Submit form filter
-  $('#dashFilterForm').on('submit', function(e){
-    e.preventDefault();
-    F.skin = ($('#f_skin').val()||'all').toLowerCase();
-
-    const hmin = $('#f_harga_min').val();
-    const hmax = $('#f_harga_max').val();
-    const smin = $('#f_spf_min').val();
-    const smax = $('#f_spf_max').val();
-
-    F.priceMin = hmin ? parseInt(hmin,10) : 0;
-    F.priceMax = hmax ? parseInt(hmax,10) : null;
-    F.spfMin   = smin ? parseInt(smin,10) : null;
-    F.spfMax   = smax ? parseInt(smax,10) : null;
-
-    applyFilters();
-  });
-
-  // Chart (tidak terkait loading)
-  const chartData = @json($chartSeries ?? []);
+// Dashboard: filter sudah dipindahkan ke halaman hasil-akhir via GET.
+// Tidak ada in-page filtering di dashboard untuk mencegah loading error.
+(function(){
+  const chartData   = @json($chartSeries ?? []);
   const chartLabels = @json($chartLabels ?? []);
-  if(Array.isArray(chartData) && chartData.length){
+  const el = document.querySelector("#chart_peringkat");
+  if(Array.isArray(chartData) && chartData.length && window.ApexCharts){
     const options = {
       series:[{ name:'Nilai Total', data:chartData }],
       chart:{ type:'bar', height:350, toolbar:{ show:true }},
@@ -653,11 +416,11 @@ $(function(){
       yaxis:{ title:{ text:'Nilai Total' }},
       grid:{ borderColor:'#e3e6f0' }
     };
-    new ApexCharts(document.querySelector("#chart_peringkat"), options).render();
-  } else {
-    document.querySelector("#chart_peringkat").innerHTML =
+    new ApexCharts(el, options).render();
+  } else if (el){
+    el.innerHTML =
       '<div class="text-center py-5"><i class="bi bi-bar-chart" style="font-size:3rem; color:#cfd6e3;"></i><h5 class="mt-3">Belum ada data untuk grafik</h5><p class="text-muted mb-0">Data akan muncul setelah perhitungan ROC + SMART</p></div>';
   }
-});
+})();
 </script>
 @endsection

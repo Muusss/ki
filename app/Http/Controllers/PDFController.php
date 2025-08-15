@@ -99,7 +99,7 @@ class PDFController extends Controller
             'defaultFont' => 'sans-serif',
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true
-        ])->loadview('dashboard.pdf.hasil_produk', compact(
+        ])->loadview('dashboard.pdf.hasil_akhir', compact(
             'judul',
             'tanggal_cetak',
             'tabelPenilaian', 

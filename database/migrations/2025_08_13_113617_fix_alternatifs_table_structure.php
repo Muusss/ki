@@ -8,28 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Pastikan tabel alternatifs menggunakan struktur yang benar
-        if (Schema::hasTable('alternatifs')) {
-            Schema::table('alternatifs', function (Blueprint $table) {
-                // Jika ada kolom nis, hapus dan ganti dengan kode_produk
-                if (Schema::hasColumn('alternatifs', 'nis') && !Schema::hasColumn('alternatifs', 'kode_produk')) {
-                    $table->renameColumn('nis', 'kode_produk');
-                }
+        if (!Schema::hasTable('alternatifs')) {
+            Schema::create('alternatifs', function (Blueprint $table) {
+                $table->id();
+                $table->string('kode_produk', 30)->unique();
+                $table->string('nama_produk', 100);
+                $table->enum('jenis_kulit', ['normal', 'berminyak', 'kering', 'kombinasi']);
+                $table->integer('harga')->nullable();
+                $table->integer('spf')->nullable();
+                $table->string('gambar')->nullable();
+                $table->timestamps();
                 
-                // Jika ada kolom nama_siswa, hapus dan ganti dengan nama_produk
-                if (Schema::hasColumn('alternatifs', 'nama_siswa') && !Schema::hasColumn('alternatifs', 'nama_produk')) {
-                    $table->renameColumn('nama_siswa', 'nama_produk');
-                }
-                
-                // Jika ada kolom jk, hapus dan ganti dengan jenis_kulit
-                if (Schema::hasColumn('alternatifs', 'jk') && !Schema::hasColumn('alternatifs', 'jenis_kulit')) {
-                    $table->renameColumn('jk', 'jenis_kulit');
-                }
-                
-                // Jika ada kolom kelas, hapus karena tidak diperlukan untuk produk
-                if (Schema::hasColumn('alternatifs', 'kelas')) {
-                    $table->dropColumn('kelas');
-                }
+                $table->index('jenis_kulit');
+                $table->index('harga');
+                $table->index('spf');
             });
         }
     }

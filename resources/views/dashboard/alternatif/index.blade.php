@@ -178,8 +178,8 @@
              data-spf="{{ $row->spf ?? 0 }}">
             <div class="product-card h-100">
                 <div class="product-image">
-                    @if($row->has_gambar)
-                        <img src="{{ $row->gambar_url }}" alt="{{ $row->nama_produk }}" loading="lazy">
+                    @if($row->gambar)
+                        <img src="{{ asset('img/produk/' . $row->gambar) }}" alt="{{ $row->nama_produk }}" loading="lazy">
                     @else
                         <div class="no-image">
                             <i class="bi bi-image"></i>

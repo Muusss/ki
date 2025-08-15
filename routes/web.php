@@ -11,8 +11,11 @@ use App\Http\Controllers\SubKriteriaController;
 use App\Http\Controllers\PermintaanController;
 use Illuminate\Support\Facades\Route;
 
-// Route root - redirect ke login
 Route::get('/', function () {
+    return view('welcome');
+});
+// Route root - redirect ke login
+Route::get('/login', function () {
     return redirect()->route('login');
 });
 

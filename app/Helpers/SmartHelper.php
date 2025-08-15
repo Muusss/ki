@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Cache;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use App\Models\Alternatif;
@@ -30,21 +31,24 @@ class SmartHelper
      */
     public static function hitungNilaiAkhir($alternatifId, $periodeId = null)
     {
+        // Load semua data sekaligus
         $kriterias = Kriteria::all();
+        $penilaians = Penilaian::where('alternatif_id', $alternatifId)
+                            ->whereIn('kriteria_id', $kriterias->pluck('id'))
+                            ->get()
+                            ->keyBy('kriteria_id');
+        
         $totalNilai = 0;
-
+        
         foreach ($kriterias as $kriteria) {
-            $penilaian = Penilaian::where('alternatif_id', $alternatifId)
-                                  ->where('kriteria_id', $kriteria->id)
-                                  ->first();
+            $penilaian = $penilaians->get($kriteria->id);
             
             if ($penilaian && $penilaian->nilai_normal) {
-                // Nilai utilitas x Bobot ROC
                 $nilaiKriteria = $penilaian->nilai_normal * $kriteria->bobot_roc;
                 $totalNilai += $nilaiKriteria;
             }
         }
-
+        
         return $totalNilai;
     }
 
