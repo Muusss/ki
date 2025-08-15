@@ -86,7 +86,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ 3 + $kriteria->count() }}" class="text-center">
+                        <td colspan="{{ 4 + $kriteria->count() }}" class="text-center">
                             Belum ada data alternatif
                         </td>
                     </tr>

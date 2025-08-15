@@ -16,12 +16,26 @@ class PDFController extends Controller
         $judul = 'Laporan Hasil Akhir Rekomendasi Sunscreen';
         $user = Auth::user();
 
-        // Ambil filter jenis kulit dari query
+        // Ambil filter dari request
         $jenisKulit = request()->get('jenis_kulit', 'all');
+        $hargaMin = request()->get('harga_min');
+        $hargaMax = request()->get('harga_max');
+        $spfMin = request()->get('spf_min');
+        $spfMax = request()->get('spf_max');
 
-        // Update judul bila ada filter
-        if ($jenisKulit && $jenisKulit !== 'all') {
-            $judul .= ' - Jenis Kulit ' . ucfirst($jenisKulit);
+        // Update judul dengan info filter
+        $filterText = [];
+        if ($jenisKulit !== 'all') $filterText[] = 'Jenis Kulit: ' . ucfirst($jenisKulit);
+        if ($hargaMin || $hargaMax) {
+            $filterText[] = 'Harga: Rp ' . number_format($hargaMin ?: 0, 0, ',', '.') . 
+                        ' - Rp ' . number_format($hargaMax ?: 999999999, 0, ',', '.');
+        }
+        if ($spfMin || $spfMax) {
+            $filterText[] = 'SPF: ' . ($spfMin ?: '15') . ' - ' . ($spfMax ?: '100');
+        }
+        
+        if (count($filterText) > 0) {
+            $judul .= ' (Filter: ' . implode(', ', $filterText) . ')';
         }
 
         // Data kriteria

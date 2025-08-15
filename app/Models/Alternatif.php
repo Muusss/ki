@@ -2,74 +2,82 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\File;
 
 class Alternatif extends Model
 {
     use HasFactory;
 
-    protected $table = 'alternatifs';
-
     protected $fillable = [
         'kode_produk',
         'nama_produk', 
         'jenis_kulit',
-        'harga',        // Tambah
-        'spf',          // Tambah
+        'harga',
+        'spf',
         'gambar'
     ];
 
-    protected $casts = [
-        'harga' => 'integer',
-        'spf' => 'integer'
-    ];
+    protected $appends = ['has_gambar', 'gambar_url', 'harga_format', 'spf_label'];
 
-    // Format harga untuk display
-    public function getHargaFormatAttribute()
-    {
-        if (!$this->harga) return '-';
-        return 'Rp ' . number_format($this->harga, 0, ',', '.');
-    }
-
-    // Label SPF
-    public function getSpfLabelAttribute()
-    {
-        if (!$this->spf) return '-';
-        return $this->spf >= 50 ? '50+' : (string)$this->spf;
-    }
-
-    // Kategori harga untuk filter
-    public function getKategoriHargaAttribute()
-    {
-        if (!$this->harga) return null;
-        
-        if ($this->harga < 50000) return 'murah';
-        if ($this->harga <= 100000) return 'sedang';
-        return 'mahal';
-    }
-
-    // Existing methods tetap sama...
-    public function getGambarUrlAttribute()
-    {
-        if ($this->gambar && file_exists(public_path('img/produk/' . $this->gambar))) {
-            return asset('img/produk/' . $this->gambar);
-        }
-        return asset('img/no-image.png');
-    }
-
+    /**
+     * Accessor untuk cek apakah produk memiliki gambar
+     */
     public function getHasGambarAttribute()
     {
-        return $this->gambar && file_exists(public_path('img/produk/' . $this->gambar));
+        return !empty($this->gambar) && File::exists(public_path('img/produk/' . $this->gambar));
     }
 
-    public function penilaians()
+    /**
+     * Accessor untuk mendapatkan URL gambar lengkap
+     */
+    public function getGambarUrlAttribute()
     {
-        return $this->hasMany(Penilaian::class, 'alternatif_id');
+        if ($this->has_gambar) {
+            return asset('img/produk/' . $this->gambar);
+        }
+        return null;
     }
 
+    /**
+     * Accessor untuk format harga
+     */
+    public function getHargaFormatAttribute()
+    {
+        if (!is_null($this->harga)) {
+            return 'Rp ' . number_format($this->harga, 0, ',', '.');
+        }
+        return null;
+    }
+
+    /**
+     * Accessor untuk SPF label
+     */
+    public function getSpfLabelAttribute()
+    {
+        if (!is_null($this->spf) && $this->spf !== '') {
+            if ($this->spf >= 60) {
+                return '50+';
+            }
+            return $this->spf;
+        }
+        return null;
+    }
+
+    /**
+     * Relasi dengan tabel penilaian
+     */
+    public function penilaian()
+    {
+        return $this->hasMany(Penilaian::class);
+    }
+
+    /**
+     * Relasi dengan tabel nilai_akhir
+     */
     public function nilaiAkhir()
     {
-        return $this->hasOne(NilaiAkhir::class, 'alternatif_id');
+        return $this->hasOne(NilaiAkhir::class);
     }
 }

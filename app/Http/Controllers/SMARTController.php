@@ -52,7 +52,7 @@ class SMARTController extends Controller
         $nilaiUtility = NilaiUtilityResource::collection(
             NilaiUtility::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get()
         );
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('nis', 'asc')->get());
+        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode_produk', 'asc')->get());
         $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
         return view('dashboard.nilai-utility.index', compact('title', 'nilaiUtility', 'alternatif', 'kriteria'));
     }
@@ -60,7 +60,7 @@ class SMARTController extends Controller
     public function perhitunganNilaiUtility()
     {
         $kriteria = Kriteria::orderBy('kode', 'asc')->get();
-        $alternatif = Alternatif::orderBy('nis', 'asc')->get();
+        $alternatif = Alternatif::orderBy('kode_produk', 'asc')->get();
         
         // Truncate tabel nilai_utilities (plural)
         NilaiUtility::truncate();
@@ -110,7 +110,7 @@ class SMARTController extends Controller
         $nilaiAkhir = NilaiAkhirResource::collection(
             NilaiAkhir::orderBy('alternatif_id', 'asc')->get()
         );
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('nis', 'asc')->get());
+        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode_produk', 'asc')->get());
         $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
         return view('dashboard.nilai-akhir.index', compact('title', 'nilaiAkhir', 'alternatif', 'kriteria'));
     }

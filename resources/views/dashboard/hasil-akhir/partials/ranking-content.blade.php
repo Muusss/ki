@@ -1,29 +1,8 @@
 @php
     $top3 = $data->take(3);
     $remaining = $data->skip(3);
-    
-    // Tentukan label filter yang sedang aktif
-    $filterLabel = '';
-    if (isset($filterType) && isset($filterValue)) {
-        if ($filterType == 'harga') {
-            $filterLabel = "Rentang Harga: {$filterValue}";
-        } elseif ($filterType == 'spf') {
-            $filterLabel = "SPF: {$filterValue}";
-        } elseif ($filterType == 'jenis_kulit' && $filterValue != 'all') {
-            $filterLabel = "Jenis Kulit: " . ucfirst($filterValue);
-        }
-    }
 @endphp
 
-<!-- Info Filter Aktif -->
-@if($filterLabel)
-<div class="filter-info-card">
-    <h6><i class="bi bi-funnel"></i> Filter Aktif</h6>
-    <span class="badge bg-primary">{{ $filterLabel }}</span>
-</div>
-@endif
-
-<!-- Lanjutkan dengan kode yang sudah ada untuk menampilkan ranking ... -->
 <!-- Top 3 Winners dengan Gambar -->
 @if($top3->count() > 0)
 <div class="row mb-4">
@@ -42,29 +21,17 @@
             <!-- Additional Info Badges -->
             <div class="position-absolute top-0 end-0 m-2">
                 @php
-                    // Ambil info harga dan SPF dari penilaian
+                    // Ambil info harga dan SPF dari penilaian yang sudah di-eager load
                     $hargaInfo = '';
                     $spfInfo = '';
                     
                     if ($produk->alternatif && $produk->alternatif->penilaians) {
-                        $kriteriaHarga = \App\Models\Kriteria::where('kode', 'C3')->first();
-                        $kriteriaSpf = \App\Models\Kriteria::where('kode', 'C2')->first();
-                        
-                        if ($kriteriaHarga) {
-                            $penilaianHarga = $produk->alternatif->penilaians
-                                ->where('kriteria_id', $kriteriaHarga->id)
-                                ->first();
-                            if ($penilaianHarga && $penilaianHarga->subKriteria) {
-                                $hargaInfo = $penilaianHarga->subKriteria->label;
+                        foreach ($produk->alternatif->penilaians as $penilaian) {
+                            if ($penilaian->kriteria && $penilaian->kriteria->kode == 'C3' && $penilaian->subKriteria) {
+                                $hargaInfo = $penilaian->subKriteria->label;
                             }
-                        }
-                        
-                        if ($kriteriaSpf) {
-                            $penilaianSpf = $produk->alternatif->penilaians
-                                ->where('kriteria_id', $kriteriaSpf->id)
-                                ->first();
-                            if ($penilaianSpf && $penilaianSpf->subKriteria) {
-                                $spfInfo = $penilaianSpf->subKriteria->label;
+                            if ($penilaian->kriteria && $penilaian->kriteria->kode == 'C2' && $penilaian->subKriteria) {
+                                $spfInfo = $penilaian->subKriteria->label;
                             }
                         }
                     }
@@ -81,8 +48,6 @@
                     </span>
                 @endif
             </div>
-            
-            <!-- ... kode lainnya tetap sama ... -->
             
             <!-- Product Image -->
             <div class="product-image-container">
@@ -132,7 +97,10 @@
                 <!-- Status Badge -->
                 @if($index == 0)
                     <span class="badge bg-success">
-                        <i class="bi bi-star-fill"></i> Produk Terbaik {{ $filterLabel }}
+                        <i class="bi bi-star-fill"></i> Produk Terbaik 
+                        @if($jenisKulit != 'all')
+                            Kulit {{ ucfirst($jenisKulit) }}
+                        @endif
                     </span>
                 @elseif($index == 1)
                     <span class="badge bg-info">Peringkat 2</span>
@@ -156,6 +124,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
+            <!-- Dalam bagian tabel -->
             <table class="table table-striped table-hover ranking-table">
                 <thead>
                     <tr>
@@ -164,120 +133,40 @@
                         <th>Kode Produk</th>
                         <th>Nama Produk</th>
                         <th>Jenis Kulit</th>
-                        <th>Harga</th>
-                        <th>SPF</th>
+                        <th class="text-center">Harga</th> {{-- Tambah --}}
+                        <th class="text-center">SPF</th>   {{-- Tambah --}}
                         <th class="text-center">Total Nilai</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($data as $row)
-                    @php
-                        $rank = $loop->iteration;
-                        $jenis = $row->alternatif->jenis_kulit ?? '';
-                        $skinColor = match($jenis) {
-                            'normal' => 'success',
-                            'berminyak' => 'warning',
-                            'kering' => 'info', 
-                            'kombinasi' => 'secondary',
-                            default => 'secondary'
-                        };
-                        
-                        // Ambil info harga dan SPF
-                        $hargaInfo = '-';
-                        $spfInfo = '-';
-                        
-                        if ($row->alternatif && $row->alternatif->penilaians) {
-                            $kriteriaHarga = \App\Models\Kriteria::where('kode', 'C3')->first();
-                            $kriteriaSpf = \App\Models\Kriteria::where('kode', 'C2')->first();
-                            
-                            if ($kriteriaHarga) {
-                                $penilaianHarga = $row->alternatif->penilaians
-                                    ->where('kriteria_id', $kriteriaHarga->id)
-                                    ->first();
-                                if ($penilaianHarga && $penilaianHarga->subKriteria) {
-                                    $hargaInfo = $penilaianHarga->subKriteria->label;
-                                }
-                            }
-                            
-                            if ($kriteriaSpf) {
-                                $penilaianSpf = $row->alternatif->penilaians
-                                    ->where('kriteria_id', $kriteriaSpf->id)
-                                    ->first();
-                                if ($penilaianSpf && $penilaianSpf->subKriteria) {
-                                    $spfInfo = $penilaianSpf->subKriteria->label;
-                                }
-                            }
-                        }
-                    @endphp
                     <tr class="{{ $rank <= 3 ? 'table-success' : '' }}">
+                        <!-- Existing columns... -->
+                        
+                        {{-- Kolom Harga --}}
                         <td class="text-center">
-                            @if($rank == 1)
-                                <span class="badge bg-warning text-dark fs-6">
-                                    <i class="bi bi-trophy-fill"></i> 1
-                                </span>
-                            @elseif($rank == 2)
-                                <span class="badge bg-secondary fs-6">
-                                    <i class="bi bi-award-fill"></i> 2
-                                </span>
-                            @elseif($rank == 3)
-                                <span class="badge bg-danger fs-6">
-                                    <i class="bi bi-award-fill"></i> 3
+                            @if($row->alternatif->harga)
+                                <span class="badge bg-success">
+                                    Rp {{ number_format($row->alternatif->harga, 0, ',', '.') }}
                                 </span>
                             @else
-                                <span class="badge bg-info">{{ $rank }}</span>
+                                <span class="text-muted">-</span>
                             @endif
                         </td>
-                        <td>
-                            @if($row->alternatif->gambar && file_exists(public_path('img/produk/'.$row->alternatif->gambar)))
-                                <img src="{{ asset('img/produk/'.$row->alternatif->gambar) }}" 
-                                     alt="{{ $row->alternatif->nama_produk ?? '-' }}"
-                                     class="img-thumbnail"
-                                     style="width: 60px; height: 60px; object-fit: cover;">
-                            @else
-                                <div class="text-center" style="width: 60px; height: 60px; background: #f8f9fa; border-radius: 5px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="bi bi-image text-muted"></i>
-                                </div>
-                            @endif
-                        </td>
-                        <td>{{ $row->alternatif->kode_produk ?? '-' }}</td>
-                        <td>
-                            <strong>{{ $row->alternatif->nama_produk ?? '-' }}</strong>
-                            @if($rank == 1)
-                                <i class="bi bi-star-fill text-warning ms-2"></i>
-                            @endif
-                        </td>
-                        <td>
-                            <span class="badge bg-{{ $skinColor }}">
-                                <i class="bi bi-droplet-fill"></i> {{ ucfirst($jenis) }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge bg-info">
-                                {{ $hargaInfo }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge bg-warning">
-                                SPF {{ $spfInfo }}
-                            </span>
-                        </td>
+                        
+                        {{-- Kolom SPF --}}
                         <td class="text-center">
-                            <span class="badge bg-primary fs-6">
-                                {{ number_format($row->total ?? 0, 4) }}
-                            </span>
-                        </td>
-                        <td>
-                            @if($rank == 1)
-                                <span class="badge bg-success">Produk Terbaik</span>
-                            @elseif($rank <= 3)
-                                <span class="badge bg-info">Nominasi</span>
-                            @elseif($rank <= 10)
-                                <span class="badge bg-secondary">10 Besar</span>
+                            @if($row->alternatif->spf)
+                                <span class="badge bg-warning text-dark">
+                                    SPF {{ $row->alternatif->spf }}
+                                </span>
                             @else
-                                <span class="badge bg-light text-dark">Partisipan</span>
+                                <span class="text-muted">-</span>
                             @endif
                         </td>
+                        
+                        <!-- Rest of columns... -->
                     </tr>
                     @endforeach
                 </tbody>
@@ -287,6 +176,11 @@
 </div>
 @else
 <div class="alert alert-info">
-    <i class="bi bi-info-circle"></i> Tidak ada produk untuk filter {{ $filterLabel }}
+    <i class="bi bi-info-circle"></i> Tidak ada produk untuk 
+    @if($jenisKulit != 'all')
+        jenis kulit {{ ucfirst($jenisKulit) }}
+    @else
+        filter ini
+    @endif
 </div>
 @endif

@@ -2,11 +2,12 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Header --}}
     <div class="row mb-3">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3>Hasil Akhir Perankingan Produk Sunscreen</h3>
+                    <h3>Hasil Akhir Perankingan</h3>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
@@ -14,108 +15,281 @@
                         </ol>
                     </nav>
                 </div>
-                
                 <div class="d-flex gap-2">
                     <a href="{{ route('perhitungan') }}" class="btn btn-secondary">
-                        <i class="bi bi-calculator"></i> Lihat Perhitungan
+                        <i class="bi bi-calculator"></i> Perhitungan
                     </a>
-                    <a href="{{ route('pdf.hasilAkhir') }}" target="_blank" class="btn btn-danger">
-                        <i class="bi bi-file-pdf"></i> Cetak PDF
-                    </a>
+                    @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
+                        <a href="{{ route('pdf.hasilAkhir') }}" target="_blank" class="btn btn-danger">
+                            <i class="bi bi-file-pdf"></i> Cetak PDF
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 
-    @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
-        
-        <!-- Tab Navigation untuk Filter Jenis Kulit -->
-        <ul class="nav nav-tabs mb-4" id="jenisKulitTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button">
-                    <i class="bi bi-grid-3x3-gap"></i> Semua Jenis
-                    <span class="badge bg-secondary ms-1">{{ $nilaiAkhir->count() }}</span>
-                </button>
-            </li>
-            @foreach($jenisKulitList as $jenis)
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="{{ $jenis }}-tab" data-bs-toggle="tab" data-bs-target="#{{ $jenis }}" type="button">
-                    <i class="bi bi-droplet-fill"></i> {{ ucfirst($jenis) }}
-                    <span class="badge bg-secondary ms-1">{{ $hasilPerJenis[$jenis]->count() }}</span>
-                </button>
-            </li>
-            @endforeach
+    {{-- Debug Info (hapus jika tidak perlu) --}}
+    @if(config('app.debug'))
+    <div class="alert alert-info">
+        <strong>Debug Info:</strong>
+        <ul class="mb-0">
+            <li>Total Data: {{ isset($nilaiAkhir) ? $nilaiAkhir->count() : 0 }}</li>
+            <li>Filter Jenis Kulit: {{ $jenisKulit ?? 'not set' }}</li>
+            <li>Filter Harga: {{ $filterHargaMin ?? 'null' }} - {{ $filterHargaMax ?? 'null' }}</li>
+            <li>Filter SPF: {{ $filterSpfMin ?? 'null' }} - {{ $filterSpfMax ?? 'null' }}</li>
         </ul>
+    </div>
+    @endif
 
-        <!-- Tab Content -->
-        <div class="tab-content" id="jenisKulitTabContent">
-            
-            <!-- Tab Semua Jenis -->
-            <div class="tab-pane fade show active" id="all" role="tabpanel">
-                @include('dashboard.hasil-akhir.partials.ranking-content', [
-                    'data' => $nilaiAkhir,
-                    'jenisKulit' => 'all',
-                    'title' => 'Perankingan Semua Produk'
-                ])
+    {{-- Filter Section --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-funnel"></i> Filter Produk</h6>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ route('hasil-akhir') }}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Jenis Kulit</label>
+                                <select name="jenis_kulit" class="form-select">
+                                    <option value="all">Semua</option>
+                                    @foreach(($jenisKulitList ?? ['normal', 'berminyak', 'kering', 'kombinasi']) as $jenis)
+                                    <option value="{{ $jenis }}" {{ ($jenisKulit ?? 'all') == $jenis ? 'selected' : '' }}>
+                                        {{ ucfirst($jenis) }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Harga Min</label>
+                                <input type="number" name="harga_min" class="form-control"
+                                       value="{{ $filterHargaMin ?? '' }}" placeholder="0">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Harga Max</label>
+                                <input type="number" name="harga_max" class="form-control"
+                                       value="{{ $filterHargaMax ?? '' }}" placeholder="999999">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">SPF Min</label>
+                                <input type="number" name="spf_min" class="form-control"
+                                       value="{{ $filterSpfMin ?? '' }}" placeholder="15" min="15" max="100">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">SPF Max</label>
+                                <input type="number" name="spf_max" class="form-control"
+                                       value="{{ $filterSpfMax ?? '' }}" placeholder="100" min="15" max="100">
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label d-none d-md-block">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            </div>
+                        </div>
+                        <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                            <a href="{{ route('hasil-akhir') }}" class="btn btn-sm btn-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </a>
+                            @if(isset($nilaiAkhir))
+                                <span id="resultCount" class="result-count ms-auto">{{ $nilaiAkhir->count() }} produk ditampilkan</span>
+                            @endif
+                        </div>
+                    </form>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Tab Per Jenis Kulit -->
-            @foreach($jenisKulitList as $jenis)
-            <div class="tab-pane fade" id="{{ $jenis }}" role="tabpanel">
-                @include('dashboard.hasil-akhir.partials.ranking-content', [
-                    'data' => $hasilPerJenis[$jenis],
-                    'jenisKulit' => $jenis,
-                    'title' => 'Perankingan Kulit ' . ucfirst($jenis)
-                ])
+    {{-- Main Content --}}
+    @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
+        {{-- Toolbar kecil: toggle grid/list --}}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Perankingan Produk Sunscreen</h5>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary active" id="rankGridBtn">
+                    <i class="bi bi-grid-3x3-gap"></i> Grid
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="rankListBtn">
+                    <i class="bi bi-list-ul"></i> List
+                </button>
             </div>
+        </div>
+
+        {{-- GRID VIEW (default) --}}
+        <div id="rankGrid" class="row g-3">
+            @foreach($nilaiAkhir as $index => $row)
+                @php
+                    $rank = $index + 1;
+                    $alt = $row->alternatif ?? null;
+                    $jenis = $alt->jenis_kulit ?? '';
+                    $skinColor = match($jenis) {
+                        'normal' => 'success',
+                        'berminyak' => 'warning',
+                        'kering' => 'info',
+                        'kombinasi' => 'secondary',
+                        default => 'secondary'
+                    };
+                @endphp
+
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="product-card h-100 position-relative">
+                        {{-- Rank ribbon --}}
+                        <div class="rank-ribbon {{ $rank == 1 ? 'gold' : ($rank == 2 ? 'silver' : ($rank == 3 ? 'bronze' : 'info')) }}">
+                            <i class="bi bi-trophy-fill me-1"></i>{{ $rank }}
+                        </div>
+
+                        {{-- Gambar --}}
+                        <div class="product-image">
+                            @if(optional($alt)->has_gambar)
+                                <img src="{{ $alt->gambar_url }}" alt="{{ $alt->nama_produk }}" loading="lazy">
+                            @elseif(!empty($alt?->gambar))
+                                <img src="{{ asset('img/produk/'.$alt->gambar) }}" alt="{{ $alt->nama_produk }}" loading="lazy">
+                            @else
+                                <div class="no-image">
+                                    <i class="bi bi-image"></i>
+                                    <span>No Image</span>
+                                </div>
+                            @endif
+                            <span class="badge-code">{{ $alt->kode_produk ?? '-' }}</span>
+                        </div>
+
+                        {{-- Konten --}}
+                        <div class="product-content">
+                            <h6 class="product-title mb-1" title="{{ $alt->nama_produk ?? '-' }}">
+                                {{ $alt->nama_produk ?? '-' }}
+                            </h6>
+
+                            <div class="product-meta">
+                                <span class="badge bg-{{ $skinColor }}">
+                                    <i class="bi bi-droplet-fill"></i> {{ ucfirst($jenis ?: '-') }}
+                                </span>
+
+                                @if($alt && !is_null($alt->harga))
+                                    <span class="badge bg-light text-success border">
+                                        <i class="bi bi-cash"></i> Rp {{ number_format($alt->harga, 0, ',', '.') }}
+                                    </span>
+                                @endif
+
+                                @if($alt && !is_null($alt->spf) && $alt->spf !== '')
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-sun"></i> SPF {{ $alt->spf }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between mt-auto">
+                                <span class="badge bg-primary px-3 py-2 fs-6">
+                                    {{ number_format($row->total ?? 0, 4) }}
+                                </span>
+                                @if($rank == 1)
+                                    <span class="badge bg-success">Terbaik</span>
+                                @elseif($rank <= 3)
+                                    <span class="badge bg-info">Nominasi</span>
+                                @else
+                                    <span class="badge bg-light text-dark">Partisipan</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endforeach
         </div>
 
-        <!-- Statistik Keseluruhan -->
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-primary">{{ $nilaiAkhir->count() }}</h3>
-                        <p class="text-muted mb-0">Total Produk</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-success">{{ number_format($nilaiAkhir->max('total') ?? 0, 4) }}</h3>
-                        <p class="text-muted mb-0">Nilai Tertinggi</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-warning">{{ number_format($nilaiAkhir->avg('total') ?? 0, 4) }}</h3>
-                        <p class="text-muted mb-0">Nilai Rata-rata</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-danger">{{ number_format($nilaiAkhir->min('total') ?? 0, 4) }}</h3>
-                        <p class="text-muted mb-0">Nilai Terendah</p>
-                    </div>
-                </div>
-            </div>
+        {{-- LIST VIEW (opsional) --}}
+        <div id="rankList" class="table-responsive" style="display:none;">
+            <table class="table table-hover modern-table align-middle">
+                <thead>
+                    <tr>
+                        <th width="70" class="text-center">Rank</th>
+                        <th width="90">Gambar</th>
+                        <th>Kode</th>
+                        <th>Nama Produk</th>
+                        <th>Jenis Kulit</th>
+                        <th class="text-center">Harga</th>
+                        <th class="text-center">SPF</th>
+                        <th class="text-center">Nilai</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($nilaiAkhir as $index => $row)
+                        @php
+                            $rank = $index + 1;
+                            $alt = $row->alternatif ?? null;
+                            $jenis = $alt->jenis_kulit ?? '';
+                            $skinColor = match($jenis) {
+                                'normal' => 'success',
+                                'berminyak' => 'warning',
+                                'kering' => 'info',
+                                'kombinasi' => 'secondary',
+                                default => 'secondary'
+                            };
+                        @endphp
+                        <tr>
+                            <td class="text-center">
+                                <span class="badge {{ $rank==1?'bg-warning text-dark':($rank==2?'bg-secondary':($rank==3?'bg-danger':'bg-info')) }} fs-6">{{ $rank }}</span>
+                            </td>
+                            <td>
+                                @if(optional($alt)->has_gambar)
+                                    <img src="{{ $alt->gambar_url }}" class="table-image" alt="{{ $alt->nama_produk }}">
+                                @elseif(!empty($alt?->gambar))
+                                    <img src="{{ asset('img/produk/'.$alt->gambar) }}" class="table-image" alt="{{ $alt->nama_produk }}">
+                                @else
+                                    <div class="table-no-image"><i class="bi bi-image"></i></div>
+                                @endif
+                            </td>
+                            <td><span class="badge bg-primary">{{ $alt->kode_produk ?? '-' }}</span></td>
+                            <td><strong>{{ $alt->nama_produk ?? '-' }}</strong></td>
+                            <td><span class="badge bg-{{ $skinColor }}">{{ ucfirst($jenis ?: '-') }}</span></td>
+                            <td class="text-center">
+                                @if($alt && !is_null($alt->harga))
+                                    <span class="text-success">Rp {{ number_format($alt->harga, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($alt && !is_null($alt->spf) && $alt->spf!=='')
+                                    <span class="badge bg-warning text-dark">SPF {{ $alt->spf }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">{{ number_format($row->total ?? 0, 4) }}</span>
+                            </td>
+                            <td>
+                                @if($rank == 1)
+                                    <span class="badge bg-success">Terbaik</span>
+                                @elseif($rank <= 3)
+                                    <span class="badge bg-info">Nominasi</span>
+                                @else
+                                    <span class="badge bg-light text-dark">Partisipan</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-
     @else
-        <!-- Tampilan jika belum ada data -->
+        {{-- Empty State --}}
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body text-center py-5">
                         <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="mt-3">Belum Ada Data Hasil Perhitungan</h4>
-                        <p class="text-muted">Silakan lakukan perhitungan ROC + SMART terlebih dahulu.</p>
+                        <h4 class="mt-3">Tidak Ada Data</h4>
+                        <p class="text-muted">
+                            @if(request()->hasAny(['jenis_kulit', 'harga_min', 'harga_max', 'spf_min', 'spf_max']))
+                                Tidak ada produk yang sesuai dengan filter.
+                                <a href="{{ route('hasil-akhir') }}">Reset filter</a>
+                            @else
+                                Belum ada data hasil perhitungan. Silakan lakukan perhitungan terlebih dahulu.
+                            @endif
+                        </p>
                         <a href="{{ route('perhitungan') }}" class="btn btn-primary">
                             <i class="bi bi-calculator"></i> Ke Halaman Perhitungan
                         </a>
@@ -129,175 +303,73 @@
 
 @section('css')
 <style>
-/* Product Card Styles */
-.product-rank-card {
-    border-radius: 15px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    height: 100%;
+:root{
+  --line:#e8ecf2; --shadow-xs:0 1px 2px rgba(17,24,39,.06);
+  --shadow-sm:0 4px 10px rgba(17,24,39,.08);
+  --shadow-md:0 8px 24px rgba(17,24,39,.12);
+  --transition:all .25s cubic-bezier(.22,.61,.36,1);
+}
+.result-count{
+  font-size:.9rem; color:#6b7380;
+  background:#f7f9fc; border:1px solid var(--line);
+  padding:6px 10px; border-radius:999px;
 }
 
-.product-rank-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+/* Card gaya "Data Produk" */
+.product-card{background:#fff; border:1px solid var(--line); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; box-shadow:var(--shadow-sm); transition:var(--transition)}
+.product-card:hover{transform:translateY(-6px); box-shadow:var(--shadow-md)}
+.product-image{position:relative; height:200px; background:#f6f8fb}
+.product-image img{width:100%; height:100%; object-fit:cover; transition:transform .5s}
+.product-card:hover .product-image img{transform:scale(1.05)}
+.no-image{height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#cdd5df}
+.no-image i{font-size:2rem}
+.badge-code{position:absolute; top:10px; left:10px; background:#ffffffcc; color:#394150; border:1px solid #e6eaef; padding:4px 10px; border-radius:999px; font-size:.8rem; backdrop-filter:blur(4px)}
+.product-content{padding:14px; display:flex; flex-direction:column; gap:8px; flex:1}
+.product-title{font-weight:700; color:#273142; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.product-meta{display:flex; flex-wrap:wrap; gap:6px}
+
+/* Rank ribbon */
+.rank-ribbon{
+  position:absolute; top:10px; right:-12px; z-index:2;
+  color:#fff; font-weight:700; padding:6px 16px; transform:skew(-12deg);
+  border-radius:6px; box-shadow:var(--shadow-xs); font-size:.95rem
+}
+.rank-ribbon i{transform:skew(12deg)}
+.rank-ribbon.gold{background:linear-gradient(135deg,#facc15,#f59e0b)}
+.rank-ribbon.silver{background:linear-gradient(135deg,#d1d5db,#9ca3af)}
+.rank-ribbon.bronze{background:linear-gradient(135deg,#f59e0b,#b45309)}
+.rank-ribbon.info{background:linear-gradient(135deg,#60a5fa,#38bdf8)}
+
+/* List view images & table header */
+.table-image,.table-no-image{width:58px;height:58px;border-radius:10px;object-fit:cover}
+.table-no-image{display:flex;align-items:center;justify-content:center;background:#f0f3f8;color:#c7cfdb}
+.modern-table thead th{
+  background:#f7f9fc; border-bottom:1px solid var(--line);
+  text-transform:uppercase; font-size:.78rem; letter-spacing:.6px; color:#667085
 }
 
-.rank-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-    z-index: 10;
-}
-
-.rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; }
-.rank-2 { background: linear-gradient(135deg, #C0C0C0, #808080); color: white; }
-.rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); color: white; }
-.rank-default { background: #f8f9fa; color: #6c757d; }
-
-.product-image-container {
-    height: 200px;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.product-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.no-image {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #dee2e6;
-}
-
-.skin-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-}
-
-/* Tab Styles */
-.nav-tabs .nav-link {
-    color: #6c757d;
-    border-radius: 10px 10px 0 0;
-    transition: all 0.3s ease;
-}
-
-.nav-tabs .nav-link:hover {
-    background-color: #f8f9fa;
-}
-
-.nav-tabs .nav-link.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-}
-
-.nav-tabs .nav-link .badge {
-    transition: all 0.3s ease;
-}
-
-.nav-tabs .nav-link.active .badge {
-    background-color: rgba(255,255,255,0.3) !important;
-}
-
-/* Comparison Grid */
-.comparison-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-/* Score Bar */
-.score-bar {
-    height: 8px;
-    background: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 10px 0;
-}
-
-.score-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
-    border-radius: 4px;
-    transition: width 0.5s ease;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .comparison-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .product-rank-card {
-        margin-bottom: 1rem;
-    }
-}
+/* Animasi masuk */
+@keyframes fadeInUp{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+#rankGrid .col-xl-3,#rankGrid .col-lg-4,#rankGrid .col-md-6{animation:fadeInUp .35s ease both}
 </style>
 @endsection
 
 @section('js')
 <script>
-$(document).ready(function() {
-    // Animate score bars on tab change
-    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        const targetPane = $($(e.target).data('bs-target'));
-        targetPane.find('.score-fill').each(function() {
-            const width = $(this).data('score');
-            $(this).css('width', '0%');
-            setTimeout(() => {
-                $(this).css('width', width + '%');
-            }, 100);
-        });
-    });
-    
-    // Initialize first tab animations
-    $('.score-fill').each(function() {
-        const width = $(this).data('score');
-        $(this).css('width', width + '%');
-    });
-    
-    // DataTable for detailed view (if exists)
-    if ($('.ranking-table').length) {
-        $('.ranking-table').each(function() {
-            if (!$.fn.DataTable.isDataTable(this)) {
-                $(this).DataTable({
-                    responsive: true,
-                    pageLength: 10,
-                    order: [[0, 'asc']],
-                    language: {
-                        search: "Cari:",
-                        lengthMenu: "Tampilkan _MENU_ data",
-                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                        paginate: {
-                            first: "Pertama",
-                            last: "Terakhir",
-                            next: "Selanjutnya",
-                            previous: "Sebelumnya"
-                        }
-                    }
-                });
-            }
-        });
-    }
+$(function(){
+  // Toggle grid/list
+  $('#rankGridBtn').on('click', function(){
+    $('#rankGrid').show(); $('#rankList').hide();
+    $(this).addClass('active'); $('#rankListBtn').removeClass('active');
+  });
+  $('#rankListBtn').on('click', function(){
+    $('#rankList').show(); $('#rankGrid').hide();
+    $(this).addClass('active'); $('#rankGridBtn').removeClass('active');
+  });
+
+  // Update counter jika ada
+  const gridCount = $('#rankGrid .product-card').length;
+  if($('#resultCount').length){ $('#resultCount').text(gridCount + ' produk ditampilkan'); }
 });
 </script>
 @endsection

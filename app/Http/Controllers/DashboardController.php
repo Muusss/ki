@@ -9,6 +9,8 @@ use App\Models\Kriteria;
 use App\Models\Penilaian;
 use App\Models\NilaiAkhir;
 use App\Models\SubKriteria;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -17,24 +19,38 @@ class DashboardController extends Controller
         $title = 'Dashboard';
         
         try {
-            // Statistik dasar
+            // Statistik dasar dengan debugging
             $jumlahProduk = Alternatif::count();
             $jumlahKriteria = Kriteria::count();
             $jumlahPenilaian = Penilaian::count();
+            $jumlahSubKriteria = SubKriteria::count();
+            $jumlahNilaiAkhir = NilaiAkhir::count();
+
+            // Debug info untuk development
+            if (config('app.debug')) {
+                Log::info('Dashboard Stats', [
+                    'produk' => $jumlahProduk,
+                    'kriteria' => $jumlahKriteria,
+                    'sub_kriteria' => $jumlahSubKriteria,
+                    'penilaian' => $jumlahPenilaian,
+                    'nilai_akhir' => $jumlahNilaiAkhir
+                ]);
+            }
 
             // Ambil produk untuk showcase (8 produk terbaru)
             $products = Alternatif::orderBy('created_at', 'desc')
                                   ->limit(8)
                                   ->get();
 
-            // Ranking produk - dengan pengecekan data
+            // Inisialisasi variabel ranking
             $nilaiAkhir = collect();
             $top5 = collect();
             $chartLabels = [];
             $chartSeries = [];
+            $needsCalculation = false;
 
             // Cek apakah ada data nilai akhir
-            if (NilaiAkhir::count() > 0) {
+            if ($jumlahNilaiAkhir > 0) {
                 $nilaiAkhir = NilaiAkhir::with('alternatif')
                     ->orderByDesc('total')
                     ->get();
@@ -49,185 +65,192 @@ class DashboardController extends Controller
                         $chartSeries[] = round((float) ($row->total ?? 0), 3);
                     }
                 }
+            } else {
+                // Cek apakah ada data penilaian tapi belum dihitung
+                if ($jumlahPenilaian > 0) {
+                    $needsCalculation = true;
+                }
             }
+
+            // Info sistem untuk debugging
+            $systemInfo = [
+                'has_products' => $jumlahProduk > 0,
+                'has_criteria' => $jumlahKriteria > 0,
+                'has_sub_criteria' => $jumlahSubKriteria > 0,
+                'has_assessments' => $jumlahPenilaian > 0,
+                'has_final_scores' => $jumlahNilaiAkhir > 0,
+                'needs_calculation' => $needsCalculation,
+                'calculation_ready' => $jumlahProduk > 0 && $jumlahKriteria > 0 && $jumlahPenilaian > 0
+            ];
 
             return view('dashboard.index', compact(
                 'title',
                 'jumlahProduk',
                 'jumlahKriteria',
                 'jumlahPenilaian',
+                'jumlahSubKriteria',
+                'jumlahNilaiAkhir',
                 'nilaiAkhir',
                 'top5',
                 'chartLabels',
                 'chartSeries',
-                'products'
+                'products',
+                'systemInfo',
+                'needsCalculation'
             ));
 
         } catch (\Exception $e) {
-            // Jika ada error, return dengan data kosong
+            // Log error untuk debugging
+            Log::error('Dashboard Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Jika ada error, return dengan data kosong tapi tetap bisa digunakan
             return view('dashboard.index', [
                 'title' => 'Dashboard',
                 'jumlahProduk' => 0,
                 'jumlahKriteria' => 0,
                 'jumlahPenilaian' => 0,
+                'jumlahSubKriteria' => 0,
+                'jumlahNilaiAkhir' => 0,
                 'nilaiAkhir' => collect(),
                 'top5' => collect(),
                 'chartLabels' => [],
                 'chartSeries' => [],
-                'products' => collect()
+                'products' => collect(),
+                'systemInfo' => [
+                    'has_products' => false,
+                    'has_criteria' => false,
+                    'has_sub_criteria' => false,
+                    'has_assessments' => false,
+                    'has_final_scores' => false,
+                    'needs_calculation' => false,
+                    'calculation_ready' => false,
+                    'error' => $e->getMessage()
+                ],
+                'needsCalculation' => false
             ]);
         }
     }
+
 
     public function hasilAkhir(Request $request)
     {
         $title = 'Hasil Akhir';
         
         try {
-            // Ambil filter dari request
+            // Debug: Cek apakah method dipanggil
+            Log::info('Hasil Akhir method called', ['request' => $request->all()]);
+            
+            // Ambil filter dari request dengan default values
             $jenisKulit = $request->get('jenis_kulit', 'all');
-            $filterHarga = $request->get('harga', 'all');
-            $filterSpf = $request->get('spf', 'all');
+            $filterHargaMin = $request->get('harga_min', null);
+            $filterHargaMax = $request->get('harga_max', null);
+            $filterSpfMin = $request->get('spf_min', null);
+            $filterSpfMax = $request->get('spf_max', null);
             
-            // Query dengan filter jenis kulit
-            $query = NilaiAkhir::with(['alternatif', 'alternatif.penilaians.subKriteria']);
-            
-            if ($jenisKulit !== 'all') {
-                $query->whereHas('alternatif', function($q) use ($jenisKulit) {
-                    $q->where('jenis_kulit', $jenisKulit);
-                });
-            }
-            
-            // Filter berdasarkan harga (dari sub kriteria)
-            if ($filterHarga !== 'all') {
-                $query->whereHas('alternatif.penilaians', function($q) use ($filterHarga) {
-                    $kriteriaHarga = Kriteria::where('kode', 'C3')->first(); // C3 adalah Harga
-                    if ($kriteriaHarga) {
-                        $q->where('kriteria_id', $kriteriaHarga->id)
-                          ->whereHas('subKriteria', function($sq) use ($filterHarga) {
-                              $sq->where('label', 'LIKE', '%' . $filterHarga . '%');
-                          });
-                    }
-                });
-            }
-            
-            // Filter berdasarkan SPF
-            if ($filterSpf !== 'all') {
-                $query->whereHas('alternatif.penilaians', function($q) use ($filterSpf) {
-                    $kriteriaSpf = Kriteria::where('kode', 'C2')->first(); // C2 adalah SPF
-                    if ($kriteriaSpf) {
-                        $q->where('kriteria_id', $kriteriaSpf->id)
-                          ->whereHas('subKriteria', function($sq) use ($filterSpf) {
-                              $sq->where('label', $filterSpf);
-                          });
-                    }
-                });
-            }
-            
-            $nilaiAkhir = $query->orderByDesc('total')->get();
-            
-            // Re-rank setelah filter
-            $nilaiAkhir = $nilaiAkhir->map(function ($item, $index) {
-                $item->peringkat_filter = $index + 1;
-                return $item;
-            });
-            
-            // Data untuk setiap jenis kulit
+            // Initialize variables dengan default kosong
+            $nilaiAkhir = collect();
             $hasilPerJenis = [];
             $jenisKulitList = ['normal', 'berminyak', 'kering', 'kombinasi'];
             
-            foreach ($jenisKulitList as $jenis) {
-                $hasil = NilaiAkhir::with('alternatif')
-                    ->whereHas('alternatif', function($q) use ($jenis) {
-                        $q->where('jenis_kulit', $jenis);
-                    })
-                    ->orderByDesc('total')
-                    ->get()
-                    ->map(function ($item, $index) {
-                        $item->peringkat_jenis = $index + 1;
-                        return $item;
+            // Cek apakah ada data nilai akhir
+            if (NilaiAkhir::count() > 0) {
+                // Query dengan filter
+                $query = NilaiAkhir::with(['alternatif']);
+                
+                // Filter jenis kulit
+                if ($jenisKulit !== 'all') {
+                    $query->whereHas('alternatif', function($q) use ($jenisKulit) {
+                        $q->where('jenis_kulit', $jenisKulit);
                     });
-                    
-                $hasilPerJenis[$jenis] = $hasil;
+                }
+                
+                // Filter harga
+                if ($filterHargaMin !== null) {
+                    $query->whereHas('alternatif', function($q) use ($filterHargaMin) {
+                        $q->where('harga', '>=', $filterHargaMin);
+                    });
+                }
+                if ($filterHargaMax !== null) {
+                    $query->whereHas('alternatif', function($q) use ($filterHargaMax) {
+                        $q->where('harga', '<=', $filterHargaMax);
+                    });
+                }
+                
+                // Filter SPF
+                if ($filterSpfMin !== null) {
+                    $query->whereHas('alternatif', function($q) use ($filterSpfMin) {
+                        $q->where('spf', '>=', $filterSpfMin);
+                    });
+                }
+                if ($filterSpfMax !== null) {
+                    $query->whereHas('alternatif', function($q) use ($filterSpfMax) {
+                        $q->where('spf', '<=', $filterSpfMax);
+                    });
+                }
+                
+                $nilaiAkhir = $query->orderByDesc('total')->get();
+                
+                // Re-rank setelah filter
+                $nilaiAkhir = $nilaiAkhir->map(function ($item, $index) {
+                    $item->peringkat_filter = $index + 1;
+                    return $item;
+                });
+                
+                // Data untuk setiap jenis kulit
+                foreach ($jenisKulitList as $jenis) {
+                    $hasil = NilaiAkhir::with('alternatif')
+                        ->whereHas('alternatif', function($q) use ($jenis) {
+                            $q->where('jenis_kulit', $jenis);
+                        })
+                        ->orderByDesc('total')
+                        ->get()
+                        ->map(function ($item, $index) {
+                            $item->peringkat_jenis = $index + 1;
+                            return $item;
+                        });
+                    $hasilPerJenis[$jenis] = $hasil;
+                }
             }
             
-            // Data untuk filter harga
-            $hasilPerHarga = [];
-            $hargaList = ['<40k', '40k-60k', '61-80k', '>80k'];
-            
-            foreach ($hargaList as $harga) {
-                $hasil = NilaiAkhir::with(['alternatif', 'alternatif.penilaians.subKriteria'])
-                    ->whereHas('alternatif.penilaians', function($q) use ($harga) {
-                        $kriteriaHarga = Kriteria::where('kode', 'C3')->first();
-                        if ($kriteriaHarga) {
-                            $q->where('kriteria_id', $kriteriaHarga->id)
-                              ->whereHas('subKriteria', function($sq) use ($harga) {
-                                  $sq->where('label', $harga);
-                              });
-                        }
-                    })
-                    ->orderByDesc('total')
-                    ->get()
-                    ->map(function ($item, $index) {
-                        $item->peringkat_harga = $index + 1;
-                        return $item;
-                    });
-                    
-                $hasilPerHarga[$harga] = $hasil;
-            }
-            
-            // Data untuk filter SPF
-            $hasilPerSpf = [];
-            $spfList = ['30', '35', '40', '50+'];
-            
-            foreach ($spfList as $spf) {
-                $hasil = NilaiAkhir::with(['alternatif', 'alternatif.penilaians.subKriteria'])
-                    ->whereHas('alternatif.penilaians', function($q) use ($spf) {
-                        $kriteriaSpf = Kriteria::where('kode', 'C2')->first();
-                        if ($kriteriaSpf) {
-                            $q->where('kriteria_id', $kriteriaSpf->id)
-                              ->whereHas('subKriteria', function($sq) use ($spf) {
-                                  $sq->where('label', $spf);
-                              });
-                        }
-                    })
-                    ->orderByDesc('total')
-                    ->get()
-                    ->map(function ($item, $index) {
-                        $item->peringkat_spf = $index + 1;
-                        return $item;
-                    });
-                    
-                $hasilPerSpf[$spf] = $hasil;
-            }
+            // Debug: Log data yang akan dikirim ke view
+            Log::info('Data to view', [
+                'nilaiAkhir_count' => $nilaiAkhir->count(),
+                'jenisKulit' => $jenisKulit
+            ]);
 
             return view('dashboard.hasil-akhir.index', compact(
                 'title', 
                 'nilaiAkhir',
                 'jenisKulit',
-                'filterHarga',
-                'filterSpf',
+                'filterHargaMin',
+                'filterHargaMax',
+                'filterSpfMin',
+                'filterSpfMax',
                 'hasilPerJenis',
-                'hasilPerHarga',
-                'hasilPerSpf',
-                'jenisKulitList',
-                'hargaList',
-                'spfList'
+                'jenisKulitList'
             ));
             
         } catch (\Exception $e) {
+            // Log error
+            Log::error('Error in hasilAkhir: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Return view dengan data kosong
             return view('dashboard.hasil-akhir.index', [
                 'title' => 'Hasil Akhir',
                 'nilaiAkhir' => collect(),
                 'jenisKulit' => 'all',
-                'filterHarga' => 'all',
-                'filterSpf' => 'all',
+                'filterHargaMin' => null,
+                'filterHargaMax' => null,
+                'filterSpfMin' => null,
+                'filterSpfMax' => null,
                 'hasilPerJenis' => [],
-                'hasilPerHarga' => [],
-                'hasilPerSpf' => [],
-                'jenisKulitList' => ['normal', 'berminyak', 'kering', 'kombinasi'],
-                'hargaList' => ['<40k', '40k-60k', '61-80k', '>80k'],
-                'spfList' => ['30', '35', '40', '50+']
+                'jenisKulitList' => ['normal', 'berminyak', 'kering', 'kombinasi']
             ]);
         }
     }

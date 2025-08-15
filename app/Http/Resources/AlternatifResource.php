@@ -16,9 +16,12 @@ class AlternatifResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'kode' => $this->kode,
-            'alternatif' => $this->alternatif,
-            'keterangan' => $this->keterangan,
+            'kode_produk' => $this->kode_produk,
+            'nama_produk' => $this->nama_produk,
+            'jenis_kulit' => $this->jenis_kulit,
+            'harga' => $this->harga,
+            'spf' => $this->spf,
+            'gambar' => $this->gambar
         ];
     }
 }

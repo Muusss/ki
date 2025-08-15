@@ -10,8 +10,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('alternatifs', function (Blueprint $table) {
-            $table->integer('harga')->nullable()->after('jenis_kulit');
-            $table->integer('spf')->nullable()->after('harga');
+            if (!Schema::hasColumn('alternatifs', 'harga')) {
+                $table->integer('harga')->nullable()->after('jenis_kulit');
+            }
+            if (!Schema::hasColumn('alternatifs', 'spf')) {
+                $table->integer('spf')->nullable()->after('harga');
+            }
+            
+            // Add indexes for better query performance
+            $table->index('harga');
+            $table->index('spf');
         });
     }
 
