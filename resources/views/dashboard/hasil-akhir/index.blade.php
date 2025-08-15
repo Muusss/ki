@@ -20,7 +20,17 @@
                         <i class="bi bi-calculator"></i> Perhitungan
                     </a>
                     @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
-                        <a href="{{ route('pdf.hasilAkhir') }}" target="_blank" class="btn btn-danger">
+                        @php
+                            $pdfParams = [
+                                'jenis_kulit' => $jenisKulit ?? 'all',
+                                'harga_min' => $filterHargaMin,
+                                'harga_max' => $filterHargaMax,
+                                'spf_min' => $filterSpfMin,
+                                'spf_max' => $filterSpfMax
+                            ];
+                            $pdfUrl = route('pdf.hasilAkhir') . '?' . http_build_query(array_filter($pdfParams));
+                        @endphp
+                        <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-danger">
                             <i class="bi bi-file-pdf"></i> Cetak PDF
                         </a>
                     @endif
