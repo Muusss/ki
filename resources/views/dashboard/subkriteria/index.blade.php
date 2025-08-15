@@ -36,11 +36,16 @@
               <button class="btn btn-sm btn-warning"
                       data-bs-toggle="modal" data-bs-target="#modalForm"
                       onclick="show_button({{ $row->id }})">Edit</button>
-              <form action="{{ route('subkriteria.delete') }}" method="POST" class="d-inline"
-                    onsubmit="return confirm('Hapus sub kriteria ini?')">
+
+              {{-- PERBAIKAN: hapus onsubmit, gunakan tombol type="button" --}}
+              <form action="{{ route('subkriteria.delete') }}" method="POST" class="d-inline delete-form">
                 @csrf
                 <input type="hidden" name="id" value="{{ $row->id }}">
-                <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                <button type="button"
+                        class="btn btn-sm btn-danger btn-delete-sub"
+                        data-label="{{ $row->label }}">
+                  Hapus
+                </button>
               </form>
             </td>
           </tr>
@@ -130,25 +135,24 @@ $(function () {
   });
 });
 
+/** Create mode */
 function create_button() {
   $('#modalTitle').text('Tambah Sub Kriteria');
   $('#formSub').attr('action', '{{ route('subkriteria.store') }}');
   $('#formSub input[name=_method]').remove();
-
+  $('#formSub')[0].reset();
   $('#formSub input[name=id]').val('');
-  $('#formSub select[name=kriteria_id]').val('');
-  $('#formSub input[name=label]').val('');
-  $('#formSub select[name=skor]').val('');
-  $('#formSub input[name=min_val]').val('');
-  $('#formSub input[name=max_val]').val('');
 }
 
+/** Edit mode */
 function show_button(sub_id) {
   $('#modalTitle').text('Edit Sub Kriteria');
   $('#formSub').attr('action', '{{ route('subkriteria.update') }}');
+
   if (!$('#formSub input[name=_method]').length) {
     $('#formSub').append('<input type="hidden" name="_method" value="POST">'); // rute update menerima POST
   }
+
   $('#btnSubmit').prop('disabled', true).text('Memuat...');
 
   $.ajax({
@@ -167,5 +171,19 @@ function show_button(sub_id) {
     complete: function () { $('#btnSubmit').prop('disabled', false).text('Simpan'); }
   });
 }
+
+/** PERBAIKAN: konfirmasi di klik tombol, bukan di submit form */
+$(document).on('click', '.btn-delete-sub', function () {
+  const btn   = $(this);
+  const form  = btn.closest('form');
+  const label = btn.data('label');
+
+  const ok = confirm(`Hapus sub kriteria "${label}" ?`);
+  if (ok) {
+    form.trigger('submit'); // hanya submit saat user setuju
+  } else {
+    btn.blur();             // pastikan tidak ada state focus/loader
+  }
+});
 </script>
 @endsection

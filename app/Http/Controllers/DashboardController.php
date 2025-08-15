@@ -125,6 +125,24 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Parse filter harga dari dropdown
+     */
+    private function parseHargaFilter($hargaFilter)
+    {
+        switch ($hargaFilter) {
+            case '<=40000':
+                return ['min' => null, 'max' => 40000];
+            case '40001-60000':
+                return ['min' => 40001, 'max' => 60000];
+            case '60001-80000':
+                return ['min' => 60001, 'max' => 80000];
+            case '>80000':
+                return ['min' => 80001, 'max' => null];
+            default:
+                return ['min' => null, 'max' => null];
+        }
+    }
 
     public function hasilAkhir(Request $request)
     {
@@ -136,10 +154,8 @@ class DashboardController extends Controller
             
             // Ambil filter dari request dengan default values
             $jenisKulit = $request->get('jenis_kulit', 'all');
-            $filterHargaMin = $request->get('harga_min', null);
-            $filterHargaMax = $request->get('harga_max', null);
-            $filterSpfMin = $request->get('spf_min', null);
-            $filterSpfMax = $request->get('spf_max', null);
+            $filterHarga = $request->get('harga', 'all');
+            $filterSpf = $request->get('spf', 'all');
             
             // Initialize variables dengan default kosong
             $nilaiAkhir = collect();
@@ -158,27 +174,23 @@ class DashboardController extends Controller
                     });
                 }
                 
-                // Filter harga
-                if ($filterHargaMin !== null) {
-                    $query->whereHas('alternatif', function($q) use ($filterHargaMin) {
-                        $q->where('harga', '>=', $filterHargaMin);
-                    });
-                }
-                if ($filterHargaMax !== null) {
-                    $query->whereHas('alternatif', function($q) use ($filterHargaMax) {
-                        $q->where('harga', '<=', $filterHargaMax);
+                // Filter harga berdasarkan dropdown
+                if ($filterHarga !== 'all') {
+                    $hargaRange = $this->parseHargaFilter($filterHarga);
+                    $query->whereHas('alternatif', function($q) use ($hargaRange) {
+                        if ($hargaRange['min'] !== null) {
+                            $q->where('harga', '>=', $hargaRange['min']);
+                        }
+                        if ($hargaRange['max'] !== null) {
+                            $q->where('harga', '<=', $hargaRange['max']);
+                        }
                     });
                 }
                 
-                // Filter SPF
-                if ($filterSpfMin !== null) {
-                    $query->whereHas('alternatif', function($q) use ($filterSpfMin) {
-                        $q->where('spf', '>=', $filterSpfMin);
-                    });
-                }
-                if ($filterSpfMax !== null) {
-                    $query->whereHas('alternatif', function($q) use ($filterSpfMax) {
-                        $q->where('spf', '<=', $filterSpfMax);
+                // Filter SPF berdasarkan dropdown
+                if ($filterSpf !== 'all') {
+                    $query->whereHas('alternatif', function($q) use ($filterSpf) {
+                        $q->where('spf', $filterSpf);
                     });
                 }
                 
@@ -209,17 +221,17 @@ class DashboardController extends Controller
             // Debug: Log data yang akan dikirim ke view
             Log::info('Data to view', [
                 'nilaiAkhir_count' => $nilaiAkhir->count(),
-                'jenisKulit' => $jenisKulit
+                'jenisKulit' => $jenisKulit,
+                'filterHarga' => $filterHarga,
+                'filterSpf' => $filterSpf
             ]);
 
             return view('dashboard.hasil-akhir.index', compact(
                 'title', 
                 'nilaiAkhir',
                 'jenisKulit',
-                'filterHargaMin',
-                'filterHargaMax',
-                'filterSpfMin',
-                'filterSpfMax',
+                'filterHarga',
+                'filterSpf',
                 'hasilPerJenis',
                 'jenisKulitList'
             ));
@@ -235,10 +247,8 @@ class DashboardController extends Controller
                 'title' => 'Hasil Akhir',
                 'nilaiAkhir' => collect(),
                 'jenisKulit' => 'all',
-                'filterHargaMin' => null,
-                'filterHargaMax' => null,
-                'filterSpfMin' => null,
-                'filterSpfMax' => null,
+                'filterHarga' => 'all',
+                'filterSpf' => 'all',
                 'hasilPerJenis' => [],
                 'jenisKulitList' => ['normal', 'berminyak', 'kering', 'kombinasi']
             ]);

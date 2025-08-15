@@ -23,12 +23,10 @@
                         @php
                             $pdfParams = [
                                 'jenis_kulit' => $jenisKulit ?? 'all',
-                                'harga_min' => $filterHargaMin,
-                                'harga_max' => $filterHargaMax,
-                                'spf_min' => $filterSpfMin,
-                                'spf_max' => $filterSpfMax
+                                'harga' => $filterHarga ?? 'all',
+                                'spf' => $filterSpf ?? 'all'
                             ];
-                            $pdfUrl = route('pdf.hasilAkhir') . '?' . http_build_query(array_filter($pdfParams));
+                            $pdfUrl = route('pdf.hasilAkhir') . '?' . http_build_query(array_filter($pdfParams, fn($v) => $v !== 'all'));
                         @endphp
                         <a href="{{ $pdfUrl }}" target="_blank" class="btn btn-danger">
                             <i class="bi bi-file-pdf"></i> Cetak PDF
@@ -46,8 +44,8 @@
         <ul class="mb-0">
             <li>Total Data: {{ isset($nilaiAkhir) ? $nilaiAkhir->count() : 0 }}</li>
             <li>Filter Jenis Kulit: {{ $jenisKulit ?? 'not set' }}</li>
-            <li>Filter Harga: {{ $filterHargaMin ?? 'null' }} - {{ $filterHargaMax ?? 'null' }}</li>
-            <li>Filter SPF: {{ $filterSpfMin ?? 'null' }} - {{ $filterSpfMax ?? 'null' }}</li>
+            <li>Filter Harga: {{ $filterHarga ?? 'not set' }}</li>
+            <li>Filter SPF: {{ $filterSpf ?? 'not set' }}</li>
         </ul>
     </div>
     @endif
@@ -62,10 +60,10 @@
                 <div class="card-body">
                     <form method="GET" action="{{ route('hasil-akhir') }}">
                         <div class="row g-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label class="form-label">Jenis Kulit</label>
                                 <select name="jenis_kulit" class="form-select">
-                                    <option value="all">Semua</option>
+                                    <option value="all">Semua Jenis Kulit</option>
                                     @foreach(($jenisKulitList ?? ['normal', 'berminyak', 'kering', 'kombinasi']) as $jenis)
                                     <option value="{{ $jenis }}" {{ ($jenisKulit ?? 'all') == $jenis ? 'selected' : '' }}>
                                         {{ ucfirst($jenis) }}
@@ -73,34 +71,44 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Harga Min</label>
-                                <input type="number" name="harga_min" class="form-control"
-                                       value="{{ $filterHargaMin ?? '' }}" placeholder="0">
+                            <div class="col-md-4">
+                                <label class="form-label">Range Harga</label>
+                                <select name="harga" class="form-select">
+                                    <option value="all">Semua Harga</option>
+                                    <option value="<=40000" {{ ($filterHarga ?? 'all') == '<=40000' ? 'selected' : '' }}>
+                                        ≤ Rp 40.000
+                                    </option>
+                                    <option value="40001-60000" {{ ($filterHarga ?? 'all') == '40001-60000' ? 'selected' : '' }}>
+                                        Rp 40.001 - Rp 60.000
+                                    </option>
+                                    <option value="60001-80000" {{ ($filterHarga ?? 'all') == '60001-80000' ? 'selected' : '' }}>
+                                        Rp 60.001 - Rp 80.000
+                                    </option>
+                                    <option value=">80000" {{ ($filterHarga ?? 'all') == '>80000' ? 'selected' : '' }}>
+                                        > Rp 80.000
+                                    </option>
+                                </select>
                             </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Harga Max</label>
-                                <input type="number" name="harga_max" class="form-control"
-                                       value="{{ $filterHargaMax ?? '' }}" placeholder="999999">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">SPF Min</label>
-                                <input type="number" name="spf_min" class="form-control"
-                                       value="{{ $filterSpfMin ?? '' }}" placeholder="15" min="15" max="100">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">SPF Max</label>
-                                <input type="number" name="spf_max" class="form-control"
-                                       value="{{ $filterSpfMax ?? '' }}" placeholder="100" min="15" max="100">
+                            <div class="col-md-3">
+                                <label class="form-label">SPF</label>
+                                <select name="spf" class="form-select">
+                                    <option value="all">Semua SPF</option>
+                                    <option value="30" {{ ($filterSpf ?? 'all') == '30' ? 'selected' : '' }}>SPF 30</option>
+                                    <option value="35" {{ ($filterSpf ?? 'all') == '35' ? 'selected' : '' }}>SPF 35</option>
+                                    <option value="40" {{ ($filterSpf ?? 'all') == '40' ? 'selected' : '' }}>SPF 40</option>
+                                    <option value="50" {{ ($filterSpf ?? 'all') == '50' ? 'selected' : '' }}>SPF 50</option>
+                                </select>
                             </div>
                             <div class="col-md-1">
                                 <label class="form-label d-none d-md-block">&nbsp;</label>
-                                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-funnel"></i> Filter
+                                </button>
                             </div>
                         </div>
-                        <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                        <div class="mt-3 d-flex align-items-center gap-2 flex-wrap">
                             <a href="{{ route('hasil-akhir') }}" class="btn btn-sm btn-secondary">
-                                <i class="bi bi-arrow-clockwise"></i> Reset
+                                <i class="bi bi-arrow-clockwise"></i> Reset Filter
                             </a>
                             @if(isset($nilaiAkhir))
                                 <span id="resultCount" class="result-count ms-auto">{{ $nilaiAkhir->count() }} produk ditampilkan</span>
@@ -293,7 +301,8 @@
                         <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
                         <h4 class="mt-3">Tidak Ada Data</h4>
                         <p class="text-muted">
-                            @if(request()->hasAny(['jenis_kulit', 'harga_min', 'harga_max', 'spf_min', 'spf_max']))
+                            @if(request()->hasAny(['jenis_kulit', 'harga', 'spf']) && 
+                                (request('jenis_kulit') != 'all' || request('harga') != 'all' || request('spf') != 'all'))
                                 Tidak ada produk yang sesuai dengan filter.
                                 <a href="{{ route('hasil-akhir') }}">Reset filter</a>
                             @else

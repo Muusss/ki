@@ -49,13 +49,15 @@
                   Edit
                 </button>
 
-                <form action="{{ route('kriteria.delete') }}"
-                      method="POST"
-                      class="d-inline"
-                      onsubmit="return confirm('Hapus kriteria {{ $k->kode }} ?')">
+                {{-- PERBAIKAN: hapus onsubmit, tombol jadi type="button" --}}
+                <form action="{{ route('kriteria.delete') }}" method="POST" class="d-inline delete-form">
                   @csrf
                   <input type="hidden" name="id" value="{{ $k->id }}">
-                  <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                  <button type="button"
+                          class="btn btn-sm btn-danger btn-delete"
+                          data-kode="{{ $k->kode }}">
+                    Hapus
+                  </button>
                 </form>
               </td>
             </tr>
@@ -145,24 +147,21 @@ $(function () {
   });
 });
 
+/** Create mode */
 function create_button() {
   $('#modalTitle').text('Tambah Kriteria');
   $('#formKriteria').attr('action', '{{ route('kriteria.store') }}');
   $('#formKriteria input[name=_method]').remove();
 
+  $('#formKriteria')[0].reset();
   $('#formKriteria input[name=id]').val('');
-  $('#formKriteria input[name=kode]').val('');
-  $('#formKriteria input[name=kriteria]').val('');
-  $('#formKriteria select[name=atribut]').val('');
-  $('#formKriteria input[name=urutan_prioritas]').val('');
-  $('#formKriteria input[name=bobot_roc]').val('');
 }
 
+/** Edit mode */
 function show_button(kriteria_id) {
   $('#modalTitle').text('Edit Kriteria');
   $('#formKriteria').attr('action', '{{ route('kriteria.update') }}');
 
-  // pastikan metode POST (controller.update menerima POST /update)
   if (!$('#formKriteria input[name=_method]').length) {
     $('#formKriteria').append('<input type="hidden" name="_method" value="POST">');
   }
@@ -192,5 +191,20 @@ function show_button(kriteria_id) {
     }
   });
 }
+
+/** PERBAIKAN: konfirmasi di klik tombol, bukan di submit form */
+$(document).on('click', '.btn-delete', function () {
+  const btn  = $(this);
+  const form = btn.closest('form');
+  const kode = btn.data('kode');
+
+  const ok = confirm(`Hapus kriteria ${kode} ?`);
+  if (ok) {
+    form.trigger('submit');          // hanya submit jika user setuju
+  } else {
+    // pastikan tidak ada state loading tertinggal di tombol/toast/loader global
+    btn.blur();
+  }
+});
 </script>
 @endsection

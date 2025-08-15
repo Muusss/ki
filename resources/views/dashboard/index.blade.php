@@ -72,11 +72,11 @@
         <div class="col-12">
             <div class="soft-card filter-section">
                 <form action="{{ route('hasil-akhir') }}" method="GET" class="row g-3 align-items-end">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label">Jenis Kulit</label>
                         <select name="jenis_kulit" id="f_skin" class="form-select">
                             @php $jenisReq = request('jenis_kulit','all'); @endphp
-                            <option value="all" {{ $jenisReq==='all' ? 'selected' : '' }}>Semua</option>
+                            <option value="all" {{ $jenisReq==='all' ? 'selected' : '' }}>Semua Jenis Kulit</option>
                             @foreach(($jenisKulitList ?? ['normal','berminyak','kering','kombinasi']) as $jenis)
                                 <option value="{{ $jenis }}" {{ $jenisReq===$jenis ? 'selected' : '' }}>
                                     {{ ucfirst($jenis) }}
@@ -84,25 +84,27 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Harga Min</label>
-                        <input type="number" name="harga_min" id="f_harga_min" class="form-control"
-                               placeholder="0" value="{{ request('harga_min') }}">
+                    <div class="col-md-4">
+                        <label class="form-label">Range Harga</label>
+                        <select name="harga" id="f_harga" class="form-select">
+                            @php $hargaReq = request('harga','all'); @endphp
+                            <option value="all" {{ $hargaReq==='all' ? 'selected' : '' }}>Semua Harga</option>
+                            <option value="<=40000" {{ $hargaReq==='<=40000' ? 'selected' : '' }}>≤ Rp 40.000</option>
+                            <option value="40001-60000" {{ $hargaReq==='40001-60000' ? 'selected' : '' }}>Rp 40.001 - Rp 60.000</option>
+                            <option value="60001-80000" {{ $hargaReq==='60001-80000' ? 'selected' : '' }}>Rp 60.001 - Rp 80.000</option>
+                            <option value=">80000" {{ $hargaReq==='>80000' ? 'selected' : '' }}>> Rp 80.000</option>
+                        </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Harga Max</label>
-                        <input type="number" name="harga_max" id="f_harga_max" class="form-control"
-                               placeholder="999999" value="{{ request('harga_max') }}">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">SPF Min</label>
-                        <input type="number" name="spf_min" id="f_spf_min" class="form-control"
-                               placeholder="15" min="0" max="100" value="{{ request('spf_min') }}">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">SPF Max</label>
-                        <input type="number" name="spf_max" id="f_spf_max" class="form-control"
-                               placeholder="100" min="0" max="100" value="{{ request('spf_max') }}">
+                    <div class="col-md-3">
+                        <label class="form-label">SPF</label>
+                        <select name="spf" id="f_spf" class="form-select">
+                            @php $spfReq = request('spf','all'); @endphp
+                            <option value="all" {{ $spfReq==='all' ? 'selected' : '' }}>Semua SPF</option>
+                            <option value="30" {{ $spfReq==='30' ? 'selected' : '' }}>SPF 30</option>
+                            <option value="35" {{ $spfReq==='35' ? 'selected' : '' }}>SPF 35</option>
+                            <option value="40" {{ $spfReq==='40' ? 'selected' : '' }}>SPF 40</option>
+                            <option value="50" {{ $spfReq==='50' ? 'selected' : '' }}>SPF 50</option>
+                        </select>
                     </div>
                     <div class="col-md-1 d-grid">
                         <button type="submit" class="btn btn-primary">
@@ -126,7 +128,7 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-lg-5">
+        {{-- <div class="col-xl-4 col-lg-5">
             <div class="soft-card mb-4">
                 <h6 class="m-0 mb-3">Top 5 Produk Teratas</h6>
                 @forelse(($top5 ?? []) as $index => $item)
@@ -159,7 +161,7 @@
                     <p class="text-center text-muted mb-0">Belum ada data</p>
                 @endforelse
             </div>
-        </div>
+        </div> --}}
     </div>
 
     {{-- Tabel Hasil Perankingan (tampilan cepat, tanpa filter/dashboard JS) --}}
