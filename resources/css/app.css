@@ -1,4 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@plugin "daisyui";
+/* resources/css/app.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import './components.css'; /* Import komponen pink */
+@import 'tailwindcss/utilities';

@@ -3,7 +3,7 @@
 @section('content')
 @php
   // Paksa jadi collection biar aman kalau null
-  $permintaan = collect($permintaan ?? []);
+  $permintaan = $permintaan ?? collect([]);
 @endphp
 
 <div class="d-flex justify-content-between align-items-center mb-3">

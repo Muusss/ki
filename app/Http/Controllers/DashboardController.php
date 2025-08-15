@@ -132,13 +132,13 @@ class DashboardController extends Controller
     {
         switch ($hargaFilter) {
             case '<=40000':
-                return ['min' => null, 'max' => 40000];
+                return ['min' => 0, 'max' => 40000];
             case '40001-60000':
                 return ['min' => 40001, 'max' => 60000];
             case '60001-80000':
                 return ['min' => 60001, 'max' => 80000];
             case '>80000':
-                return ['min' => 80001, 'max' => null];
+                return ['min' => 80001, 'max' => 999999999];
             default:
                 return ['min' => null, 'max' => null];
         }
