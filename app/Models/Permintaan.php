@@ -15,10 +15,56 @@ class Permintaan extends Model
         'nama_produk',
         'komposisi',
         'harga',
-        'spf'
+        'spf',
+        'status',
+        'admin_notes'
     ];
 
     protected $casts = [
         'komposisi' => 'array', // Jika ingin simpan sebagai JSON
     ];
+
+    /**
+     * Scope untuk filter berdasarkan status
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    /**
+     * Get status label
+     */
+    public function getStatusLabelAttribute()
+    {
+        return match($this->status) {
+            'pending' => 'Menunggu Verifikasi',
+            'approved' => 'Disetujui',
+            'rejected' => 'Ditolak',
+            default => 'Unknown'
+        };
+    }
+
+    /**
+     * Get status color for badge
+     */
+    public function getStatusColorAttribute()
+    {
+        return match($this->status) {
+            'pending' => 'orange',
+            'approved' => 'green',
+            'rejected' => 'red',
+            default => 'gray'
+        };
+    }
 }
