@@ -192,14 +192,14 @@
                     <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow" class="w-12 h-12 rounded-xl shadow-lg">
                     <div>
                         <h1 class="text-2xl font-bold gradient-text font-['Dancing_Script']">ReGlow Beauty</h1>
-                        <p class="text-xs text-pink-600">Smart Sunscreen Recommendation</p>
+                        <p class="text-xs text-pink-600">Beauty Inside and Outside</p>
                     </div>
                 </div>
                 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-6" data-aos="fade-left">
                     <a href="{{ url('/') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Beranda</a>
-                    <a href="{{ route('public.jenis-kulit') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Jenis Kulit</a>
+                    <a href="{{ route('public.jenis-kulit') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Informasi</a>
                     <a href="{{ route('public.permintaan') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Permintaan</a>
                     <a href="{{ route('public.hasil-spk') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Hasil SPK</a>
                     <div class="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-2 rounded-full font-medium">
@@ -218,7 +218,7 @@
             <!-- Mobile Menu -->
             <div x-show="mobileMenu" x-transition class="md:hidden mt-4 pb-4">
                 <a href="{{ url('/') }}" class="block py-2 text-gray-700 hover:text-pink-500">Beranda</a>
-                <a href="{{ route('public.jenis-kulit') }}" class="block py-2 text-gray-700 hover:text-pink-500">Jenis Kulit</a>
+                <a href="{{ route('public.jenis-kulit') }}" class="block py-2 text-gray-700 hover:text-pink-500">Informasi</a>
                 <a href="{{ route('public.permintaan') }}" class="block py-2 text-gray-700 hover:text-pink-500">Permintaan</a>
                 <a href="{{ route('public.hasil-spk') }}" class="block py-2 text-gray-700 hover:text-pink-500">Hasil SPK</a>
                 <div class="block py-2 text-pink-500 font-medium">Login Admin</div>
@@ -235,7 +235,7 @@
                     <div class="relative">
                         <!-- Main Featured Product -->
                         <div class="relative z-10">
-                            <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500" 
+                            <img src="{{ asset('img/natural.jpeg') }}"
                                  alt="Sunscreen Products" 
                                  class="w-full max-w-md mx-auto rounded-3xl shadow-2xl float-animation">
                             <div class="absolute -bottom-4 -right-4 bg-gradient-to-r from-pink-500 to-pink-400 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
@@ -249,7 +249,7 @@
                                 <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100" 
                                      alt="Sunscreen" 
                                      class="w-full h-20 object-cover rounded-lg mb-2">
-                                <p class="text-xs font-semibold text-gray-700">SPF 50+ PA++++</p>
+                                <p class="text-xs font-semibold text-gray-700">SPF 30-50 PA++</p>
                             </div>
                         </div>
                         
@@ -262,14 +262,14 @@
                             </div>
                         </div>
                         
-                        <div class="absolute top-1/2 -left-16 w-32 h-32 float-animation" style="animation-delay: 1.5s;">
+                        {{-- <div class="absolute top-1/2 -left-16 w-32 h-32 float-animation" style="animation-delay: 1.5s;">
                             <div class="glass rounded-2xl p-3 shadow-lg">
-                                <img src="https://images.unsplash.com/photo-1556228852-80b6bb58b699?w=100" 
+                               <img src="{{ asset('img/natural-product.jpeg') }}"
                                      alt="Sunscreen" 
                                      class="w-full h-20 object-cover rounded-lg mb-2">
                                 <p class="text-xs font-semibold text-gray-700">Natural & Organic</p>
                             </div>
-                        </div>
+                        </div> --}}
                         
                         <!-- Decorative Elements -->
                         <div class="absolute -top-8 left-1/2 transform -translate-x-1/2">
@@ -288,7 +288,7 @@
                                 <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow Beauty" class="w-24 h-24 rounded-2xl shadow-lg mx-auto">
                             </div>
                             <h1 class="text-3xl font-bold gradient-text font-['Dancing_Script'] mb-2">ReGlow Beauty</h1>
-                            <p class="text-gray-600">Smart Sunscreen Recommendation</p>
+                            <p class="text-gray-600">Beauty Inside and Outside</p>
                             <div class="inline-block mt-4">
                                 <span class="bg-pink-100 text-pink-600 px-4 py-2 rounded-full text-sm font-semibold">
                                     ✨ Admin Login
@@ -376,11 +376,11 @@
                                     <input type="checkbox" name="remember" class="w-4 h-4 text-pink-500 border-pink-300 rounded focus:ring-pink-200">
                                     <span class="ml-2 text-gray-600 text-sm">Ingat saya</span>
                                 </label>
-                                @if (Route::has('password.request'))
+                                {{-- @if (Route::has('password.request'))
                                     <a href="{{ route('password.request') }}" class="text-sm text-pink-500 hover:text-pink-600 transition-colors">
                                         Lupa kata sandi?
                                     </a>
-                                @endif
+                                @endif --}}
                             </div>
 
                             <!-- Submit Button -->

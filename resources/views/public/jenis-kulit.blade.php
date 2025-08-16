@@ -19,11 +19,27 @@
         <div class="grid md:grid-cols-2 gap-8 mb-12">
             @foreach($jenisKulit as $key => $jenis)
             <div class="glass rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
+                @php
+                $title = trim($jenis['title'] ?? '');
+
+                $imgMap = [
+                    'Kulit Kering'     => 'kulit-kering.jpg',
+                    'Kulit Berminyak'  => 'kulit-berminyak.jpg',
+                    'Kulit Normal'     => 'kulit-normal.jpg',
+                    'Kulit Kombinasi'  => 'kulit-kombinasi.png',
+                ];
+
+                $imgFile = $imgMap[$title] ?? 'placeholder.jpg'; // fallback optional
+                @endphp
+
                 <!-- Image -->
                 <div class="h-64 overflow-hidden relative">
-                    <img src="{{ $jenis['image'] }}" alt="{{ $jenis['title'] }}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                    <h2 class="absolute bottom-4 left-6 text-3xl font-bold text-white">{{ $jenis['title'] }}</h2>
+                <img src="{{ asset('img/' . $imgFile) }}"
+                    alt="{{ $title }}"
+                    class="w-full h-full object-cover"
+                    loading="lazy">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <h2 class="absolute bottom-4 left-6 text-3xl font-bold text-white">{{ $title }}</h2>
                 </div>
 
                 <!-- Content -->

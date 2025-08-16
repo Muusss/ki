@@ -139,14 +139,14 @@
                     <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow" class="w-12 h-12 rounded-xl shadow-lg">
                     <div>
                         <h1 class="text-2xl font-bold gradient-text font-['Dancing_Script']">ReGlow Beauty</h1>
-                        <p class="text-xs text-pink-600">Smart Sunscreen Recommendation</p>
+                        <p class="text-xs text-pink-600">Beauty Inside and Outside</p>
                     </div>
                 </div>
                 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-6" data-aos="fade-left">
                     <a href="#home" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Beranda</a>
-                    <a href="{{ route('public.jenis-kulit') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Jenis Kulit</a>
+                    <a href="{{ route('public.jenis-kulit') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Informasi</a>
                     <a href="{{ route('public.permintaan') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Permintaan</a>
                     <a href="{{ route('public.hasil-spk') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Hasil SPK</a>
                     <a href="{{ route('login') }}" class="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-2 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium">
@@ -226,14 +226,14 @@
                 <div class="relative" data-aos="fade-left">
                     <!-- Main sunscreen bottle -->
                     <div class="relative z-10">
-                        <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500" alt="Sunscreen" class="w-full max-w-md mx-auto rounded-3xl shadow-2xl float-animation">
+                        <img src="{{ asset('img/natural.jpeg') }}" alt="Sunscreen" class="w-full max-w-md mx-auto rounded-3xl shadow-2xl float-animation">
                     </div>
                     
                     <!-- Floating sunscreen products -->
                     <div class="absolute top-0 right-0 w-24 h-24 sunscreen-float" style="--i: 1;">
                         <div class="bg-gradient-to-br from-yellow-200 to-yellow-100 rounded-2xl p-3 shadow-lg">
                             <span class="text-2xl">☀️</span>
-                            <p class="text-xs font-semibold text-gray-700">SPF 50</p>
+                            <p class="text-xs font-semibold text-gray-700">SPF 30-50 PA+++</p>
                         </div>
                     </div>
                     
@@ -244,12 +244,12 @@
                         </div>
                     </div>
                     
-                    <div class="absolute top-1/2 -left-8 w-24 h-24 sunscreen-float" style="--i: 3;">
+                    {{-- <div class="absolute top-1/2 -left-8 w-24 h-24 sunscreen-float" style="--i: 3;">
                         <div class="bg-gradient-to-br from-green-200 to-green-100 rounded-2xl p-3 shadow-lg">
                             <span class="text-2xl">🌿</span>
                             <p class="text-xs font-semibold text-gray-700">Natural</p>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>

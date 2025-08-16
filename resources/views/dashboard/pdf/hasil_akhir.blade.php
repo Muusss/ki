@@ -111,42 +111,43 @@
             <span class="info-label">Filter Jenis Kulit</span>
             <span class="info-value">: {{ $filter_info }}</span>
         </div>
-        @if(isset($hargaMin) || isset($hargaMax))
+        
+        @if(!empty($display_harga))
         <div class="info-row">
             <span class="info-label">Filter Harga</span>
-            <span class="info-value">: 
-                @if($hargaMin && $hargaMax)
-                    Rp {{ number_format($hargaMin, 0, ',', '.') }} - Rp {{ number_format($hargaMax, 0, ',', '.') }}
-                @elseif($hargaMin)
-                    ≥ Rp {{ number_format($hargaMin, 0, ',', '.') }}
-                @elseif($hargaMax)
-                    ≤ Rp {{ number_format($hargaMax, 0, ',', '.') }}
-                @endif
-            </span>
+            <span class="info-value">: {{ $display_harga }}</span>
         </div>
         @endif
-        @if(isset($spfMin) || isset($spfMax))
+        
+        @if(!empty($display_spf))
         <div class="info-row">
             <span class="info-label">Filter SPF</span>
-            <span class="info-value">: 
-                @if($spfMin && $spfMax)
-                    SPF {{ $spfMin }} - {{ $spfMax }}
-                @elseif($spfMin)
-                    SPF ≥ {{ $spfMin }}
-                @elseif($spfMax)
-                    SPF ≤ {{ $spfMax }}
-                @endif
-            </span>
+            <span class="info-value">: {{ $display_spf }}</span>
         </div>
         @endif
+        
         <div class="info-row">
             <span class="info-label">Jumlah Produk</span>
-            <span class="info-value">: {{ $alternatif->count() }} Produk (dari total {{ \App\Models\Alternatif::count() }} produk)</span>
+            <span class="info-value">: {{ $tabelPerankingan->count() }} Produk
+            @if($jenisKulit !== 'all' || !empty($display_harga) || !empty($display_spf))
+                (hasil filter)
+            @else
+                (semua produk)
+            @endif
+            </span>
         </div>
+        
+        @if(isset($user) && $user)
         <div class="info-row">
-            <span class="info-label">Petugas</span>
-            <span class="info-value">: {{ $user->name ?? 'Administrator' }}</span>
+            <span class="info-label">Dicetak Oleh</span>
+            <span class="info-value">: {{ $user->name ?? 'Guest' }}</span>
         </div>
+        @else
+        <div class="info-row">
+            <span class="info-label">Sumber</span>
+            <span class="info-value">: Sistem Publik</span>
+        </div>
+        @endif
     </div>
 
     {{-- TOP 3 PRODUK DENGAN GAMBAR --}}
@@ -251,7 +252,10 @@
     @endphp
     <div class="summary-box">
         <h4>KESIMPULAN & REKOMENDASI</h4>
-        <p>Berdasarkan hasil perhitungan dengan metode ROC + SMART dan filter yang diterapkan, 
+        <p>Berdasarkan hasil perhitungan dengan metode ROC + SMART
+        @if($jenisKulit !== 'all' || !empty($display_harga) || !empty($display_spf))
+            dan filter yang diterapkan,
+        @endif
         produk sunscreen terbaik yang direkomendasikan adalah:</p>
         
         <div style="margin: 15px 0; padding: 10px; background: white; border-left: 4px solid #3498db;">
@@ -297,6 +301,15 @@
                 </div>
             </div>
         </div>
+        
+        <p style="margin-top: 10px; font-style: italic; font-size: 10pt;">
+            @if($jenisKulit !== 'all')
+                * Rekomendasi ini khusus untuk jenis kulit {{ strtolower($filter_info) }}.
+            @endif
+            @if(!empty($display_harga) || !empty($display_spf))
+                Hasil berdasarkan filter yang diterapkan.
+            @endif
+        </p>
     </div>
     @endif
     @else
@@ -306,5 +319,15 @@
     @endif
 
     {{-- Footer --}}
+    <div class="footer">
+        <p style="text-align: center; font-style: italic; font-size: 10pt; margin-top: 20px;">
+            Dokumen ini dicetak dari Sistem Rekomendasi Sunscreen
+            @if(isset($user) && $user)
+                - {{ config('app.name', 'SPK Sunscreen') }}
+            @else
+                - Versi Publik
+            @endif
+        </p>
+    </div>
 </body>
 </html>
