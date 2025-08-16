@@ -17,7 +17,8 @@ class Permintaan extends Model
         'harga',
         'spf',
         'status',
-        'admin_notes'
+        'admin_notes',
+        'gambar', 
     ];
 
     protected $casts = [

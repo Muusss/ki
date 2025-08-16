@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Alternatif;
 use App\Models\NilaiAkhir;
 use App\Models\Permintaan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PublicController extends Controller
 {
@@ -114,20 +116,38 @@ class PublicController extends Controller
      */
     public function storePermintaan(Request $request)
     {
-        $data = $request->validate([
-            'nama_produk' => 'required|string|max:100',
-            'komposisi' => 'required|string',
-            'harga' => 'required|in:<50k,50-100k,>100k',
-            'spf' => 'required|in:30,35,40,50+',
-        ]);
+        try {
+            // Debug log
+            Log::info('Public Permintaan Input:', $request->all());
+            
+            $data = $request->validate([
+                'nama_produk' => 'required|string|max:100',
+                'komposisi' => 'required|string',
+                'harga' => 'required|in:<50k,50-100k,>100k',
+                'spf' => 'required|in:30,35,40,50+',
+            ]);
 
-        // Tambahkan flag bahwa ini dari public
-        $data['status'] = 'pending'; // Anda perlu menambahkan kolom status di tabel permintaans
-        
-        Permintaan::create($data);
-
-        return redirect()->route('public.permintaan')
-            ->with('success', 'Permintaan Anda telah berhasil dikirim! Admin akan memverifikasi permintaan Anda.');
+            // Tambahkan flag bahwa ini dari public
+            $data['status'] = 'pending';
+            
+            DB::beginTransaction();
+            try {
+                Permintaan::create($data);
+                DB::commit();
+                
+                return redirect()->route('public.permintaan')
+                    ->with('success', 'Permintaan Anda telah berhasil dikirim! Admin akan memverifikasi permintaan Anda.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Error in Public storePermintaan: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal mengirim permintaan. Silakan coba lagi.');
+        }
     }
 
     /**
