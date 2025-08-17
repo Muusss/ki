@@ -31,57 +31,54 @@ class SubKriteriaSeeder extends Seeder
             }
         };
 
+        /**
+         * C1: Rasa (benefit)
+         */
         $add('C1', [
-            ['label'=>'Tidak terdapat Kandungan',       'skor'=>1],
-            ['label'=>'Terdapat 1 Kandungan',        'skor'=>2],
-            ['label'=>'Terdapat 2 Kandungan',         'skor'=>3],
-            ['label'=>'Terdapat >2 Kandungan',  'skor'=>4],
+            ['label' => 'Tidak Enak',    'skor' => 1],
+            ['label' => 'Cukup Enak',    'skor' => 2],
+            ['label' => 'Enak',          'skor' => 3],
+            ['label' => 'Sangat Enak',   'skor' => 4],
         ], true);
 
-        
+        /**
+         * C2: Harga (cost) sesuai Excel
+         */
         $add('C2', [
-            ['label'=>'30',  'skor'=>1, 'min_val'=>30,  'max_val'=>30],
-            ['label'=>'35', 'skor'=>2, 'min_val'=>35, 'max_val'=>35],
-            ['label'=>'40', 'skor'=>3, 'min_val'=>40, 'max_val'=>40],
-            ['label'=>'50+',  'skor'=>4, 'min_val'=>50, 'max_val'=>60],
+            ['label' => '>30.000',                  'skor' => 1, 'min_val' => 30001,  'max_val' => null],
+            ['label' => '>25.000 – <=30.000',       'skor' => 2, 'min_val' => 25001,  'max_val' => 30000],
+            ['label' => '>20.000 – <=25.000',       'skor' => 3, 'min_val' => 20001,  'max_val' => 25000],
+            ['label' => '<=20.000',                 'skor' => 4, 'min_val' => 0,      'max_val' => 20000],
         ], true);
 
-       
+        /**
+         * C3: Popularitas (benefit)
+         */
         $add('C3', [
-            ['label'=>'>80k',  'skor'=>1, 'min_val'=>80000,  'max_val'=>150000],
-            ['label'=>'61-80k', 'skor'=>2, 'min_val'=>61000, 'max_val'=>80000],
-            ['label'=>'40k-60k', 'skor'=>3, 'min_val'=>40000, 'max_val'=>60000],
-            ['label'=>'<40k',  'skor'=>4, 'min_val'=>10000, 'max_val'=>40000],
+            ['label' => 'Kurang',          'skor' => 1],
+            ['label' => 'Cukup',           'skor' => 2],
+            ['label' => 'Populer',         'skor' => 3],
+            ['label' => 'Sangat Populer',  'skor' => 4],
         ], true);
 
-        
+        /**
+         * C4: Porsi (benefit)
+         */
         $add('C4', [
-            ['label'=>'Terdapat Kandungan Paraben dan Fragrance', 'skor'=>1],
-            ['label'=>'Terdapat Kandungan Paraben',   'skor'=>2],
-            ['label'=>'Terdapat Kandungan Fragrance',   'skor'=>3],
-            ['label'=>'Tidak Terdapat Kandungan Paraben dan Fragrance', 'skor'=>4],
+            ['label' => 'Sedikit', 'skor' => 1],
+            ['label' => 'Cukup',   'skor' => 2],
+            ['label' => 'Banyak',  'skor' => 3],
+            ['label' => 'Sangat Banyak', 'skor' => 4],
         ], true);
 
-        
+        /**
+         * C5: Penyajian (benefit)
+         */
         $add('C5', [
-            ['label'=>'Menimbulkan Whitecast dan Comedogenic',                'skor'=>1],
-            ['label'=>'Menimbulkan Comedogenic',               'skor'=>2],
-            ['label'=>'Menimbulkan Whitecast',         'skor'=>3],
-            ['label'=>'Tidak Menimbulkan Whitecast dan Comedogenic', 'skor'=>4],
-        ], true);
-
-       
-        $add('C6', [
-            ['label'=>'Spray', 'skor'=>1],
-            ['label'=>'Lotion',   'skor'=>2],
-            ['label'=>'Gel',   'skor'=>3],
-            ['label'=>'Krim', 'skor'=>4],
-        ], true);
-        $add('C7', [
-            ['label'=>'15-25 ml',  'skor'=>1, 'min_val'=>15,  'max_val'=>25],
-            ['label'=>'26-40 ml', 'skor'=>2, 'min_val'=>26, 'max_val'=>40],
-            ['label'=>'41-55 ml', 'skor'=>3, 'min_val'=>41, 'max_val'=>55],
-            ['label'=>'>55 ml',  'skor'=>4, 'min_val'=>56, 'max_val'=>100],
+            ['label' => 'Kurang',          'skor' => 1],
+            ['label' => 'Cukup',           'skor' => 2],
+            ['label' => 'Menarik',         'skor' => 3],
+            ['label' => 'Sangat Menarik',  'skor' => 4],
         ], true);
     }
 }

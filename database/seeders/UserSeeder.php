@@ -12,24 +12,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Admin user
+        // Admin Cafe
         User::firstOrCreate(
-            ['email' => 'admin@skincare.com'],
+            ['email' => 'admin@cafe.com'],
             [
-                'name' => 'Administrator',
+                'name' => 'Admin Cafe',
                 'password' => Hash::make('admin123'),
                 'is_admin' => true,
-                'email_verified_at' => now(),
-            ]
-        );
-
-        // Regular user untuk testing
-        User::firstOrCreate(
-            ['email' => 'user@skincare.com'],
-            [
-                'name' => 'User Test',
-                'password' => Hash::make('user123'),
-                'is_admin' => false,
                 'email_verified_at' => now(),
             ]
         );

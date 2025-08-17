@@ -9,50 +9,38 @@ class KriteriaSeeder extends Seeder
 {
     public function run(): void
     {
-        // Data kriteria sesuai penelitian
+        // Kriteria dari Excel (Sheet3)
         $kriterias = [
             [
                 'kode' => 'C1',
-                'kriteria' => 'Kesesuain Jenis Kulit',
+                'kriteria' => 'Rasa',
                 'atribut' => 'benefit',
-                'urutan_prioritas' => 1
+                'urutan_prioritas' => 1,
             ],
             [
                 'kode' => 'C2',
-                'kriteria' => 'SPF',
-                'atribut' => 'benefit',
-                'urutan_prioritas' => 2
+                'kriteria' => 'Harga',
+                'atribut' => 'cost',
+                'urutan_prioritas' => 2,
             ],
             [
                 'kode' => 'C3',
-                'kriteria' => 'Harga',
-                'atribut' => 'cost',
-                'urutan_prioritas' => 3
+                'kriteria' => 'Popularitas',
+                'atribut' => 'benefit',
+                'urutan_prioritas' => 3,
             ],
             [
                 'kode' => 'C4',
-                'kriteria' => 'Komposisi',
-                'atribut' => 'cost',
-                'urutan_prioritas' => 4
+                'kriteria' => 'Porsi',
+                'atribut' => 'benefit',
+                'urutan_prioritas' => 4,
             ],
             [
                 'kode' => 'C5',
-                'kriteria' => 'Efek Samping',
-                'atribut' => 'cost',
-                'urutan_prioritas' => 5
-            ],
-            [
-                'kode' => 'C6',
-                'kriteria' => 'Tekstur',
+                'kriteria' => 'Penyajian',
                 'atribut' => 'benefit',
-                'urutan_prioritas' => 6
+                'urutan_prioritas' => 5,
             ],
-            [
-                'kode' => 'C7',
-                'kriteria' => 'Ukuran',
-                'atribut' => 'cost',
-                'urutan_prioritas' => 7
-            ]
         ];
 
         foreach ($kriterias as $kriteria) {
@@ -62,7 +50,7 @@ class KriteriaSeeder extends Seeder
             );
         }
 
-        // Hitung bobot ROC
+        // Hitung bobot ROC sesuai urutan prioritas
         Kriteria::hitungROC();
     }
 }

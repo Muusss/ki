@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\SubKriteria;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +16,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             KriteriaSeeder::class,
             AlternatifSeeder::class,
-            // PenilaianSeeder::class,
+            SubKriteriaSeeder::class,
         ]);
     }
 }

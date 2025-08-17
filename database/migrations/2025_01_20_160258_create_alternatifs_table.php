@@ -7,24 +7,64 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration 
 {
     /**
-     * Run the migrations untuk tabel alternatif/produk
+     * Run the migrations untuk tabel alternatif/menu
      */
     public function up(): void
     {
         if (!Schema::hasTable('alternatifs')) {
             Schema::create('alternatifs', function (Blueprint $table) {
                 $table->id();
-                $table->string('kode_produk', 30)->unique(); // Kode unik produk
-                $table->string('nama_produk', 100)->index(); // Nama produk
-                $table->enum('jenis_kulit', ['normal', 'berminyak', 'kering', 'kombinasi'])->index();
-                $table->unsignedInteger('harga')->nullable()->index(); // Harga dalam rupiah
-                $table->unsignedTinyInteger('spf')->nullable()->index(); // Nilai SPF
-                $table->string('gambar')->nullable(); // Path gambar produk
+                $table->string('kode_menu', 30)->unique(); // Kode unik menu
+                $table->string('nama_menu', 100)->index(); // Nama menu
+                $table->enum('jenis_menu', [
+                    'makanan', 
+                    'cemilan', 
+                    'coffee', 
+                    'milkshake', 
+                    'mojito', 
+                    'yakult', 
+                    'tea'
+                ])->index(); // Jenis menu
+                $table->enum('harga', [
+                    '<=20000', 
+                    '>20000-<=25000', 
+                    '>25000-<=30000', 
+                    '>30000'
+                ])->index(); // Kategori harga
+                $table->string('gambar')->nullable(); // Path gambar menu
                 $table->timestamps();
-                
-                // Composite index untuk filter kombinasi
-                $table->index(['jenis_kulit', 'harga']);
-                $table->index(['jenis_kulit', 'spf']);
+
+                // Index tambahan
+                $table->index(['jenis_menu', 'harga']);
+            });
+        } else {
+            Schema::table('alternatifs', function (Blueprint $table) {
+                // Hapus kolom lama jika ada
+                if (Schema::hasColumn('alternatifs', 'kode_produk')) {
+                    $table->dropColumn(['kode_produk', 'nama_produk', 'jenis_kulit', 'harga', 'spf', 'gambar']);
+                }
+                // Tambahkan kolom baru
+                if (!Schema::hasColumn('alternatifs', 'kode_menu')) {
+                    $table->string('kode_menu', 30)->unique();
+                }
+                if (!Schema::hasColumn('alternatifs', 'nama_menu')) {
+                    $table->string('nama_menu', 100)->index();
+                }
+                if (!Schema::hasColumn('alternatifs', 'jenis_menu')) {
+                    $table->enum('jenis_menu', [
+                        'makanan', 'cemilan', 'coffee', 
+                        'milkshake', 'mojito', 'yakult', 'tea'
+                    ])->index();
+                }
+                if (!Schema::hasColumn('alternatifs', 'harga')) {
+                    $table->enum('harga', [
+                        '<=20000', '>20000-<=25000', 
+                        '>25000-<=30000', '>30000'
+                    ])->index();
+                }
+                if (!Schema::hasColumn('alternatifs', 'gambar')) {
+                    $table->string('gambar')->nullable();
+                }
             });
         }
     }
