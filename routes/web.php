@@ -80,22 +80,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/penilaian/input/{id}', [PenilaianController::class, 'inputPage'])->name('penilaian.input');
     Route::post('/penilaian/store', [PenilaianController::class, 'store'])->name('penilaian.store');
 
-    // ===== PERMINTAAN (resource tanpa create/show) =====
-    // Ubah nama route index -> 'permintaan' (bukan 'permintaan.index')
-    Route::resource('permintaan', PermintaanController::class)
-        ->except(['create','show'])
-        ->names([
-            'index'   => 'permintaan',         // <— alias yang dicari kode kamu
-            'store'   => 'permintaan.store',
-            'edit'    => 'permintaan.edit',
-            'update'  => 'permintaan.update',
-            'destroy' => 'permintaan.destroy',
-        ]);
-
-    // Aksi status (JSON)
-    Route::post('permintaan/{id}/approve', [PermintaanController::class, 'approve'])->name('permintaan.approve');
-    Route::post('permintaan/{id}/reject',  [PermintaanController::class, 'reject'])->name('permintaan.reject');
-
     // ===== SMART/PERHITUNGAN =====
     Route::get('/perhitungan', [SMARTController::class, 'indexPerhitungan'])->name('perhitungan');
     Route::post('/perhitungan', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.smart');
