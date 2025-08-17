@@ -311,7 +311,7 @@
       </div>
       <div class="nav-item">
         <a href="{{ route('alternatif') }}" class="nav-link {{ request()->routeIs('alternatif*') ? 'active' : '' }}">
-          <i class="bi bi-box-seam-fill" aria-hidden="true"></i><span>Data Produk</span>
+          <i class="bi bi-box-seam-fill" aria-hidden="true"></i><span>Data Menu</span>
         </a>
       </div>
 

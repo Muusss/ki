@@ -303,7 +303,7 @@
         </div>
     </div>
 
-    {{-- Quick Actions --}}
+    {{-- Quick Actions
     <div class="row">
         <div class="col-12">
             <div class="card bg-light">
@@ -338,7 +338,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 @endsection
 

@@ -13,110 +13,42 @@ use Illuminate\Http\Request;
 class PDFController extends Controller
 {
     /**
-     * Parse filter harga dari dropdown (sama dengan DashboardController & PublicController)
+     * Parse filter harga dari dropdown menu cafe
      */
     private function parseHargaFilter($hargaFilter)
     {
         switch ($hargaFilter) {
-            case '<=40000':
-                return ['min' => null, 'max' => 40000];
-            case '40001-60000':
-                return ['min' => 40001, 'max' => 60000];
-            case '60001-80000':
-                return ['min' => 60001, 'max' => 80000];
-            case '>80000':
-                return ['min' => 80001, 'max' => null];
+            case '<=20000':
+                return ['min' => null, 'max' => 20000];
+            case '>20000-<=25000':
+                return ['min' => 20001, 'max' => 25000];
+            case '>25000-<=30000':
+                return ['min' => 25001, 'max' => 30000];
+            case '>30000':
+                return ['min' => 30001, 'max' => null];
             default:
                 return ['min' => null, 'max' => null];
         }
     }
 
-    /**
-     * Parse filter SPF dari dropdown
-     */
-    private function parseSpfFilter($spfFilter)
+    public function hasilAkhir(Request $request)
     {
-        if ($spfFilter === 'all' || empty($spfFilter)) {
-            return ['min' => null, 'max' => null];
-        }
-        
-        // Jika nilai spesifik (30, 35, 40, 50)
-        if (is_numeric($spfFilter)) {
-            return ['min' => (int)$spfFilter, 'max' => (int)$spfFilter];
-        }
-        
-        return ['min' => null, 'max' => null];
-    }
-
-    public function pdf_hasil(Request $request)
-    {
-        $judul = 'Laporan Hasil Akhir Rekomendasi Sunscreen';
+        $judul = 'Laporan Hasil Akhir Rekomendasi Menu Cafe Buri Umah';
         $user = Auth::user();
 
-        // Ambil filter dari request dengan support untuk kedua format (admin & public)
-        $jenisKulit = $request->get('jenis_kulit', 'all');
+        // Ambil filter dari request
+        $jenisMenu = $request->get('jenis_menu', 'all');
+        $filterHarga = $request->get('harga', 'all');
         
-        // Handle filter harga - cek apakah format dropdown atau range
-        $filterHarga = $request->get('harga');
-        $hargaMin = null;
-        $hargaMax = null;
-        
-        if ($filterHarga && $filterHarga !== 'all') {
-            // Format dropdown dari public
-            $hargaRange = $this->parseHargaFilter($filterHarga);
-            $hargaMin = $hargaRange['min'];
-            $hargaMax = $hargaRange['max'];
-        } else {
-            // Format range dari admin
-            $hargaMin = $request->get('harga_min');
-            $hargaMax = $request->get('harga_max');
-        }
-        
-        // Handle filter SPF - cek apakah format dropdown atau range
-        $filterSpf = $request->get('spf');
-        $spfMin = null;
-        $spfMax = null;
-        
-        if ($filterSpf && $filterSpf !== 'all') {
-            // Format dropdown dari public
-            $spfRange = $this->parseSpfFilter($filterSpf);
-            $spfMin = $spfRange['min'];
-            $spfMax = $spfRange['max'];
-        } else {
-            // Format range dari admin
-            $spfMin = $request->get('spf_min');
-            $spfMax = $request->get('spf_max');
-        }
-
         // Build judul dengan info filter
         $filterText = [];
-        if ($jenisKulit !== 'all') {
-            $filterText[] = 'Jenis Kulit: ' . ucfirst($jenisKulit);
+        if ($jenisMenu !== 'all') {
+            $filterText[] = 'Jenis: ' . ucfirst($jenisMenu);
         }
         
         // Format text untuk harga
-        if ($hargaMin !== null || $hargaMax !== null) {
-            if ($hargaMin !== null && $hargaMax !== null) {
-                $filterText[] = 'Harga: Rp ' . number_format($hargaMin, 0, ',', '.') . 
-                            ' - Rp ' . number_format($hargaMax, 0, ',', '.');
-            } elseif ($hargaMin !== null) {
-                $filterText[] = 'Harga: ≥ Rp ' . number_format($hargaMin, 0, ',', '.');
-            } elseif ($hargaMax !== null) {
-                $filterText[] = 'Harga: ≤ Rp ' . number_format($hargaMax, 0, ',', '.');
-            }
-        }
-        
-        // Format text untuk SPF
-        if ($spfMin !== null || $spfMax !== null) {
-            if ($spfMin === $spfMax && $spfMin !== null) {
-                $filterText[] = 'SPF: ' . $spfMin;
-            } elseif ($spfMin !== null && $spfMax !== null) {
-                $filterText[] = 'SPF: ' . $spfMin . ' - ' . $spfMax;
-            } elseif ($spfMin !== null) {
-                $filterText[] = 'SPF: ≥ ' . $spfMin;
-            } elseif ($spfMax !== null) {
-                $filterText[] = 'SPF: ≤ ' . $spfMax;
-            }
+        if ($filterHarga !== 'all') {
+            $filterText[] = 'Harga: ' . (Alternatif::KATEGORI_HARGA[$filterHarga] ?? $filterHarga);
         }
         
         if (count($filterText) > 0) {
@@ -129,34 +61,17 @@ class PDFController extends Controller
         // Query dengan filter untuk hasil akhir
         $query = NilaiAkhir::with('alternatif');
         
-        // Filter jenis kulit
-        if ($jenisKulit && $jenisKulit !== 'all') {
-            $query->whereHas('alternatif', function($q) use ($jenisKulit) {
-                $q->where('jenis_kulit', $jenisKulit);
+        // Filter jenis menu
+        if ($jenisMenu && $jenisMenu !== 'all') {
+            $query->whereHas('alternatif', function($q) use ($jenisMenu) {
+                $q->where('jenis_menu', $jenisMenu);
             });
         }
         
-        // Filter harga
-        if ($hargaMin !== null && $hargaMin !== '') {
-            $query->whereHas('alternatif', function($q) use ($hargaMin) {
-                $q->where('harga', '>=', $hargaMin);
-            });
-        }
-        if ($hargaMax !== null && $hargaMax !== '') {
-            $query->whereHas('alternatif', function($q) use ($hargaMax) {
-                $q->where('harga', '<=', $hargaMax);
-            });
-        }
-        
-        // Filter SPF
-        if ($spfMin !== null && $spfMin !== '') {
-            $query->whereHas('alternatif', function($q) use ($spfMin) {
-                $q->where('spf', '>=', $spfMin);
-            });
-        }
-        if ($spfMax !== null && $spfMax !== '') {
-            $query->whereHas('alternatif', function($q) use ($spfMax) {
-                $q->where('spf', '<=', $spfMax);
+        // Filter harga (kategori)
+        if ($filterHarga && $filterHarga !== 'all') {
+            $query->whereHas('alternatif', function($q) use ($filterHarga) {
+                $q->where('harga', $filterHarga);
             });
         }
         
@@ -170,7 +85,7 @@ class PDFController extends Controller
             // Konversi gambar ke base64 untuk PDF
             $alt = $item->alternatif;
             if ($alt && $alt->gambar) {
-                $imagePath = public_path('img/produk/' . $alt->gambar);
+                $imagePath = public_path('img/menu/' . $alt->gambar);
                 if (file_exists($imagePath)) {
                     $imageData = base64_encode(file_get_contents($imagePath));
                     $imageType = pathinfo($imagePath, PATHINFO_EXTENSION);
@@ -196,31 +111,12 @@ class PDFController extends Controller
         
         // Info tambahan  
         $tanggal_cetak = now()->format('d F Y');
-        $filter_info = $jenisKulit !== 'all' ? ucfirst($jenisKulit) : 'Semua Jenis';
+        $filter_info = $jenisMenu !== 'all' ? ucfirst($jenisMenu) : 'Semua Jenis';
         
         // Format display untuk filter yang digunakan
         $display_harga = '';
-        if ($hargaMin !== null || $hargaMax !== null) {
-            if ($hargaMin !== null && $hargaMax !== null) {
-                $display_harga = 'Rp ' . number_format($hargaMin, 0, ',', '.') . ' - Rp ' . number_format($hargaMax, 0, ',', '.');
-            } elseif ($hargaMin !== null) {
-                $display_harga = '≥ Rp ' . number_format($hargaMin, 0, ',', '.');
-            } elseif ($hargaMax !== null) {
-                $display_harga = '≤ Rp ' . number_format($hargaMax, 0, ',', '.');
-            }
-        }
-        
-        $display_spf = '';
-        if ($spfMin !== null || $spfMax !== null) {
-            if ($spfMin === $spfMax && $spfMin !== null) {
-                $display_spf = 'SPF ' . $spfMin;
-            } elseif ($spfMin !== null && $spfMax !== null) {
-                $display_spf = 'SPF ' . $spfMin . ' - ' . $spfMax;
-            } elseif ($spfMin !== null) {
-                $display_spf = 'SPF ≥ ' . $spfMin;
-            } elseif ($spfMax !== null) {
-                $display_spf = 'SPF ≤ ' . $spfMax;
-            }
+        if ($filterHarga !== 'all' && isset(Alternatif::KATEGORI_HARGA[$filterHarga])) {
+            $display_harga = Alternatif::KATEGORI_HARGA[$filterHarga];
         }
 
         // Generate PDF dengan option untuk image
@@ -240,37 +136,22 @@ class PDFController extends Controller
             'alternatif',
             'filter_info',
             'user',
-            'jenisKulit',
-            'hargaMin',
-            'hargaMax',
-            'spfMin',
-            'spfMax',
+            'jenisMenu',
             'filterHarga',
-            'filterSpf',
-            'display_harga',
-            'display_spf'
+            'display_harga'
         ));
 
         $pdf->setPaper('A4', 'portrait');
         
         // Nama file dengan filter info
-        $filename = 'Laporan_Sunscreen_';
-        if ($jenisKulit !== 'all') {
-            $filename .= ucfirst($jenisKulit) . '_';
+        $filename = 'Laporan_Menu_';
+        if ($jenisMenu !== 'all') {
+            $filename .= ucfirst($jenisMenu) . '_';
         }
         
         // Tambahkan info harga ke filename
         if ($filterHarga && $filterHarga !== 'all') {
-            $filename .= 'Harga_' . str_replace(['<', '>', '='], '', $filterHarga) . '_';
-        } elseif ($hargaMin || $hargaMax) {
-            $filename .= 'Harga_' . ($hargaMin ?: '0') . '-' . ($hargaMax ?: 'max') . '_';
-        }
-        
-        // Tambahkan info SPF ke filename
-        if ($filterSpf && $filterSpf !== 'all') {
-            $filename .= 'SPF_' . $filterSpf . '_';
-        } elseif ($spfMin || $spfMax) {
-            $filename .= 'SPF_' . ($spfMin ?: 'min') . '-' . ($spfMax ?: 'max') . '_';
+            $filename .= 'Harga_' . str_replace(['<', '>', '=', '-'], '', $filterHarga) . '_';
         }
         
         $filename .= date('Y-m-d') . '.pdf';

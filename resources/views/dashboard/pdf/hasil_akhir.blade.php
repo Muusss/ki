@@ -9,21 +9,21 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5; color: #333; }
         
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px double #000; padding-bottom: 15px; }
-        .header h1 { font-size: 18pt; font-weight: bold; margin-bottom: 5px; color: #2c3e50; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px double #8B4513; padding-bottom: 15px; }
+        .header h1 { font-size: 18pt; font-weight: bold; margin-bottom: 5px; color: #6B4C28; }
         .header h2 { font-size: 14pt; font-weight: bold; margin-bottom: 5px; }
         .header p { font-size: 11pt; margin: 2px 0; }
         
         .title-section { text-align: center; margin: 20px 0; }
         .title-section h3 { font-size: 14pt; font-weight: bold; text-decoration: underline; margin-bottom: 5px; }
         
-        .info-box { margin: 15px 0; padding: 10px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 5px; }
+        .info-box { margin: 15px 0; padding: 10px; background-color: #FFF8E7; border: 1px solid #D4A574; border-radius: 5px; }
         .info-row { display: table; width: 100%; margin: 3px 0; }
         .info-label { display: table-cell; width: 150px; font-weight: bold; }
         .info-value { display: table-cell; }
         
         table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        table thead { background-color: #3498db; color: white; }
+        table thead { background-color: #8B4513; color: white; }
         table th { padding: 8px; text-align: center; font-size: 11pt; font-weight: bold; border: 1px solid #333; }
         table td { padding: 6px 8px; font-size: 10pt; border: 1px solid #ddd; vertical-align: middle; }
         table tbody tr:nth-child(even) { background-color: #f9f9f9; }
@@ -32,7 +32,7 @@
         .ranking-2 { background-color: #c0c0c0 !important; }
         .ranking-3 { background-color: #cd7f32 !important; }
         
-        /* Style untuk gambar produk */
+        /* Style untuk gambar menu */
         .product-image { 
             width: 60px; 
             height: 60px; 
@@ -55,7 +55,7 @@
             text-align: center;
         }
         
-        /* Top 3 Products dengan gambar */
+        /* Top 3 Menu dengan gambar */
         .top-products { margin: 20px 0; }
         .top-product-card {
             page-break-inside: avoid;
@@ -79,8 +79,8 @@
             border-radius: 6px;
         }
         
-        .summary-box { margin-top: 30px; padding: 15px; background-color: #e8f4f8; border: 2px solid #3498db; border-radius: 5px; }
-        .summary-box h4 { font-size: 12pt; font-weight: bold; margin-bottom: 10px; color: #2c5282; }
+        .summary-box { margin-top: 30px; padding: 15px; background-color: #FFF8E7; border: 2px solid #8B4513; border-radius: 5px; }
+        .summary-box h4 { font-size: 12pt; font-weight: bold; margin-bottom: 10px; color: #6B4C28; }
         
         .footer { margin-top: 40px; page-break-inside: avoid; }
         .signature-section { display: table; width: 100%; margin-top: 30px; }
@@ -95,7 +95,8 @@
 <body>
     {{-- Header --}}
     <div class="header">
-        <h1>SISTEM REKOMENDASI SUNSCREEN</h1>
+        <h1>CAFE BURI UMAH</h1>
+        <h2>SISTEM REKOMENDASI MENU</h2>
         <p>Metode ROC (Rank Order Centroid) & SMART</p>
         <p>Tanggal Cetak: {{ $tanggal_cetak }}</p>
     </div>
@@ -108,7 +109,7 @@
     {{-- Info Box dengan Filter Detail --}}
     <div class="info-box">
         <div class="info-row">
-            <span class="info-label">Filter Jenis Kulit</span>
+            <span class="info-label">Filter Jenis Menu</span>
             <span class="info-value">: {{ $filter_info }}</span>
         </div>
         
@@ -119,20 +120,13 @@
         </div>
         @endif
         
-        @if(!empty($display_spf))
         <div class="info-row">
-            <span class="info-label">Filter SPF</span>
-            <span class="info-value">: {{ $display_spf }}</span>
-        </div>
-        @endif
-        
-        <div class="info-row">
-            <span class="info-label">Jumlah Produk</span>
-            <span class="info-value">: {{ $tabelPerankingan->count() }} Produk
-            @if($jenisKulit !== 'all' || !empty($display_harga) || !empty($display_spf))
+            <span class="info-label">Jumlah Menu</span>
+            <span class="info-value">: {{ $tabelPerankingan->count() }} Menu
+            @if($jenisMenu !== 'all' || !empty($display_harga))
                 (hasil filter)
             @else
-                (semua produk)
+                (semua menu)
             @endif
             </span>
         </div>
@@ -142,17 +136,12 @@
             <span class="info-label">Dicetak Oleh</span>
             <span class="info-value">: {{ $user->name ?? 'Guest' }}</span>
         </div>
-        @else
-        <div class="info-row">
-            <span class="info-label">Sumber</span>
-            <span class="info-value">: Sistem Publik</span>
-        </div>
         @endif
     </div>
 
-    {{-- TOP 3 PRODUK DENGAN GAMBAR --}}
+    {{-- TOP 3 MENU TERBAIK DENGAN GAMBAR --}}
     @if($tabelPerankingan->count() >= 3)
-    <h4 style="margin: 20px 0 10px;">TOP 3 PRODUK TERBAIK</h4>
+    <h4 style="margin: 20px 0 10px;">TOP 3 MENU TERBAIK</h4>
     <div class="top-products">
         @foreach($tabelPerankingan->take(3) as $item)
         @php
@@ -174,9 +163,8 @@
                         Peringkat {{ $item->peringkat }}
                     </h4>
                     <strong>{{ $alt->nama_menu ?? '-' }}</strong> ({{ $alt->kode_menu ?? '-' }})<br>
-                    Jenis Kulit: {{ ucfirst($alt->jenis_menu ?? '-') }}<br>
-                    Harga: @if($alt && $alt->harga) Rp {{ number_format($alt->harga, 0, ',', '.') }} @else - @endif<br>
-                    SPF: {{ $alt->spf ?? '-' }}<br>
+                    Jenis: {{ \App\Models\Alternatif::JENIS_MENU[$alt->jenis_menu] ?? ucfirst($alt->jenis_menu ?? '-') }}<br>
+                    Harga: {{ \App\Models\Alternatif::KATEGORI_HARGA[$alt->harga] ?? $alt->harga ?? '-' }}<br>
                     <strong>Nilai Total: {{ number_format($item->total, 4) }}</strong>
                 </div>
             </div>
@@ -193,11 +181,10 @@
             <tr>
                 <th width="5%">Rank</th>
                 <th width="15%">Gambar</th>
-                <th width="10%">Kode</th>
-                <th width="22%">Nama Produk</th>
-                <th width="10%">Jenis Kulit</th>
-                <th width="10%">Harga</th>
-                <th width="8%">SPF</th>
+                <th width="12%">Kode</th>
+                <th width="28%">Nama Menu</th>
+                <th width="12%">Jenis</th>
+                <th width="15%">Harga</th>
                 <th width="10%">Nilai</th>
                 <th width="10%">Status</th>
             </tr>
@@ -220,23 +207,16 @@
                 </td>
                 <td class="text-center">{{ $alt->kode_menu ?? '-' }}</td>
                 <td>{{ $alt->nama_menu ?? '-' }}</td>
-                <td class="text-center">{{ ucfirst($alt->jenis_menu ?? '-') }}</td>
-                <td class="text-center">
-                    @if($alt && $alt->harga)
-                        Rp {{ number_format($alt->harga, 0, ',', '.') }}
-                    @else
-                        -
-                    @endif
-                </td>
-                <td class="text-center">{{ $alt->spf ?? '-' }}</td>
+                <td class="text-center">{{ \App\Models\Alternatif::JENIS_MENU[$alt->jenis_menu] ?? ucfirst($alt->jenis_menu ?? '-') }}</td>
+                <td class="text-center">{{ \App\Models\Alternatif::KATEGORI_HARGA[$alt->harga] ?? $alt->harga ?? '-' }}</td>
                 <td class="text-center font-bold">{{ number_format($item->total, 4) }}</td>
                 <td class="text-center">
                     @if($item->peringkat == 1)
                         <strong>TERBAIK</strong>
                     @elseif($item->peringkat <= 3)
-                        Nominasi
+                        Rekomendasi
                     @else
-                        Partisipan
+                        Alternatif
                     @endif
                 </td>
             </tr>
@@ -244,7 +224,7 @@
         </tbody>
     </table>
 
-    {{-- Summary Box dengan Gambar Produk Terbaik --}}
+    {{-- Summary Box dengan Menu Terbaik --}}
     @if($tabelPerankingan->first())
     @php
         $topProduct = $tabelPerankingan->first();
@@ -253,12 +233,12 @@
     <div class="summary-box">
         <h4>KESIMPULAN & REKOMENDASI</h4>
         <p>Berdasarkan hasil perhitungan dengan metode ROC + SMART
-        @if($jenisKulit !== 'all' || !empty($display_harga) || !empty($display_spf))
+        @if($jenisMenu !== 'all' || !empty($display_harga))
             dan filter yang diterapkan,
         @endif
-        produk sunscreen terbaik yang direkomendasikan adalah:</p>
+        menu terbaik yang direkomendasikan adalah:</p>
         
-        <div style="margin: 15px 0; padding: 10px; background: white; border-left: 4px solid #3498db;">
+        <div style="margin: 15px 0; padding: 10px; background: white; border-left: 4px solid #8B4513;">
             <div class="product-detail">
                 @if($topProduct->image_base64)
                 <div class="product-img-container">
@@ -268,7 +248,7 @@
                 <div class="product-info">
                     <table style="border: none; margin: 0;">
                         <tr>
-                            <td style="border: none; width: 120px;"><strong>Nama Produk</strong></td>
+                            <td style="border: none; width: 120px;"><strong>Nama Menu</strong></td>
                             <td style="border: none;">: {{ $altTop->nama_menu ?? '-' }}</td>
                         </tr>
                         <tr>
@@ -276,22 +256,12 @@
                             <td style="border: none;">: {{ $altTop->kode_menu ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <td style="border: none;"><strong>Jenis Kulit</strong></td>
-                            <td style="border: none;">: {{ ucfirst($altTop->jenis_menu ?? '-') }}</td>
+                            <td style="border: none;"><strong>Jenis Menu</strong></td>
+                            <td style="border: none;">: {{ \App\Models\Alternatif::JENIS_MENU[$altTop->jenis_menu] ?? ucfirst($altTop->jenis_menu ?? '-') }}</td>
                         </tr>
                         <tr>
                             <td style="border: none;"><strong>Harga</strong></td>
-                            <td style="border: none;">: 
-                                @if($altTop && $altTop->harga)
-                                    Rp {{ number_format($altTop->harga, 0, ',', '.') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="border: none;"><strong>SPF</strong></td>
-                            <td style="border: none;">: {{ $altTop->spf ?? '-' }}</td>
+                            <td style="border: none;">: {{ \App\Models\Alternatif::KATEGORI_HARGA[$altTop->harga] ?? $altTop->harga ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td style="border: none;"><strong>Nilai Total</strong></td>
@@ -303,27 +273,27 @@
         </div>
         
         <p style="margin-top: 10px; font-style: italic; font-size: 10pt;">
-            @if($jenisKulit !== 'all')
-                * Rekomendasi ini khusus untuk jenis kulit {{ strtolower($filter_info) }}.
+            @if($jenisMenu !== 'all')
+                * Rekomendasi ini khusus untuk jenis menu {{ strtolower($filter_info) }}.
             @endif
-            @if(!empty($display_harga) || !empty($display_spf))
-                Hasil berdasarkan filter yang diterapkan.
+            @if(!empty($display_harga))
+                Hasil berdasarkan filter harga yang diterapkan.
             @endif
         </p>
     </div>
     @endif
     @else
     <div style="text-align: center; padding: 20px; border: 1px solid #ddd; background: #f9f9f9;">
-        <p><strong>Tidak ada produk yang sesuai dengan filter yang diterapkan.</strong></p>
+        <p><strong>Tidak ada menu yang sesuai dengan filter yang diterapkan.</strong></p>
     </div>
     @endif
 
     {{-- Footer --}}
     <div class="footer">
         <p style="text-align: center; font-style: italic; font-size: 10pt; margin-top: 20px;">
-            Dokumen ini dicetak dari Sistem Rekomendasi Sunscreen
+            Dokumen ini dicetak dari Sistem Rekomendasi Menu Cafe Buri Umah
             @if(isset($user) && $user)
-                - {{ config('app.name', 'SPK Sunscreen') }}
+                - {{ config('app.name', 'SPK Menu Cafe') }}
             @else
                 - Versi Publik
             @endif
