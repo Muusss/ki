@@ -83,7 +83,7 @@
             <div class="col-md-6">
               <label class="form-label">Label</label>
               <input type="text" class="form-control" name="label" required maxlength="100"
-                     placeholder="contoh: ≥ 91 / Sangat Baik / 1 Juz">
+                     placeholder="">
             </div>
             <div class="col-md-4">
               <label class="form-label">Skor (1–4)</label>

@@ -280,7 +280,7 @@
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-warning">Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-warning">Login</a>
+                    <a href="{{ route('login') }}" class="btn btn-warning">Login Admin</a>
                 @endauth
             </div>
         </div>
