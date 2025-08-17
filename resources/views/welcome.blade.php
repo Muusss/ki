@@ -7,12 +7,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/buri-umah.jpeg') }}" />
+    <link rel="icon" type="image/jpeg" href="{{ asset('img/buri-umah.jpeg') }}" /> 
     <style>
         :root {
             --primary: #8B4513;
             --secondary: #D2691E;
             --accent: #FFD700;
             --dark: #2c1810;
+            --line: #e8ecf2;
+            --shadow-sm: 0 4px 10px rgba(17,24,39,.08);
+            --shadow-md: 0 8px 24px rgba(17,24,39,.12);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -130,7 +135,7 @@
             padding: 40px 30px;
             border-radius: 20px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-sm);
             transition: all 0.3s;
             height: 100%;
         }
@@ -146,9 +151,10 @@
             margin-bottom: 20px;
         }
         
-        /* Menu Preview */
+        /* Menu Preview - Updated Styles */
         .menu-preview {
             padding: 80px 0;
+            background: white;
         }
         
         .section-title {
@@ -160,44 +166,153 @@
             font-size: 2.5rem;
             color: var(--primary);
             margin-bottom: 15px;
+            font-weight: 700;
         }
         
+        /* Featured Menu Card dengan Gambar */
         .menu-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-sm);
             transition: all 0.3s;
             margin-bottom: 30px;
+            border: 1px solid var(--line);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .menu-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-md);
         }
         
+        /* Image Container */
         .menu-image {
-            height: 200px;
-            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+            background: #f6f8fb;
+        }
+        
+        .menu-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .menu-card:hover .menu-image img {
+            transform: scale(1.1);
+        }
+        
+        .menu-image-placeholder {
+            width: 100%;
+            height: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #999;
-            font-size: 3rem;
+            background: linear-gradient(135deg, #f6f8fb, #e8ecf2);
+            color: #cdd5df;
         }
         
+        .menu-image-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        
+        /* Rank Badge */
+        .rank-badge-overlay {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 2;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .rank-1 {
+            background: linear-gradient(135deg, var(--accent), #FFA500);
+            color: var(--dark);
+        }
+        
+        .rank-2 {
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+            color: white;
+        }
+        
+        .rank-3 {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            color: white;
+        }
+        
+        /* Menu Content */
         .menu-content {
-            padding: 20px;
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         .menu-badge {
             display: inline-block;
-            padding: 5px 15px;
-            background: var(--secondary);
-            color: white;
+            padding: 6px 15px;
             border-radius: 20px;
             font-size: 0.85rem;
+            margin-bottom: 12px;
+            font-weight: 500;
+            width: fit-content;
+        }
+        
+        .badge-makanan { background: #d4edda; color: #155724; }
+        .badge-cemilan { background: #fff3cd; color: #856404; }
+        .badge-coffee { background: #f8d7da; color: #721c24; }
+        .badge-milkshake { background: #d1ecf1; color: #0c5460; }
+        .badge-mojito { background: #e2e3e5; color: #383d41; }
+        .badge-yakult { background: #cce5ff; color: #004085; }
+        .badge-tea { background: #e7e8ea; color: #495057; }
+        
+        .menu-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
             margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .menu-price {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .menu-score {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .score-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .score-value i {
+            color: var(--accent);
         }
         
         /* Statistics */
@@ -261,12 +376,36 @@
             }
         }
         
+        /* View All Button */
+        .view-all-btn {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .view-all-btn a {
+            display: inline-block;
+            padding: 15px 40px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .view-all-btn a:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(139, 69, 19, 0.3);
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .brand-name { font-size: 3rem; }
             .hero-subtitle { font-size: 1.2rem; }
             nav { padding: 15px 20px; }
             .feature-card { margin-bottom: 30px; }
+            .menu-image { height: 200px; }
         }
     </style>
 </head>
@@ -367,38 +506,93 @@
         </div>
     </section>
 
-    <!-- Menu Preview -->
+    <!-- Menu Preview dengan Gambar -->
     @if(isset($featuredMenu) && $featuredMenu->count() > 0)
     <section class="menu-preview">
         <div class="container">
             <div class="section-title">
-                <h2>Menu Unggulan</h2>
-                <p class="text-muted">Rekomendasi terbaik berdasarkan sistem penilaian kami</p>
+                <h2>Menu Unggulan Kami</h2>
+                <p class="text-muted">Top 3 rekomendasi terbaik berdasarkan sistem penilaian ROC + SMART</p>
             </div>
             <div class="row">
                 @foreach($featuredMenu->take(3) as $item)
-                <div class="col-md-4">
-                    <div class="menu-card">
-                        <div class="menu-image">
-                            <i class="bi bi-cup-hot"></i>
-                        </div>
-                        <div class="menu-content">
-                            <span class="menu-badge">{{ ucfirst($item->alternatif->jenis_menu ?? '') }}</span>
-                            <h5>{{ $item->alternatif->nama_menu ?? 'Menu' }}</h5>
-                            <p class="text-muted mb-2">{{ $item->alternatif->harga_label ?? '' }}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-warning">
-                                    <i class="bi bi-star-fill"></i>
-                                    {{ number_format($item->total ?? 0, 2) }}
+                    @php
+                        $alt = $item->alternatif;
+                        $rank = $loop->iteration;
+                        
+                        // Determine badge color based on jenis_menu
+                        $badgeClass = match($alt->jenis_menu ?? '') {
+                            'makanan' => 'badge-makanan',
+                            'cemilan' => 'badge-cemilan',
+                            'coffee' => 'badge-coffee',
+                            'milkshake' => 'badge-milkshake',
+                            'mojito' => 'badge-mojito',
+                            'yakult' => 'badge-yakult',
+                            'tea' => 'badge-tea',
+                            default => 'badge-secondary'
+                        };
+                        
+                        // Icon for menu type
+                        $menuIcon = match($alt->jenis_menu ?? '') {
+                            'makanan' => 'bi-egg-fried',
+                            'cemilan' => 'bi-cookie',
+                            'coffee' => 'bi-cup-hot-fill',
+                            'milkshake' => 'bi-cup-straw',
+                            'mojito' => 'bi-tropical-storm',
+                            'yakult' => 'bi-cup',
+                            'tea' => 'bi-cup-fill',
+                            default => 'bi-cup-hot'
+                        };
+                    @endphp
+                    <div class="col-md-4">
+                        <div class="menu-card">
+                            <!-- Image Section -->
+                            <div class="menu-image">
+                                <!-- Rank Badge -->
+                                <div class="rank-badge-overlay rank-{{ $rank }}">
+                                    <i class="bi bi-trophy-fill"></i> #{{ $rank }}
+                                </div>
+                                
+                                @if($alt->gambar && file_exists(public_path('img/menu/'.$alt->gambar)))
+                                    <img src="{{ asset('img/menu/'.$alt->gambar) }}" 
+                                         alt="{{ $alt->nama_menu }}"
+                                         loading="lazy">
+                                @else
+                                    <div class="menu-image-placeholder">
+                                        <i class="bi {{ $menuIcon }}"></i>
+                                        <span>No Image</span>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Content Section -->
+                            <div class="menu-content">
+                                <span class="menu-badge {{ $badgeClass }}">
+                                    <i class="bi {{ $menuIcon }}"></i> {{ ucfirst($alt->jenis_menu ?? '') }}
                                 </span>
-                                <span class="badge bg-{{ $loop->iteration == 1 ? 'warning' : 'secondary' }}">
-                                    #{{ $loop->iteration }} Terbaik
-                                </span>
+                                <h5 class="menu-title">{{ $alt->nama_menu ?? 'Menu' }}</h5>
+                                <div class="menu-price">{{ $alt->harga_label ?? '' }}</div>
+                                
+                                <div class="menu-score">
+                                    <div class="score-value">
+                                        <i class="bi bi-star-fill"></i>
+                                        <span>{{ number_format($item->total ?? 0, 3) }}</span>
+                                    </div>
+                                    <span class="badge bg-{{ $rank == 1 ? 'warning text-dark' : ($rank == 2 ? 'secondary' : 'danger') }}">
+                                        {{ $rank == 1 ? 'TERBAIK' : ($rank == 2 ? 'EXCELLENT' : 'RECOMMENDED') }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 @endforeach
+            </div>
+            
+            <!-- View All Button -->
+            <div class="view-all-btn">
+                <a href="{{ route('hasil-spk') }}">
+                    Lihat Semua Menu <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
     </section>

@@ -18,7 +18,7 @@ class PenilaianController extends Controller
      */
     public function index(Request $request)
     {
-        $allowed = ['normal', 'berminyak', 'kering', 'kombinasi', 'all', null, ''];
+        $allowed = ['makanan', 'cemilan', 'coffee', 'milkshake', 'mojito', 'yakult', 'tea', 'all', null, ''];
         $skin = $request->query('skin');
 
         // Sanitasi nilai query skin
@@ -28,9 +28,9 @@ class PenilaianController extends Controller
 
         // Ambil alternatif; jika ada filter skin selain "all", terapkan where
         $alternatif = Alternatif::when($skin && $skin !== 'all', function ($q) use ($skin) {
-                $q->where('jenis_kulit', $skin);
+                $q->where('jenis_menu', $skin);
             })
-            ->orderBy('kode_produk') // ganti dari 'nis' -> 'kode_produk'
+            ->orderBy('kode_menu') // FIX: kode_produk -> kode_menu
             ->get();
 
         $kriteria = Kriteria::orderBy('kode')->get();
@@ -62,8 +62,8 @@ class PenilaianController extends Controller
         $kriteria   = Kriteria::orderBy('kode')->get();
         $rows = Penilaian::where('alternatif_id', $alternatif->id)->get()->groupBy('kriteria_id');
 
-        // cari prev/next berdasarkan urutan kode_produk
-        $ordered = Alternatif::orderBy('kode_produk')->pluck('id')->all();
+        // cari prev/next berdasarkan urutan kode_menu - FIX: kode_produk -> kode_menu
+        $ordered = Alternatif::orderBy('kode_menu')->pluck('id')->all();
         $idx = array_search((int)$alternatif->id, $ordered, true);
         $prevId = $idx !== false && $idx > 0 ? $ordered[$idx - 1] : null;
         $nextId = $idx !== false && $idx < count($ordered)-1 ? $ordered[$idx + 1] : null;

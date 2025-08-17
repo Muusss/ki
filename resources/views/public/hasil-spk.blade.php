@@ -7,12 +7,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/buri-umah.jpeg') }}" />
+    <link rel="icon" type="image/jpeg" href="{{ asset('img/buri-umah.jpeg') }}" /> 
     <style>
         :root {
             --primary: #8B4513;
             --secondary: #D2691E;
             --accent: #FFD700;
             --dark: #2c1810;
+            --line: #e8ecf2;
+            --shadow-sm: 0 4px 10px rgba(17,24,39,.08);
+            --shadow-md: 0 8px 24px rgba(17,24,39,.12);
         }
         
         body {
@@ -38,12 +43,13 @@
             background: white;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-sm);
             transition: transform 0.3s;
         }
         
         .stats-card:hover {
             transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
         }
         
         .stats-number {
@@ -56,7 +62,7 @@
             background: white;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-sm);
             margin-bottom: 30px;
         }
         
@@ -76,11 +82,48 @@
             color: white;
         }
         
-        .table-container {
+        /* Top 3 Cards dengan Gambar */
+        .top-card {
             background: white;
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 0;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .top-card.gold {
+            border-color: var(--accent);
+            background: linear-gradient(white, #fffef5);
+        }
+        
+        .top-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .top-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f6f8fb;
+        }
+        
+        .top-card-no-image {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f6f8fb;
+            color: #cdd5df;
+        }
+        
+        .top-card-content {
+            padding: 20px;
         }
         
         .rank-badge {
@@ -112,11 +155,32 @@
             color: #666;
         }
         
+        /* Table dengan Gambar */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+        }
+        
         .menu-image {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             object-fit: cover;
             border-radius: 10px;
+            border: 1px solid var(--line);
+        }
+        
+        .menu-no-image {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f6f8fb;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            color: #cdd5df;
         }
         
         .badge-jenis {
@@ -124,25 +188,6 @@
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 500;
-        }
-        
-        .top-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .top-card.gold {
-            border-color: var(--accent);
-            background: linear-gradient(white, #fffef5);
-        }
-        
-        .top-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
         
         .search-box {
@@ -178,6 +223,32 @@
             font-size: 4rem;
             color: #ddd;
             margin-bottom: 20px;
+        }
+        
+        /* Rank ribbon untuk top 3 cards */
+        .rank-ribbon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+            color: #fff;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-size: .95rem;
+        }
+        
+        .rank-ribbon.gold {
+            background: linear-gradient(135deg, #facc15, #f59e0b);
+        }
+        
+        .rank-ribbon.silver {
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+        }
+        
+        .rank-ribbon.bronze {
+            background: linear-gradient(135deg, #f59e0b, #b45309);
         }
     </style>
 </head>
@@ -267,29 +338,65 @@
             </form>
         </div>
 
-        <!-- Top 3 Recommendations -->
+        <!-- Top 3 Recommendations dengan Gambar -->
         @if(isset($topRecommendations) && $topRecommendations->count() > 0)
         <div class="row mb-4">
             <div class="col-12">
                 <h4 class="mb-3"><i class="bi bi-star-fill text-warning"></i> Top 3 Rekomendasi</h4>
             </div>
             @foreach($topRecommendations as $top)
-                @php $alt = $top->alternatif; @endphp
-                <div class="col-md-4">
-                    <div class="top-card {{ $loop->iteration == 1 ? 'gold' : '' }}">
-                        <div class="d-flex align-items-center">
-                            <span class="rank-badge rank-{{ $loop->iteration }} me-3">{{ $loop->iteration }}</span>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ $alt->nama_menu }}</h6>
-                                <div class="d-flex gap-2 flex-wrap">
-                                    <span class="badge bg-{{ $alt->jenis_menu == 'makanan' ? 'success' : 'info' }} badge-jenis">
-                                        {{ ucfirst($alt->jenis_menu) }}
-                                    </span>
-                                    <span class="badge bg-light text-dark">{{ $alt->harga_label ?? $alt->harga }}</span>
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="bi bi-star-fill"></i> {{ number_format($top->total, 4) }}
-                                    </span>
-                                </div>
+                @php 
+                    $alt = $top->alternatif;
+                    $rank = $loop->iteration;
+                @endphp
+                <div class="col-md-4 mb-3">
+                    <div class="top-card {{ $rank == 1 ? 'gold' : '' }}">
+                        <!-- Rank Ribbon -->
+                        <div class="rank-ribbon {{ $rank == 1 ? 'gold' : ($rank == 2 ? 'silver' : 'bronze') }}">
+                            <i class="bi bi-trophy-fill"></i> #{{ $rank }}
+                        </div>
+                        
+                        <!-- Image Section -->
+                        @if($alt->gambar && file_exists(public_path('img/menu/'.$alt->gambar)))
+                            <img src="{{ asset('img/menu/'.$alt->gambar) }}" 
+                                 alt="{{ $alt->nama_menu }}" 
+                                 class="top-card-image">
+                        @else
+                            <div class="top-card-no-image">
+                                <i class="bi bi-image" style="font-size: 3rem;"></i>
+                                <small>No Image</small>
+                            </div>
+                        @endif
+                        
+                        <!-- Content Section -->
+                        <div class="top-card-content">
+                            <h5 class="mb-2">{{ $alt->nama_menu }}</h5>
+                            <p class="text-muted small mb-2">{{ $alt->kode_menu }}</p>
+                            
+                            <div class="d-flex gap-2 flex-wrap mb-3">
+                                @php
+                                    $jenisColor = match($alt->jenis_menu ?? '') {
+                                        'makanan' => 'success',
+                                        'cemilan' => 'warning',
+                                        'coffee' => 'dark',
+                                        'milkshake' => 'info',
+                                        'mojito' => 'danger',
+                                        'yakult' => 'primary',
+                                        'tea' => 'secondary',
+                                        default => 'light'
+                                    };
+                                @endphp
+                                <span class="badge bg-{{ $jenisColor }} badge-jenis">
+                                    <i class="bi bi-tag"></i> {{ ucfirst($alt->jenis_menu ?? '-') }}
+                                </span>
+                                <span class="badge bg-light text-dark">
+                                    <i class="bi bi-cash"></i> {{ $alt->harga_label ?? $alt->harga }}
+                                </span>
+                            </div>
+                            
+                            <div class="text-center">
+                                <h4 class="text-primary mb-0">{{ number_format($top->total ?? 0, 4) }}</h4>
+                                <small class="text-muted">Nilai Total</small>
                             </div>
                         </div>
                     </div>
@@ -298,7 +405,7 @@
         </div>
         @endif
 
-        <!-- Results Table -->
+        <!-- Results Table dengan Gambar -->
         <div class="table-container">
             <h5 class="mb-3">
                 <i class="bi bi-list-ol"></i> Ranking Lengkap Menu
@@ -317,6 +424,7 @@
                         <thead style="background: #f8f9fa;">
                             <tr>
                                 <th width="80">Rank</th>
+                                <th width="80">Gambar</th>
                                 <th width="100">Kode</th>
                                 <th>Nama Menu</th>
                                 <th>Jenis</th>
@@ -330,6 +438,16 @@
                                 @php
                                     $alt = $item->alternatif;
                                     $rank = $item->peringkat_filter ?? $loop->iteration;
+                                    $jenisColor = match($alt->jenis_menu ?? '') {
+                                        'makanan' => 'success',
+                                        'cemilan' => 'warning',
+                                        'coffee' => 'dark',
+                                        'milkshake' => 'info',
+                                        'mojito' => 'danger',
+                                        'yakult' => 'primary',
+                                        'tea' => 'secondary',
+                                        default => 'light'
+                                    };
                                 @endphp
                                 <tr>
                                     <td>
@@ -338,24 +456,23 @@
                                         </span>
                                     </td>
                                     <td>
+                                        @if($alt->gambar && file_exists(public_path('img/menu/'.$alt->gambar)))
+                                            <img src="{{ asset('img/menu/'.$alt->gambar) }}" 
+                                                 alt="{{ $alt->nama_menu }}" 
+                                                 class="menu-image">
+                                        @else
+                                            <div class="menu-no-image">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <span class="badge bg-secondary">{{ $alt->kode_menu ?? '-' }}</span>
                                     </td>
                                     <td>
                                         <strong>{{ $alt->nama_menu ?? '-' }}</strong>
                                     </td>
                                     <td>
-                                        @php
-                                            $jenisColor = match($alt->jenis_menu ?? '') {
-                                                'makanan' => 'success',
-                                                'cemilan' => 'warning',
-                                                'coffee' => 'dark',
-                                                'milkshake' => 'info',
-                                                'mojito' => 'danger',
-                                                'yakult' => 'primary',
-                                                'tea' => 'secondary',
-                                                default => 'light'
-                                            };
-                                        @endphp
                                         <span class="badge bg-{{ $jenisColor }} badge-jenis">
                                             {{ ucfirst($alt->jenis_menu ?? '-') }}
                                         </span>
@@ -404,12 +521,12 @@
             <a href="{{ url('/') }}" class="btn btn-outline-secondary me-2">
                 <i class="bi bi-arrow-left"></i> Kembali
             </a>
-            @if($nilaiAkhir->count() > 0)
+            {{-- @if($nilaiAkhir->count() > 0)
                 <a href="{{ route('pdf.hasilAkhir') }}?jenis_menu={{ request('jenis_menu') }}&harga={{ request('harga') }}" 
                    class="btn btn-danger" target="_blank">
                     <i class="bi bi-file-pdf"></i> Download PDF
                 </a>
-            @endif
+            @endif --}}
         </div>
     </div>
 

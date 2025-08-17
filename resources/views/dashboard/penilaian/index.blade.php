@@ -5,26 +5,28 @@
     $alternatif = collect($alternatif ?? []);
     $kriteria   = collect($kriteria ?? []);
     $penilaian  = $penilaian ?? [];
-    // jika index ini juga dipanggil dengan ?skin=... dari server-side filter
-    $skinQuery  = request('skin'); // null|all|normal|berminyak|kering|kombinasi
+    $jenisQuery = request('jenis'); // Filter by jenis_menu
 @endphp
 
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2" id="penilaianHeader"
-     data-init-skin="{{ $skinQuery }}">
-    <h3 class="mb-0">Penilaian Alternatif</h3>
+     data-init-jenis="{{ $jenisQuery }}">
+    <h3 class="mb-0">Penilaian Menu</h3>
 
     <div class="btn-group">
         <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
-            <i class="bi bi-funnel"></i> Filter Jenis Kulit
-            <span id="lblFilterSkin" class="text-muted ms-1">(Semua)</span>
+            <i class="bi bi-funnel"></i> Filter Jenis Menu
+            <span id="lblFilterJenis" class="text-muted ms-1">(Semua)</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item filter-skin" href="#" data-filter="all">Semua Jenis</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="all">Semua Menu</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item filter-skin" href="#" data-filter="normal">Kulit Normal</a></li>
-            <li><a class="dropdown-item filter-skin" href="#" data-filter="berminyak">Kulit Berminyak</a></li>
-            <li><a class="dropdown-item filter-skin" href="#" data-filter="kering">Kulit Kering</a></li>
-            <li><a class="dropdown-item filter-skin" href="#" data-filter="kombinasi">Kulit Kombinasi</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="makanan">Makanan</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="cemilan">Cemilan</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="coffee">Coffee</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="milkshake">Milkshake</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="mojito">Mojito</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="yakult">Yakult</a></li>
+            <li><a class="dropdown-item filter-jenis" href="#" data-filter="tea">Tea</a></li>
         </ul>
     </div>
 </div>
@@ -35,8 +37,8 @@
             <table id="tblPenilaian" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Alternatif</th>
-                        <th>Jenis Kulit</th>
+                        <th>Menu</th>
+                        <th>Jenis Menu</th>
                         @forelse($kriteria as $k)
                             <th class="text-center">{{ $k->kriteria ?? '-' }}</th>
                         @empty
@@ -49,14 +51,34 @@
                 @forelse($alternatif as $alt)
                     <tr>
                         <td>{{ ($alt->kode_menu ?? '-') . ' - ' . ($alt->nama_menu ?? '-') }}</td>
-                        <td class="text-capitalize" data-skin="{{ $alt->jenis_menu ?? '' }}">
-                            {{ $alt->jenis_menu ? ucfirst($alt->jenis_menu) : '-' }}
+                        <td class="text-capitalize" data-jenis="{{ $alt->jenis_menu ?? '' }}">
+                            @php
+                                $jenisLabel = \App\Models\Alternatif::JENIS_MENU[$alt->jenis_menu] ?? ucfirst($alt->jenis_menu ?? '-');
+                            @endphp
+                            <span class="badge bg-{{ 
+                                match($alt->jenis_menu) {
+                                    'makanan' => 'success',
+                                    'cemilan' => 'warning',
+                                    'coffee' => 'dark',
+                                    'milkshake' => 'info',
+                                    'mojito' => 'danger',
+                                    'yakult' => 'primary',
+                                    'tea' => 'secondary',
+                                    default => 'secondary'
+                                } 
+                            }}">
+                                {{ $jenisLabel }}
+                            </span>
                         </td>
 
                         @forelse($kriteria as $k)
                             @php $row = $penilaian[$alt->id][$k->id][0] ?? null; @endphp
                             <td class="text-center">
-                                {{ ($row && $row->nilai_asli !== null) ? number_format((float) $row->nilai_asli, 2) : '-' }}
+                                @if($row && $row->nilai_asli !== null)
+                                    <span class="badge bg-primary">{{ number_format((float) $row->nilai_asli, 0) }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
                             </td>
                         @empty
                             <td class="text-center">-</td>
@@ -86,8 +108,8 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ 4 + $kriteria->count() }}" class="text-center">
-                            Belum ada data alternatif
+                        <td colspan="{{ 3 + $kriteria->count() }}" class="text-center">
+                            Belum ada data menu
                         </td>
                     </tr>
                 @endforelse
@@ -120,22 +142,25 @@ if (window.jQuery) {
 }
 
 let penilaianTable;
-let currentSkin = 'all';
+let currentJenis = 'all';
 
 const LABELS = {
     all: 'Semua',
-    normal: 'Kulit Normal',
-    berminyak: 'Kulit Berminyak',
-    kering: 'Kulit Kering',
-    kombinasi: 'Kulit Kombinasi'
+    makanan: 'Makanan',
+    cemilan: 'Cemilan',
+    coffee: 'Coffee',
+    milkshake: 'Milkshake',
+    mojito: 'Mojito',
+    yakult: 'Yakult',
+    tea: 'Tea'
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Inisialisasi currentSkin dari query server (jika ada)
-    const initSkin = document.getElementById('penilaianHeader').getAttribute('data-init-skin');
-    if (initSkin && ['all','normal','berminyak','kering','kombinasi'].includes(initSkin)) {
-        currentSkin = initSkin;
-        document.getElementById('lblFilterSkin').textContent = '(' + (LABELS[currentSkin] || 'Semua') + ')';
+    // Inisialisasi currentJenis dari query server (jika ada)
+    const initJenis = document.getElementById('penilaianHeader').getAttribute('data-init-jenis');
+    if (initJenis && Object.keys(LABELS).includes(initJenis)) {
+        currentJenis = initJenis;
+        document.getElementById('lblFilterJenis').textContent = '(' + (LABELS[currentJenis] || 'Semua') + ')';
     }
 
     if (window.jQuery && $.fn.DataTable) {
@@ -152,28 +177,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Terapkan filter awal bila ada
-        if (currentSkin !== 'all') {
-            penilaianTable.column(1).search('^' + currentSkin + '$', true, false).draw();
+        if (currentJenis !== 'all') {
+            penilaianTable.column(1).search(currentJenis, false, false).draw();
         }
     }
 
-    $(document).on('click', '.filter-skin', function(e) {
+    $(document).on('click', '.filter-jenis', function(e) {
         e.preventDefault();
         const val = $(this).data('filter');
-        currentSkin = val;
-        $('#lblFilterSkin').text('(' + (LABELS[val] || 'Semua') + ')');
+        currentJenis = val;
+        $('#lblFilterJenis').text('(' + (LABELS[val] || 'Semua') + ')');
         if (!penilaianTable) return;
 
-        if (val === 'all') penilaianTable.column(1).search('').draw();
-        else penilaianTable.column(1).search('^' + val + '$', true, false).draw();
+        if (val === 'all') {
+            penilaianTable.column(1).search('').draw();
+        } else {
+            penilaianTable.column(1).search(val, false, false).draw();
+        }
     });
 });
 
-// === buka halaman input penuh, teruskan ?skin= saat ini ===
+// === buka halaman input penuh, teruskan ?jenis= saat ini ===
 function goInput(btn){
     const base = btn.getAttribute('data-url-input');
     if (!base) return;
-    const qs = (currentSkin && currentSkin !== 'all') ? ('?skin=' + encodeURIComponent(currentSkin)) : '';
+    const qs = (currentJenis && currentJenis !== 'all') ? ('?jenis=' + encodeURIComponent(currentJenis)) : '';
     window.location.href = base + qs;
 }
 

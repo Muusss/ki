@@ -69,9 +69,9 @@ class DashboardController extends Controller
                 // Ambil top5
                 $top5 = $nilaiAkhir->take(5);
 
-                // Data untuk chart top 10
+                // Data untuk chart top 10 - FIX: nama_produk -> nama_menu
                 foreach ($nilaiAkhir->take(10) as $row) {
-                    $chartLabels[] = $row->alternatif->nama_produk ?? ('Produk '.$row->alternatif_id);
+                    $chartLabels[] = $row->alternatif->nama_menu ?? ('Menu '.$row->alternatif_id);
                     $chartSeries[] = round((float) ($row->total ?? 0), 3);
                 }
 

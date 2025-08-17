@@ -52,7 +52,7 @@ class SMARTController extends Controller
         $nilaiUtility = NilaiUtilityResource::collection(
             NilaiUtility::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get()
         );
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode_produk', 'asc')->get());
+        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode_menu', 'asc')->get()); // Fix: kode_produk -> kode_menu
         $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
         return view('dashboard.nilai-utility.index', compact('title', 'nilaiUtility', 'alternatif', 'kriteria'));
     }
@@ -60,7 +60,7 @@ class SMARTController extends Controller
     public function perhitunganNilaiUtility()
     {
         $kriteria = Kriteria::orderBy('kode', 'asc')->get();
-        $alternatif = Alternatif::orderBy('kode_produk', 'asc')->get();
+        $alternatif = Alternatif::orderBy('kode_menu', 'asc')->get(); // Fix: kode_produk -> kode_menu
         
         // Truncate tabel nilai_utilities (plural)
         NilaiUtility::truncate();
@@ -110,22 +110,21 @@ class SMARTController extends Controller
         $nilaiAkhir = NilaiAkhirResource::collection(
             NilaiAkhir::orderBy('alternatif_id', 'asc')->get()
         );
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode_produk', 'asc')->get());
+        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode_menu', 'asc')->get()); // Fix: kode_produk -> kode_menu
         $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
         return view('dashboard.nilai-akhir.index', compact('title', 'nilaiAkhir', 'alternatif', 'kriteria'));
     }
 
     public function perhitunganNilaiAkhir()
     {
-        $user = Auth::user();
-        
         // Gunakan metode yang sudah ada di model
         Kriteria::hitungROC();
-        Penilaian::normalisasiSMART(null, $user);
-        NilaiAkhir::hitungTotal(null, $user);
+        Penilaian::normalisasiSMART();
+        NilaiAkhir::hitungTotal();
 
         return to_route('nilai-akhir')->with('success', 'Perhitungan Nilai Akhir Berhasil Dilakukan');
     }
+    
     public function indexPerhitungan()
     {
         $title = "Perhitungan Metode ROC + SMART";
@@ -142,7 +141,7 @@ class SMARTController extends Controller
         });
 
         // Data alternatif
-        $alternatif = Alternatif::orderBy('kode_produk', 'asc')->get();
+        $alternatif = Alternatif::orderBy('kode_menu', 'asc')->get(); // Fix: kode_produk -> kode_menu
 
         $altIds  = $alternatif->pluck('id')->all();
         $kritIds = $kriteria->pluck('id')->all();
@@ -194,6 +193,8 @@ class SMARTController extends Controller
             ->orderByDesc('total')
             ->get();
 
+        // Get info normalisasi untuk debugging
+        $infoNormalisasi = Penilaian::getInfoNormalisasi();
 
         return view('dashboard.perhitungan.index', compact(
             'title',
@@ -204,7 +205,8 @@ class SMARTController extends Controller
             'kriteria',
             'sumBobotKriteria',
             'hasil',
-            'penilaian' // <— penting: dikirim ke view
+            'penilaian',
+            'infoNormalisasi'
         ));
     }
 

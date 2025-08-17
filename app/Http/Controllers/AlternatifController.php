@@ -2,189 +2,113 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AlternatifRequest;
 use App\Models\Alternatif;
-use App\Models\Kriteria;
-use App\Models\Penilaian;
-use App\Models\NilaiAkhir;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
-use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class AlternatifController extends Controller
 {
     /**
-     * Display listing dengan filter dan search
+     * Display all data without pagination
      */
-    public function index(Request $request)
+    public function index()
     {
-        $title = 'Data Menu';
+        // Ambil semua data tanpa pagination, urutkan berdasarkan created_at terbaru
+        $items = Alternatif::orderBy('created_at', 'desc')->get();
         
-        $query = Alternatif::query();
-        
-        // Apply filters
-        $query->jenis($request->input('jenis_menu'))
-              ->hargaKategori($request->input('harga'))
-              ->search($request->input('q'));
-        
-        // Pagination
-        $items = $query->orderBy('kode_menu', 'asc')
-                      ->paginate($request->input('per_page', 15));
-        
-        // Filter data untuk view
-        $filters = [
-            'jenis_menu' => $request->input('jenis_menu'),
-            'harga' => $request->input('harga'),
-            'q' => $request->input('q')
-        ];
-        
-        // Jika request JSON (untuk API)
-        if ($request->expectsJson()) {
-            return response()->json([
-                'data' => $items,
-                'filters' => $filters,
-                'message' => 'Data berhasil diambil'
-            ]);
-        }
-        
-        return view('dashboard.alternatif.index', compact('title', 'items', 'filters'));
+        return view('dashboard.alternatif.index', compact('items'));
     }
 
     /**
-     * Store new alternatif
+     * Store a newly created resource in storage
      */
-    public function store(AlternatifRequest $request)
+    public function store(Request $request)
     {
-        $data = $request->validated();
-        
+        $request->validate([
+            'kode_menu' => 'required|unique:alternatifs,kode_menu',
+            'nama_menu' => 'required',
+            'jenis_menu' => 'required',
+            'harga' => 'required',
+            'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048'
+        ]);
+
+        $data = $request->only(['kode_menu', 'nama_menu', 'jenis_menu', 'harga']);
+
         // Handle image upload
         if ($request->hasFile('gambar')) {
-            $data['gambar'] = $this->saveUploadedImage($request->file('gambar'), $data['nama_menu']);
+            $image = $request->file('gambar');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('img/menu'), $imageName);
+            $data['gambar'] = $imageName;
         }
-        
-        $alternatif = Alternatif::create($data);
-        
-        if ($request->expectsJson()) {
-            return response()->json([
-                'data' => $alternatif,
-                'message' => 'Menu berhasil disimpan'
-            ], 201);
-        }
-        
-        return redirect()->back()->with('success', 'Menu berhasil disimpan');
+
+        Alternatif::create($data);
+
+        return redirect()->route('alternatif')->with('success', 'Menu berhasil ditambahkan');
     }
 
     /**
-     * Update existing alternatif
-     */
-    public function update(AlternatifRequest $request, Alternatif $alternatif)
-    {
-        $data = $request->validated();
-        
-        // Handle image upload
-        if ($request->hasFile('gambar')) {
-            // Delete old image if exists
-            if ($alternatif->gambar && File::exists(public_path('img/menu/' . $alternatif->gambar))) {
-                File::delete(public_path('img/menu/' . $alternatif->gambar));
-            }
-            
-            $data['gambar'] = $this->saveUploadedImage($request->file('gambar'), $data['nama_menu']);
-        }
-        
-        $alternatif->update($data);
-        
-        if ($request->expectsJson()) {
-            return response()->json([
-                'data' => $alternatif->fresh(),
-                'message' => 'Menu berhasil diperbarui'
-            ]);
-        }
-        
-        return redirect()->back()->with('success', 'Menu berhasil diperbarui');
-    }
-
-    /**
-     * Delete alternatif
-     */
-    public function destroy(Alternatif $alternatif)
-    {
-        // Delete image file if exists
-        if ($alternatif->gambar && File::exists(public_path('img/menu/' . $alternatif->gambar))) {
-            File::delete(public_path('img/menu/' . $alternatif->gambar));
-        }
-        
-        $alternatif->delete();
-        
-        if (request()->expectsJson()) {
-            return response()->json([
-                'message' => 'Menu berhasil dihapus'
-            ]);
-        }
-        
-        return redirect()->back()->with('success', 'Menu berhasil dihapus');
-    }
-
-    /**
-     * Edit alternatif (for AJAX)
+     * Get data for editing
      */
     public function edit(Request $request)
     {
-        if ($request->has('alternatif_id')) {
-            $alternatif = Alternatif::findOrFail($request->alternatif_id);
-            return response()->json($alternatif);
+        $alternatif = Alternatif::findOrFail($request->alternatif_id);
+        return response()->json($alternatif);
+    }
+
+    /**
+     * Update the specified resource in storage
+     */
+    public function update(Request $request)
+    {
+        $alternatif = Alternatif::findOrFail($request->id);
+
+        $request->validate([
+            'kode_menu' => 'required|unique:alternatifs,kode_menu,' . $alternatif->id,
+            'nama_menu' => 'required',
+            'jenis_menu' => 'required',
+            'harga' => 'required',
+            'gambar' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048'
+        ]);
+
+        $data = $request->only(['kode_menu', 'nama_menu', 'jenis_menu', 'harga']);
+
+        // Handle image upload
+        if ($request->hasFile('gambar')) {
+            // Delete old image if exists
+            if ($alternatif->gambar && file_exists(public_path('img/menu/' . $alternatif->gambar))) {
+                unlink(public_path('img/menu/' . $alternatif->gambar));
+            }
+
+            $image = $request->file('gambar');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('img/menu'), $imageName);
+            $data['gambar'] = $imageName;
         }
-        
-        abort(404);
+
+        $alternatif->update($data);
+
+        return redirect()->route('alternatif')->with('success', 'Menu berhasil diperbarui');
     }
 
     /**
-     * Private helper: Save uploaded image
+     * Remove the specified resource from storage
      */
-    private function saveUploadedImage(UploadedFile $file, string $menuName): string
+    public function delete(Request $request)
     {
-        // Create directory if not exists
-        $uploadPath = public_path('img/menu');
-        if (!File::exists($uploadPath)) {
-            File::makeDirectory($uploadPath, 0755, true);
+        $alternatif = Alternatif::findOrFail($request->id);
+
+        // Delete image if exists
+        if ($alternatif->gambar && file_exists(public_path('img/menu/' . $alternatif->gambar))) {
+            unlink(public_path('img/menu/' . $alternatif->gambar));
         }
+
+        // Delete related penilaians if exists
+        $alternatif->penilaians()->delete();
         
-        // Generate filename
-        $filename = time() . '_' . Str::slug($menuName) . '.' . $file->getClientOriginalExtension();
-        
-        // Move file to public/img/menu
-        $file->move($uploadPath, $filename);
-        
-        // Return just filename (not full path)
-        return $filename;
-    }
+        // Delete the alternatif
+        $alternatif->delete();
 
-    /**
-     * Perhitungan ROC + SMART
-     */
-    public function perhitunganNilaiAkhir()
-    {
-        Kriteria::hitungROC();
-        Penilaian::normalisasiSMART();
-        NilaiAkhir::hitungTotal();
-
-        return redirect()->route('alternatif')->with('success', 'Perhitungan ROC + SMART selesai');
-    }
-
-    /**
-     * Index perhitungan
-     */
-    public function indexPerhitungan()
-    {
-        $title = "Hasil Perhitungan ROC + SMART";
-        $kriteria = Kriteria::orderBy('kode', 'asc')->get();
-        $sumBobotKriteria = (float) $kriteria->sum('bobot_roc');
-        $hasil = NilaiAkhir::with('alternatif')->orderByDesc('total')->get();
-        $alternatif = Alternatif::orderBy('kode_menu','asc')->get();
-        $penilaian = Penilaian::with(['alternatif', 'kriteria'])->get();
-
-        return view('dashboard.perhitungan.index', compact(
-            'title','kriteria','sumBobotKriteria','hasil','alternatif','penilaian'
-        ));
+        return redirect()->route('alternatif')->with('success', 'Menu berhasil dihapus');
     }
 }

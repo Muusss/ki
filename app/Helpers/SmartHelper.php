@@ -53,15 +53,15 @@ class SmartHelper
     }
 
     /**
-     * Generate ranking produk
+     * Generate ranking menu
      */
-    public static function generateRanking($kelasFilter = null)
+    public static function generateRanking($jenisMenuFilter = null)
     {
         $query = NilaiAkhir::with('alternatif');
         
-        if ($kelasFilter) {
-            $query->whereHas('alternatif', function($q) use ($kelasFilter) {
-                $q->where('jenis_kulit', $kelasFilter);
+        if ($jenisMenuFilter) {
+            $query->whereHas('alternatif', function($q) use ($jenisMenuFilter) {
+                $q->where('jenis_menu', $jenisMenuFilter);
             });
         }
 
@@ -126,7 +126,7 @@ class SmartHelper
     }
 
     /**
-     * Validasi konsistensi atribut kriteria
+     * Validasi konsistensi atribut kriteria untuk menu cafe
      */
     public static function validateKriteriaAttributes()
     {
@@ -141,28 +141,34 @@ class SmartHelper
                 'message' => 'OK'
             ];
 
-            // Contoh validasi logika bisnis untuk sunscreen
-            switch (strtolower($kriteria->kriteria)) {
-                case (strpos(strtolower($kriteria->kriteria), 'harga') !== false):
-                    if ($kriteria->atribut !== 'cost') {
-                        $validation['is_valid'] = false;
-                        $validation['message'] = 'Harga seharusnya cost (semakin murah semakin baik)';
-                    }
-                    break;
-                    
-                case (strpos(strtolower($kriteria->kriteria), 'spf') !== false):
-                    if ($kriteria->atribut !== 'benefit') {
-                        $validation['is_valid'] = false;
-                        $validation['message'] = 'SPF seharusnya benefit (semakin tinggi semakin baik)';
-                    }
-                    break;
-
-                case (strpos(strtolower($kriteria->kriteria), 'efek samping') !== false):
-                    if ($kriteria->atribut !== 'cost') {
-                        $validation['is_valid'] = false;
-                        $validation['message'] = 'Efek samping seharusnya cost (semakin sedikit semakin baik)';
-                    }
-                    break;
+            // Validasi logika bisnis untuk menu cafe
+            $kriteriaName = strtolower($kriteria->kriteria);
+            
+            // Harga seharusnya cost
+            if (strpos($kriteriaName, 'harga') !== false) {
+                if ($kriteria->atribut !== 'cost') {
+                    $validation['is_valid'] = false;
+                    $validation['message'] = 'Harga seharusnya cost (semakin murah semakin baik)';
+                }
+            }
+            
+            // Rasa, kualitas, porsi seharusnya benefit
+            if (strpos($kriteriaName, 'rasa') !== false || 
+                strpos($kriteriaName, 'kualitas') !== false ||
+                strpos($kriteriaName, 'porsi') !== false) {
+                if ($kriteria->atribut !== 'benefit') {
+                    $validation['is_valid'] = false;
+                    $validation['message'] = ucfirst(explode(' ', $kriteriaName)[0]) . ' seharusnya benefit (semakin tinggi semakin baik)';
+                }
+            }
+            
+            // Waktu penyajian seharusnya cost
+            if (strpos($kriteriaName, 'waktu') !== false || 
+                strpos($kriteriaName, 'lama') !== false) {
+                if ($kriteria->atribut !== 'cost') {
+                    $validation['is_valid'] = false;
+                    $validation['message'] = 'Waktu penyajian seharusnya cost (semakin cepat semakin baik)';
+                }
             }
 
             $validations[] = $validation;

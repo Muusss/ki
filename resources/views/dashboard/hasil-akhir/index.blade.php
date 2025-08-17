@@ -36,18 +36,6 @@
         </div>
     </div>
 
-    {{-- Debug Info (hapus jika tidak perlu) --}}
-    @if(config('app.debug'))
-    <div class="alert alert-info">
-        <strong>Debug Info:</strong>
-        <ul class="mb-0">
-            <li>Total Data: {{ isset($nilaiAkhir) ? $nilaiAkhir->count() : 0 }}</li>
-            <li>Filter Jenis Menu: {{ $jenisMenu ?? 'not set' }}</li>
-            <li>Filter Harga: {{ $filterHarga ?? 'not set' }}</li>
-        </ul>
-    </div>
-    @endif
-
     {{-- Filter Section --}}
     <div class="row mb-4">
         <div class="col-12">
@@ -172,8 +160,10 @@
 
                         {{-- Gambar --}}
                         <div class="product-image">
-                            @if($alt && $alt->gambar && file_exists(public_path('img/menu/'.$alt->gambar)))
-                                <img src="{{ asset('img/menu/'.$alt->gambar) }}" alt="{{ $alt->nama_menu }}" loading="lazy">
+                            @if($alt && $alt->has_gambar)
+                                <img src="{{ $alt->gambar_url }}" alt="{{ $alt->nama_menu }}" loading="lazy">
+                            @elseif($alt && $alt->gambar)
+                                <img src="{{ asset('img/menu/' . $alt->gambar) }}" alt="{{ $alt->nama_menu }}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'bi bi-{{ $menuIcon }}\'></i><span>No Image</span></div>';">
                             @else
                                 <div class="no-image">
                                     <i class="bi {{ $menuIcon }}"></i>
@@ -250,16 +240,28 @@
                                 'tea' => 'secondary',
                                 default => 'secondary'
                             };
+                            $menuIcon = match($jenis) {
+                                'makanan' => 'bi-egg-fried',
+                                'cemilan' => 'bi-cookie',
+                                'coffee' => 'bi-cup-hot',
+                                'milkshake' => 'bi-cup-straw',
+                                'mojito' => 'bi-tropical-storm',
+                                'yakult' => 'bi-droplet',
+                                'tea' => 'bi-cup',
+                                default => 'bi-bag'
+                            };
                         @endphp
                         <tr>
                             <td class="text-center">
                                 <span class="badge {{ $rank==1?'bg-warning text-dark':($rank==2?'bg-secondary':($rank==3?'bg-danger':'bg-info')) }} fs-6">{{ $rank }}</span>
                             </td>
                             <td>
-                                @if($alt && $alt->gambar && file_exists(public_path('img/menu/'.$alt->gambar)))
-                                    <img src="{{ asset('img/menu/'.$alt->gambar) }}" class="table-image" alt="{{ $alt->nama_menu }}">
+                                @if($alt && $alt->has_gambar)
+                                    <img src="{{ $alt->gambar_url }}" class="table-image" alt="{{ $alt->nama_menu }}">
+                                @elseif($alt && $alt->gambar)
+                                    <img src="{{ asset('img/menu/' . $alt->gambar) }}" class="table-image" alt="{{ $alt->nama_menu }}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'table-no-image\'><i class=\'bi bi-image\'></i></div>';">
                                 @else
-                                    <div class="table-no-image"><i class="bi bi-image"></i></div>
+                                    <div class="table-no-image"><i class="bi bi-{{ $menuIcon }}"></i></div>
                                 @endif
                             </td>
                             <td><span class="badge bg-primary">{{ $alt->kode_menu ?? '-' }}</span></td>

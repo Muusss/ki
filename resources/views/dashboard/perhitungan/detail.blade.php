@@ -32,12 +32,13 @@
                     <code>U<sub>i</sub> = (X<sub>i</sub> - X<sub>min</sub>) / (X<sub>max</sub> - X<sub>min</sub>)</code>
                     
                     <div class="mt-3">
-                        <strong>Contoh untuk Sunscreen:</strong>
+                        <strong>Contoh untuk Menu Cafe:</strong>
                         <ul class="mt-2">
-                            <li>SPF (semakin tinggi semakin baik)</li>
-                            <li>Kesesuaian jenis kulit</li>
-                            <li>Tekstur</li>
-                            <li>Ukuran kemasan</li>
+                            <li>Rasa (semakin enak semakin baik)</li>
+                            <li>Porsi (semakin besar semakin baik)</li>
+                            <li>Kualitas bahan (semakin fresh semakin baik)</li>
+                            <li>Presentasi/tampilan (semakin menarik semakin baik)</li>
+                            <li>Variasi menu (semakin bervariasi semakin baik)</li>
                         </ul>
                     </div>
                 </div>
@@ -55,11 +56,12 @@
                     <code>U<sub>i</sub> = (X<sub>max</sub> - X<sub>i</sub>) / (X<sub>max</sub> - X<sub>min</sub>)</code>
                     
                     <div class="mt-3">
-                        <strong>Contoh untuk Sunscreen:</strong>
+                        <strong>Contoh untuk Menu Cafe:</strong>
                         <ul class="mt-2">
                             <li>Harga (semakin murah semakin baik)</li>
-                            <li>Komposisi berbahaya</li>
-                            <li>Efek samping</li>
+                            <li>Waktu penyajian (semakin cepat semakin baik)</li>
+                            <li>Tingkat kalori (untuk menu sehat, semakin rendah semakin baik)</li>
+                            <li>Kandungan gula (untuk minuman sehat, semakin rendah semakin baik)</li>
                         </ul>
                     </div>
                 </div>
@@ -72,7 +74,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Klasifikasi Kriteria Sunscreen</h5>
+                    <h5 class="mb-0">Klasifikasi Kriteria Menu Cafe</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -89,13 +91,12 @@
                             <tbody>
                                 @php
                                 $kriteriaData = [
-                                    ['C1', 'Kesesuaian Jenis Kulit', 'benefit', 'Semakin sesuai semakin baik', '(Xi - Xmin) / (Xmax - Xmin)'],
-                                    ['C2', 'SPF', 'benefit', 'SPF tinggi = perlindungan lebih baik', '(Xi - Xmin) / (Xmax - Xmin)'],
-                                    ['C3', 'Harga', 'cost', 'Harga murah = lebih ekonomis', '(Xmax - Xi) / (Xmax - Xmin)'],
-                                    ['C4', 'Komposisi', 'cost', 'Sedikit bahan berbahaya = lebih aman', '(Xmax - Xi) / (Xmax - Xmin)'],
-                                    ['C5', 'Efek Samping', 'cost', 'Minim efek samping = lebih baik', '(Xmax - Xi) / (Xmax - Xmin)'],
-                                    ['C6', 'Tekstur', 'benefit', 'Tekstur nyaman = lebih baik', '(Xi - Xmin) / (Xmax - Xmin)'],
-                                    ['C7', 'Ukuran', 'benefit', 'Ukuran besar = lebih tahan lama', '(Xi - Xmin) / (Xmax - Xmin)'],
+                                    ['C1', 'Rasa', 'benefit', 'Semakin enak semakin baik', '(Xi - Xmin) / (Xmax - Xmin)'],
+                                    ['C2', 'Harga', 'cost', 'Harga murah = lebih ekonomis', '(Xmax - Xi) / (Xmax - Xmin)'],
+                                    ['C3', 'Porsi', 'benefit', 'Porsi besar = lebih mengenyangkan', '(Xi - Xmin) / (Xmax - Xmin)'],
+                                    ['C4', 'Waktu Penyajian', 'cost', 'Semakin cepat = lebih efisien', '(Xmax - Xi) / (Xmax - Xmin)'],
+                                    ['C5', 'Kualitas Bahan', 'benefit', 'Bahan fresh = lebih sehat', '(Xi - Xmin) / (Xmax - Xmin)'],
+                                    ['C6', 'Presentasi', 'benefit', 'Tampilan menarik = lebih menggugah', '(Xi - Xmin) / (Xmax - Xmin)'],
                                 ];
                                 @endphp
                                 
@@ -131,27 +132,27 @@
                     <div class="row">
                         <!-- Contoh Benefit -->
                         <div class="col-md-6">
-                            <h6 class="text-success">Contoh Kriteria BENEFIT (SPF)</h6>
+                            <h6 class="text-success">Contoh Kriteria BENEFIT (Rasa)</h6>
                             <div class="card bg-light">
                                 <div class="card-body">
-                                    <p><strong>Data:</strong></p>
+                                    <p><strong>Data Penilaian Rasa (skala 1-4):</strong></p>
                                     <ul>
-                                        <li>Produk A: SPF 30</li>
-                                        <li>Produk B: SPF 40</li>
-                                        <li>Produk C: SPF 50</li>
+                                        <li>Nasi Goreng Spesial: 4 (Sangat Enak)</li>
+                                        <li>Mie Ayam Bakso: 3 (Enak)</li>
+                                        <li>Soto Ayam: 2 (Cukup)</li>
                                     </ul>
                                     
-                                    <p><strong>Min = 30, Max = 50</strong></p>
+                                    <p><strong>Min = 2, Max = 4</strong></p>
                                     
                                     <p><strong>Perhitungan Utility:</strong></p>
                                     <ul>
-                                        <li>Produk A: (30-30)/(50-30) = 0/20 = <strong>0.000</strong></li>
-                                        <li>Produk B: (40-30)/(50-30) = 10/20 = <strong>0.500</strong></li>
-                                        <li>Produk C: (50-30)/(50-30) = 20/20 = <strong>1.000</strong></li>
+                                        <li>Nasi Goreng: (4-2)/(4-2) = 2/2 = <strong>1.000</strong> ✅ Terbaik</li>
+                                        <li>Mie Ayam: (3-2)/(4-2) = 1/2 = <strong>0.500</strong></li>
+                                        <li>Soto Ayam: (2-2)/(4-2) = 0/2 = <strong>0.000</strong></li>
                                     </ul>
                                     
                                     <div class="alert alert-success mt-2">
-                                        <small><strong>Kesimpulan:</strong> SPF 50 mendapat utility tertinggi (1.000) karena perlindungan terbaik</small>
+                                        <small><strong>Kesimpulan:</strong> Nasi Goreng mendapat utility tertinggi (1.000) karena rasa paling enak</small>
                                     </div>
                                 </div>
                             </div>
@@ -162,24 +163,54 @@
                             <h6 class="text-warning">Contoh Kriteria COST (Harga)</h6>
                             <div class="card bg-light">
                                 <div class="card-body">
-                                    <p><strong>Data:</strong></p>
+                                    <p><strong>Data Harga Menu:</strong></p>
                                     <ul>
-                                        <li>Produk A: Rp 30.000</li>
-                                        <li>Produk B: Rp 50.000</li>
-                                        <li>Produk C: Rp 80.000</li>
+                                        <li>Nasi Goreng Spesial: Rp 25.000</li>
+                                        <li>Mie Ayam Bakso: Rp 20.000</li>
+                                        <li>Soto Ayam: Rp 18.000</li>
                                     </ul>
                                     
-                                    <p><strong>Min = 30.000, Max = 80.000</strong></p>
+                                    <p><strong>Min = 18.000, Max = 25.000</strong></p>
                                     
                                     <p><strong>Perhitungan Utility:</strong></p>
                                     <ul>
-                                        <li>Produk A: (80000-30000)/(80000-30000) = 50000/50000 = <strong>1.000</strong></li>
-                                        <li>Produk B: (80000-50000)/(80000-30000) = 30000/50000 = <strong>0.600</strong></li>
-                                        <li>Produk C: (80000-80000)/(80000-30000) = 0/50000 = <strong>0.000</strong></li>
+                                        <li>Nasi Goreng: (25000-25000)/(25000-18000) = 0/7000 = <strong>0.000</strong></li>
+                                        <li>Mie Ayam: (25000-20000)/(25000-18000) = 5000/7000 = <strong>0.714</strong></li>
+                                        <li>Soto Ayam: (25000-18000)/(25000-18000) = 7000/7000 = <strong>1.000</strong> ✅ Termurah</li>
                                     </ul>
                                     
                                     <div class="alert alert-warning mt-2">
-                                        <small><strong>Kesimpulan:</strong> Harga Rp 30.000 mendapat utility tertinggi (1.000) karena paling ekonomis</small>
+                                        <small><strong>Kesimpulan:</strong> Soto Ayam mendapat utility tertinggi (1.000) karena harga paling ekonomis</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contoh Waktu Penyajian -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-warning">Contoh Kriteria COST (Waktu Penyajian)</h6>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p><strong>Data Waktu Penyajian (menit):</strong></p>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <ul>
+                                                <li>Es Teh Manis: 2 menit</li>
+                                                <li>Cappuccino: 5 menit</li>
+                                                <li>Milkshake: 8 menit</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p><strong>Min = 2, Max = 8</strong></p>
+                                            <p><strong>Perhitungan:</strong></p>
+                                            <ul>
+                                                <li>Es Teh: (8-2)/(8-2) = 6/6 = <strong>1.000</strong> ✅ Tercepat</li>
+                                                <li>Cappuccino: (8-5)/(8-2) = 3/6 = <strong>0.500</strong></li>
+                                                <li>Milkshake: (8-8)/(8-2) = 0/6 = <strong>0.000</strong></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -200,27 +231,33 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="text-success">✓ Benefit Criteria</h6>
+                            <h6 class="text-success">✓ Kriteria Benefit (Menu Cafe)</h6>
                             <ul>
-                                <li>Nilai asli tinggi → Utility tinggi → Lebih disukai</li>
+                                <li>Nilai tinggi → Utility tinggi → Lebih disukai</li>
                                 <li>Range: 0.000 (terburuk) sampai 1.000 (terbaik)</li>
-                                <li>Contoh: SPF, Kualitas, Ukuran</li>
+                                <li>Contoh: Rasa, Porsi, Kualitas, Presentasi</li>
+                                <li>Prinsip: "More is Better"</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-warning">✓ Cost Criteria</h6>
+                            <h6 class="text-warning">✓ Kriteria Cost (Menu Cafe)</h6>
                             <ul>
-                                <li>Nilai asli rendah → Utility tinggi → Lebih disukai</li>
+                                <li>Nilai rendah → Utility tinggi → Lebih disukai</li>
                                 <li>Range: 0.000 (terburuk) sampai 1.000 (terbaik)</li>
-                                <li>Contoh: Harga, Efek Samping, Komposisi Berbahaya</li>
+                                <li>Contoh: Harga, Waktu Penyajian, Kalori</li>
+                                <li>Prinsip: "Less is Better"</li>
                             </ul>
                         </div>
                     </div>
                     
                     <div class="alert alert-info mt-3">
-                        <strong><i class="bi bi-info-circle"></i> Catatan:</strong> 
-                        Setelah normalisasi, semua kriteria (benefit dan cost) memiliki skala yang sama (0-1), 
-                        sehingga dapat dibandingkan dan dikombinasikan dalam perhitungan nilai akhir.
+                        <strong><i class="bi bi-info-circle"></i> Catatan untuk Cafe Buri Umah:</strong> 
+                        <ul class="mb-0 mt-2">
+                            <li>Setelah normalisasi, semua kriteria memiliki skala yang sama (0-1)</li>
+                            <li>Nilai utility dikombinasikan dengan bobot ROC untuk mendapat nilai akhir</li>
+                            <li>Menu dengan total nilai tertinggi adalah rekomendasi terbaik</li>
+                            <li>Sistem dapat memfilter berdasarkan jenis menu (makanan, minuman, cemilan) dan kategori harga</li>
+                        </ul>
                     </div>
                 </div>
             </div>

@@ -13,7 +13,7 @@ use App\Http\Controllers\SubKriteriaController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================
-// PUBLIC ROUTES
+// PUBLIC ROUTES (TIDAK PERLU LOGIN)
 // ============================================
 Route::get('/', [PublicController::class, 'home'])->name('home');
 Route::get('/hasil-spk', [PublicController::class, 'hasilSPK'])->name('hasil-spk');
@@ -21,9 +21,11 @@ Route::get('/jenis-kulit', [PublicController::class, 'jenisKulit'])->name('publi
 Route::get('/menu/{id}', [PublicController::class, 'menuDetail'])->name('menu.detail');
 Route::get('/about', [PublicController::class, 'about'])->name('about');
 
+// API route untuk recommendations (jika diperlukan)
+Route::get('/api/recommendations', [PublicController::class, 'apiRecommendations'])->name('api.recommendations');
 
 // ============================================
-// AUTHENTICATED ROUTES
+// AUTHENTICATED ROUTES (PERLU LOGIN)
 // ============================================
 Route::middleware(['auth'])->group(function () {
     // Dashboard
@@ -44,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kriteria/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit');
     Route::post('/kriteria/update', [KriteriaController::class, 'update'])->name('kriteria.update');
     Route::post('/kriteria/delete', [KriteriaController::class, 'delete'])->name('kriteria.delete');
+    Route::post('/kriteria/proses', [KriteriaController::class, 'proses'])->name('kriteria.proses');
 
     // ===== SUB-KRITERIA =====
     Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria');
@@ -70,8 +73,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/perhitungan', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.smart');
     Route::get('/detail-benefit-cost', [SMARTController::class, 'detailBenefitCost'])->name('smart.detail.benefit.cost');
 
+    // Additional SMART routes if needed
+    Route::get('/normalisasi-bobot', [SMARTController::class, 'indexNormalisasiBobot'])->name('normalisasi-bobot');
+    Route::post('/normalisasi-bobot', [SMARTController::class, 'perhitunganNormalisasiBobot'])->name('normalisasi-bobot.hitung');
+    Route::get('/nilai-utility', [SMARTController::class, 'indexNilaiUtility'])->name('nilai-utility');
+    Route::post('/nilai-utility', [SMARTController::class, 'perhitunganNilaiUtility'])->name('nilai-utility.hitung');
+    Route::get('/nilai-akhir', [SMARTController::class, 'indexNilaiAkhir'])->name('nilai-akhir');
+    Route::post('/nilai-akhir', [SMARTController::class, 'perhitunganNilaiAkhir'])->name('nilai-akhir.hitung');
+
     // ===== PDF Export =====
     Route::get('/pdf/hasil-akhir', [PDFController::class, 'hasilAkhir'])->name('pdf.hasilAkhir');
 });
 
+// Include authentication routes
 require __DIR__.'/auth.php';
