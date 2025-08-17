@@ -9,7 +9,6 @@ use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SMARTController;
 use App\Http\Controllers\SubKriteriaController;
-use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,12 +19,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::prefix('public')->name('public.')->group(function () {
-    Route::get('/jenis-kulit', [PublicController::class, 'jenisKulit'])->name('jenis-kulit');
-    Route::get('/permintaan', [PublicController::class, 'permintaan'])->name('permintaan');
-    Route::post('/permintaan', [PublicController::class, 'storePermintaan'])->name('permintaan.store');
-    Route::get('/hasil-spk', [PublicController::class, 'hasilSPK'])->name('hasil-spk');
-});
+Route::get('/hasil-spk', [PublicController::class, 'hasilSPK'])->name('hasil-spk');
 
 // PDF Public
 Route::get('/pdf-hasil-akhir', [PDFController::class, 'pdf_hasil'])->name('pdf.hasilAkhir');
