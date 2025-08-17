@@ -289,11 +289,6 @@
           <i class="bi bi-box-seam-fill" aria-hidden="true"></i><span>Data Produk</span>
         </a>
       </div>
-      <div class="nav-item">
-        <a href="{{ route('permintaan') }}" class="nav-link {{ request()->routeIs('permintaan*') ? 'active' : '' }}">
-          <i class="bi bi-cart-check-fill" aria-hidden="true"></i><span>Permintaan</span>
-        </a>
-      </div>
 
       <div class="menu-header">Sistem Pendukung</div>
       <div class="nav-item">

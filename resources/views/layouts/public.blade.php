@@ -97,9 +97,7 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-6">
                     <a href="{{ url('/') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Beranda</a>
-                    <a href="{{ route('public.jenis-kulit') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium {{ request()->routeIs('public.jenis-kulit') ? 'text-pink-500' : '' }}">Informasi</a>
-                    <a href="{{ route('public.permintaan') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium {{ request()->routeIs('public.permintaan*') ? 'text-pink-500' : '' }}">Permintaan</a>
-                    <a href="{{ route('public.hasil-spk') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium {{ request()->routeIs('public.hasil-spk') ? 'text-pink-500' : '' }}">Hasil SPK</a>
+                    <a href="{{ route('hasil-spk') }}" class="text-gray-700 hover:text-pink-500 transition-colors duration-300 font-medium">Hasil SPK</a>
                     <a href="{{ route('login') }}" class="bg-gradient-to-r from-pink-500 to-pink-400 text-white px-6 py-2 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium">
                         Login Admin
                     </a>
@@ -116,9 +114,6 @@
             <!-- Mobile Menu -->
             <div x-show="mobileMenu" x-transition class="md:hidden mt-4 pb-4">
                 <a href="{{ url('/') }}" class="block py-2 text-gray-700 hover:text-pink-500">Beranda</a>
-                <a href="{{ route('public.jenis-kulit') }}" class="block py-2 text-gray-700 hover:text-pink-500">Informasit</a>
-                <a href="{{ route('public.permintaan') }}" class="block py-2 text-gray-700 hover:text-pink-500">Permintaan</a>
-                <a href="{{ route('public.hasil-spk') }}" class="block py-2 text-gray-700 hover:text-pink-500">Hasil SPK</a>
                 <a href="{{ route('login') }}" class="block py-2 text-pink-500 font-medium">Login Admin</a>
             </div>
         </div>

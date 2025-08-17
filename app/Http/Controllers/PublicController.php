@@ -1,140 +1,17 @@
 <?php
+// app/Http/Controllers/PublicController.php
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Alternatif;
 use App\Models\NilaiAkhir;
-use App\Models\Kriteria;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class PublicController extends Controller
 {
-    /**
-     * Halaman Hasil SPK Menu Cafe
-     */
-    public function hasilSPK(Request $request)
-    {
-        try {
-            // Filter
-            $jenisMenu = $request->get('jenis_menu', 'all');
-            $filterHarga = $request->get('harga', 'all');
-            $search = $request->get('search', '');
-
-            // Query dengan filter
-            $query = NilaiAkhir::with(['alternatif']);
-
-            // Filter jenis menu
-            if ($jenisMenu !== 'all' && $jenisMenu !== '') {
-                $query->whereHas('alternatif', function($q) use ($jenisMenu) {
-                    $q->where('jenis_menu', $jenisMenu);
-                });
-            }
-
-            // Filter harga
-            if ($filterHarga !== 'all' && $filterHarga !== '') {
-                $query->whereHas('alternatif', function($q) use ($filterHarga) {
-                    $q->where('harga', $filterHarga);
-                });
-            }
-
-            // Search by nama menu
-            if ($search !== '') {
-                $query->whereHas('alternatif', function($q) use ($search) {
-                    $q->where('nama_menu', 'LIKE', '%' . $search . '%')
-                      ->orWhere('kode_menu', 'LIKE', '%' . $search . '%');
-                });
-            }
-
-            $nilaiAkhir = $query->orderByDesc('total')->get();
-
-            // Re-rank setelah filter
-            $nilaiAkhir = $nilaiAkhir->map(function ($item, $index) {
-                $item->peringkat_filter = $index + 1;
-                return $item;
-            });
-
-            // Data untuk filter dropdown
-            $jenisMenuList = [
-                'makanan' => 'Makanan',
-                'cemilan' => 'Cemilan',
-                'coffee' => 'Coffee',
-                'milkshake' => 'Milkshake',
-                'mojito' => 'Mojito',
-                'yakult' => 'Yakult',
-                'tea' => 'Tea'
-            ];
-
-            $hargaList = [
-                '<=20000' => 'Rp 20.000 ke bawah',
-                '>20000-<=25000' => 'Rp 20.001 - Rp 25.000',
-                '>25000-<=30000' => 'Rp 25.001 - Rp 30.000',
-                '>30000' => 'Di atas Rp 30.000'
-            ];
-
-            // Get top 3 recommendations
-            $topRecommendations = $nilaiAkhir->take(3);
-
-            // Get kriteria info for display
-            $kriteria = Kriteria::orderBy('urutan_prioritas')->get();
-
-            // Statistics
-            $stats = [
-                'total_menu' => Alternatif::count(),
-                'total_evaluated' => $nilaiAkhir->count(),
-                'best_score' => $nilaiAkhir->first() ? number_format($nilaiAkhir->first()->total, 4) : 0,
-                'average_score' => $nilaiAkhir->count() > 0 ? number_format($nilaiAkhir->avg('total'), 4) : 0
-            ];
-
-            return view('public.hasil-spk', compact(
-                'nilaiAkhir',
-                'jenisMenu',
-                'filterHarga',
-                'search',
-                'jenisMenuList',
-                'hargaList',
-                'topRecommendations',
-                'kriteria',
-                'stats'
-            ));
-
-        } catch (\Exception $e) {
-            Log::error('Error in PublicController@hasilSPK: ' . $e->getMessage());
-            
-            // Return empty data if error
-            return view('public.hasil-spk', [
-                'nilaiAkhir' => collect(),
-                'jenisMenu' => 'all',
-                'filterHarga' => 'all',
-                'search' => '',
-                'jenisMenuList' => [],
-                'hargaList' => [],
-                'topRecommendations' => collect(),
-                'kriteria' => collect(),
-                'stats' => [
-                    'total_menu' => 0,
-                    'total_evaluated' => 0,
-                    'best_score' => 0,
-                    'average_score' => 0
-                ],
-                'error' => 'Terjadi kesalahan saat memuat data. Silakan coba lagi.'
-            ]);
-        }
-    }
-
-    /**
-     * Home page untuk public
-     */
     public function home()
     {
-        // Get featured menu (top 5)
-        $featuredMenu = NilaiAkhir::with('alternatif')
-            ->orderByDesc('total')
-            ->limit(5)
-            ->get();
-
-        // Get statistics
+        // Statistik untuk homepage
         $stats = [
             'total_menu' => Alternatif::count(),
             'makanan' => Alternatif::where('jenis_menu', 'makanan')->count(),
@@ -142,126 +19,117 @@ class PublicController extends Controller
             'cemilan' => Alternatif::where('jenis_menu', 'cemilan')->count(),
         ];
 
-        // Get latest menu
-        $latestMenu = Alternatif::orderBy('created_at', 'desc')->limit(6)->get();
+        // Featured menu (top 3)
+        $featuredMenu = NilaiAkhir::with('alternatif')
+            ->orderBy('total', 'desc')
+            ->take(3)
+            ->get();
 
-        return view('welcome', compact('featuredMenu', 'stats', 'latestMenu'));
+        return view('welcome', compact('stats', 'featuredMenu'));
     }
 
-    /**
-     * Detail menu
-     */
+    public function hasilSPK(Request $request)
+    {
+        $jenisMenu = $request->get('jenis_menu', 'all');
+        $harga = $request->get('harga', 'all');
+        $search = $request->get('search', '');
+
+        // Query hasil perhitungan
+        $query = NilaiAkhir::with('alternatif')
+            ->whereHas('alternatif', function($q) use ($jenisMenu, $harga, $search) {
+                if ($jenisMenu != 'all') {
+                    $q->where('jenis_menu', $jenisMenu);
+                }
+                if ($harga != 'all') {
+                    $q->where('harga', $harga);
+                }
+                if ($search) {
+                    $q->where(function($sq) use ($search) {
+                        $sq->where('nama_menu', 'like', '%'.$search.'%')
+                           ->orWhere('kode_menu', 'like', '%'.$search.'%');
+                    });
+                }
+            })
+            ->orderBy('total', 'desc');
+
+        $nilaiAkhir = $query->get();
+        
+        // Add ranking
+        $nilaiAkhir->each(function ($item, $index) {
+            $item->peringkat_filter = $index + 1;
+        });
+
+        // Top 3 recommendations
+        $topRecommendations = $nilaiAkhir->take(3);
+
+        // Statistics
+        $stats = [
+            'total_menu' => Alternatif::count(),
+            'total_evaluated' => NilaiAkhir::count(),
+            'best_score' => NilaiAkhir::max('total') ? number_format(NilaiAkhir::max('total'), 2) : 0,
+            'average_score' => NilaiAkhir::avg('total') ? number_format(NilaiAkhir::avg('total'), 2) : 0,
+        ];
+
+        // List options
+        $jenisMenuList = [
+            'makanan' => 'Makanan',
+            'cemilan' => 'Cemilan', 
+            'coffee' => 'Coffee',
+            'milkshake' => 'Milkshake',
+            'mojito' => 'Mojito',
+            'yakult' => 'Yakult',
+            'tea' => 'Tea'
+        ];
+
+        $hargaList = [
+            '<=20000' => '≤ Rp 20.000',
+            '>20000-<=25000' => 'Rp 20.001 - 25.000',
+            '>25000-<=30000' => 'Rp 25.001 - 30.000',
+            '>30000' => '> Rp 30.000'
+        ];
+
+        return view('public.hasil-spk', compact(
+            'nilaiAkhir', 
+            'topRecommendations', 
+            'stats',
+            'jenisMenuList',
+            'hargaList'
+        ));
+    }
+
+    public function jenisKulit()
+    {
+        return view('public.jenis-kulit');
+    }
+
     public function menuDetail($id)
     {
-        try {
-            $menu = Alternatif::findOrFail($id);
-            
-            // Get ranking info if available
-            $nilaiAkhir = NilaiAkhir::where('alternatif_id', $id)->first();
-            $ranking = null;
-            
-            if ($nilaiAkhir) {
-                $ranking = NilaiAkhir::where('total', '>', $nilaiAkhir->total)->count() + 1;
-            }
+        $menu = Alternatif::findOrFail($id);
+        $relatedMenus = Alternatif::where('jenis_menu', $menu->jenis_menu)
+            ->where('id', '!=', $id)
+            ->take(4)
+            ->get();
 
-            // Get similar menu (same category)
-            $similarMenu = Alternatif::where('jenis_menu', $menu->jenis_menu)
-                ->where('id', '!=', $id)
-                ->limit(4)
-                ->get();
-
-            return view('public.menu-detail', compact('menu', 'nilaiAkhir', 'ranking', 'similarMenu'));
-            
-        } catch (\Exception $e) {
-            return redirect()->route('hasil-spk')->with('error', 'Menu tidak ditemukan');
-        }
+        return view('public.menu-detail', compact('menu', 'relatedMenus'));
     }
 
-    /**
-     * About page
-     */
     public function about()
     {
-        $kriteria = Kriteria::orderBy('urutan_prioritas')->get();
-        
-        return view('public.about', compact('kriteria'));
+        return view('public.about');
     }
 
-    /**
-     * Export hasil to PDF (public version)
-     */
-    public function exportPdf(Request $request)
-    {
-        try {
-            // Same filters as hasilSPK
-            $jenisMenu = $request->get('jenis_menu', 'all');
-            $filterHarga = $request->get('harga', 'all');
-            
-            $query = NilaiAkhir::with(['alternatif']);
-            
-            if ($jenisMenu !== 'all') {
-                $query->whereHas('alternatif', function($q) use ($jenisMenu) {
-                    $q->where('jenis_menu', $jenisMenu);
-                });
-            }
-            
-            if ($filterHarga !== 'all') {
-                $query->whereHas('alternatif', function($q) use ($filterHarga) {
-                    $q->where('harga', $filterHarga);
-                });
-            }
-            
-            $nilaiAkhir = $query->orderByDesc('total')->get();
-            
-            
-        } catch (\Exception $e) {
-            Log::error('Error generating PDF: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Gagal mengunduh PDF');
-        }
-    }
-
-    /**
-     * API endpoint untuk get menu recommendations (for AJAX)
-     */
     public function apiRecommendations(Request $request)
     {
-        try {
-            $jenisMenu = $request->get('jenis_menu', 'all');
-            $limit = $request->get('limit', 10);
-            
-            $query = NilaiAkhir::with(['alternatif']);
-            
-            if ($jenisMenu !== 'all') {
-                $query->whereHas('alternatif', function($q) use ($jenisMenu) {
-                    $q->where('jenis_menu', $jenisMenu);
-                });
-            }
-            
-            $recommendations = $query->orderByDesc('total')
-                ->limit($limit)
-                ->get()
-                ->map(function($item, $index) {
-                    return [
-                        'rank' => $index + 1,
-                        'kode' => $item->alternatif->kode_menu,
-                        'nama' => $item->alternatif->nama_menu,
-                        'jenis' => $item->alternatif->jenis_menu,
-                        'harga' => $item->alternatif->harga_label,
-                        'score' => number_format($item->total, 4),
-                        'image' => $item->alternatif->gambar_url
-                    ];
-                });
-            
-            return response()->json([
-                'success' => true,
-                'data' => $recommendations
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error loading recommendations'
-            ], 500);
+        $query = NilaiAkhir::with('alternatif');
+
+        if ($request->has('jenis_menu') && $request->jenis_menu != 'all') {
+            $query->whereHas('alternatif', function($q) use ($request) {
+                $q->where('jenis_menu', $request->jenis_menu);
+            });
         }
+
+        $data = $query->orderBy('total', 'desc')->take(10)->get();
+
+        return response()->json($data);
     }
 }

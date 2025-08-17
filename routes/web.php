@@ -1,5 +1,5 @@
 <?php
-// routes/web.php - COMPLETE VERSION
+// routes/web.php
 
 use App\Http\Controllers\AlternatifController;
 use App\Http\Controllers\DashboardController;
@@ -17,11 +17,10 @@ use Illuminate\Support\Facades\Route;
 // ============================================
 Route::get('/', [PublicController::class, 'home'])->name('home');
 Route::get('/hasil-spk', [PublicController::class, 'hasilSPK'])->name('hasil-spk');
+Route::get('/jenis-kulit', [PublicController::class, 'jenisKulit'])->name('public.jenis-kulit');
 Route::get('/menu/{id}', [PublicController::class, 'menuDetail'])->name('menu.detail');
 Route::get('/about', [PublicController::class, 'about'])->name('about');
 
-// Public API
-Route::get('/api/recommendations', [PublicController::class, 'apiRecommendations'])->name('api.recommendations');
 
 // ============================================
 // AUTHENTICATED ROUTES
@@ -42,13 +41,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria');
     Route::get('/kriteria/create', [KriteriaController::class, 'create'])->name('kriteria.create');
     Route::post('/kriteria', [KriteriaController::class, 'store'])->name('kriteria.store');
-    Route::get('/kriteria/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit'); // AJAX
-    Route::get('/kriteria/{id}/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit.page');
+    Route::get('/kriteria/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit');
     Route::post('/kriteria/update', [KriteriaController::class, 'update'])->name('kriteria.update');
-    Route::put('/kriteria/{id}', [KriteriaController::class, 'update'])->name('kriteria.update.put');
     Route::post('/kriteria/delete', [KriteriaController::class, 'delete'])->name('kriteria.delete');
-    Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
-    Route::post('/kriteria/proses', [KriteriaController::class, 'proses'])->name('kriteria.proses');
 
     // ===== SUB-KRITERIA =====
     Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria');
@@ -63,25 +58,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/alternatif/ubah', [AlternatifController::class, 'edit'])->name('alternatif.edit');
     Route::post('/alternatif/ubah', [AlternatifController::class, 'update'])->name('alternatif.update');
     Route::post('/alternatif/hapus', [AlternatifController::class, 'delete'])->name('alternatif.delete');
-    Route::post('/alternatif/perhitungan', [AlternatifController::class, 'perhitunganNilaiAkhir'])->name('alternatif.perhitungan');
 
     // ===== PENILAIAN =====
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
     Route::get('/penilaian/{id}/ubah', [PenilaianController::class, 'edit'])->name('penilaian.edit');
     Route::post('/penilaian/{id}/ubah', [PenilaianController::class, 'update'])->name('penilaian.update');
     Route::get('/penilaian/input/{id}', [PenilaianController::class, 'inputPage'])->name('penilaian.input');
-    Route::post('/penilaian/store', [PenilaianController::class, 'store'])->name('penilaian.store');
 
-    // ===== SMART/PERHITUNGAN =====
+    // ===== PERHITUNGAN =====
     Route::get('/perhitungan', [SMARTController::class, 'indexPerhitungan'])->name('perhitungan');
     Route::post('/perhitungan', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.smart');
-    Route::post('/perhitungan-metode', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.metode');
-    Route::get('/normalisasi-bobot', [SMARTController::class, 'indexNormalisasiBobot'])->name('normalisasi-bobot');
-    Route::post('/normalisasi-bobot/hitung', [SMARTController::class, 'perhitunganNormalisasiBobot'])->name('normalisasi-bobot.hitung');
-    Route::get('/nilai-utility', [SMARTController::class, 'indexNilaiUtility'])->name('nilai-utility');
-    Route::post('/nilai-utility/hitung', [SMARTController::class, 'perhitunganNilaiUtility'])->name('nilai-utility.hitung');
-    Route::get('/nilai-akhir', [SMARTController::class, 'indexNilaiAkhir'])->name('nilai-akhir');
-    Route::post('/nilai-akhir/hitung', [SMARTController::class, 'perhitunganNilaiAkhir'])->name('nilai-akhir.hitung');
+    Route::get('/detail-benefit-cost', [SMARTController::class, 'detailBenefitCost'])->name('smart.detail.benefit.cost');
+
+    // ===== PDF Export =====
+    Route::get('/pdf/hasil-akhir', [PDFController::class, 'hasilAkhir'])->name('pdf.hasilAkhir');
 });
 
 require __DIR__.'/auth.php';
