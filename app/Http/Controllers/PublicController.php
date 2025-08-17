@@ -5,226 +5,263 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Alternatif;
 use App\Models\NilaiAkhir;
-use App\Models\Permintaan;
+use App\Models\Kriteria;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PublicController extends Controller
 {
     /**
-     * Halaman Jenis Kulit
-     */
-    public function jenisKulit()
-    {
-        $jenisKulit = [
-            'normal' => [
-                'title' => 'Kulit Normal',
-                'image' => 'https://images.unsplash.com/photo-1520721448897-116030851143?w=500',
-                'ciri' => [
-                    'Tekstur kulit halus dan lembut',
-                    'Pori-pori hampir tidak terlihat',
-                    'Tidak terlalu berminyak atau kering',
-                    'Jarang mengalami jerawat',
-                    'Warna kulit merata',
-                    'Elastisitas kulit baik'
-                ],
-                'rekomendasi' => [
-                    'Gunakan sunscreen dengan tekstur ringan',
-                    'Pilih SPF 30-50 untuk perlindungan optimal',
-                    'Sunscreen dengan moisturizer ringan',
-                    'Formula yang tidak lengket',
-                    'Bisa menggunakan chemical atau physical sunscreen'
-                ],
-                'produk_cocok' => 'Gel, Lotion ringan, Cream ringan'
-            ],
-            'berminyak' => [
-                'title' => 'Kulit Berminyak',
-                'image' => 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?w=500',
-                'ciri' => [
-                    'Kulit terlihat mengkilap terutama di T-zone',
-                    'Pori-pori besar dan terlihat jelas',
-                    'Mudah berjerawat dan komedo',
-                    'Makeup mudah luntur',
-                    'Tekstur kulit tebal',
-                    'Produksi sebum berlebih'
-                ],
-                'rekomendasi' => [
-                    'Pilih sunscreen oil-free atau non-comedogenic',
-                    'Tekstur gel atau water-based lebih cocok',
-                    'Hindari sunscreen dengan kandungan minyak',
-                    'Pilih yang mengandung niacinamide',
-                    'SPF 30-50 dengan formula mattifying'
-                ],
-                'produk_cocok' => 'Gel, Water-based, Spray'
-            ],
-            'kering' => [
-                'title' => 'Kulit Kering',
-                'image' => 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=500',
-                'ciri' => [
-                    'Kulit terasa kencang dan kasar',
-                    'Mudah mengelupas dan bersisik',
-                    'Pori-pori sangat kecil',
-                    'Garis halus lebih terlihat',
-                    'Kulit terlihat kusam',
-                    'Sering terasa gatal'
-                ],
-                'rekomendasi' => [
-                    'Pilih sunscreen dengan moisturizer tinggi',
-                    'Tekstur cream atau balm lebih cocok',
-                    'Cari yang mengandung hyaluronic acid',
-                    'Hindari sunscreen dengan alkohol tinggi',
-                    'Physical sunscreen lebih lembut untuk kulit kering'
-                ],
-                'produk_cocok' => 'Cream, Balm, Lotion kaya'
-            ],
-            'kombinasi' => [
-                'title' => 'Kulit Kombinasi',
-                'image' => 'https://images.unsplash.com/photo-1588392382834-a891154bca4d?w=500',
-                'ciri' => [
-                    'T-zone berminyak (dahi, hidung, dagu)',
-                    'Pipi cenderung normal atau kering',
-                    'Pori-pori besar di area T-zone',
-                    'Blackhead di area hidung',
-                    'Tekstur kulit tidak merata',
-                    'Kebutuhan perawatan berbeda di tiap area'
-                ],
-                'rekomendasi' => [
-                    'Pilih sunscreen dengan formula balanced',
-                    'Tekstur lotion ringan paling cocok',
-                    'Cari yang oil-control tapi tetap melembabkan',
-                    'Bisa gunakan sunscreen berbeda untuk area berbeda',
-                    'SPF 30-50 dengan formula hybrid'
-                ],
-                'produk_cocok' => 'Lotion, Gel-cream, Serum sunscreen'
-            ]
-        ];
-
-        return view('public.jenis-kulit', compact('jenisKulit'));
-    }
-
-    /**
-     * Halaman Permintaan
-     */
-    public function permintaan()
-    {
-        $permintaan = Permintaan::orderBy('created_at', 'desc')->get();
-        return view('public.permintaan', compact('permintaan'));
-    }
-
-    /**
-     * Store Permintaan dari Public
-     */
-    public function storePermintaan(Request $request)
-    {
-        try {
-            // Debug log
-            Log::info('Public Permintaan Input:', $request->all());
-            
-            $data = $request->validate([
-                'nama_produk' => 'required|string|max:100',
-                'komposisi' => 'required|string',
-                'harga' => 'required|in:<50k,50-100k,>100k',
-                'spf' => 'required|in:30,35,40,50+',
-            ]);
-
-            // Tambahkan flag bahwa ini dari public
-            $data['status'] = 'pending';
-            
-            DB::beginTransaction();
-            try {
-                Permintaan::create($data);
-                DB::commit();
-                
-                return redirect()->route('public.permintaan')
-                    ->with('success', 'Permintaan Anda telah berhasil dikirim! Admin akan memverifikasi permintaan Anda.');
-            } catch (\Exception $e) {
-                DB::rollBack();
-                throw $e;
-            }
-            
-        } catch (\Exception $e) {
-            Log::error('Error in Public storePermintaan: ' . $e->getMessage());
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal mengirim permintaan. Silakan coba lagi.');
-        }
-    }
-
-    /**
-     * Halaman Hasil SPK
+     * Halaman Hasil SPK Menu Cafe
      */
     public function hasilSPK(Request $request)
     {
-        // Filter
-        $jenisKulit = $request->get('jenis_kulit', 'all');
-        $filterHarga = $request->get('harga', 'all');
-        $filterSpf = $request->get('spf', 'all');
+        try {
+            // Filter
+            $jenisMenu = $request->get('jenis_menu', 'all');
+            $filterHarga = $request->get('harga', 'all');
+            $search = $request->get('search', '');
 
-        // Query dengan filter
-        $query = NilaiAkhir::with(['alternatif']);
+            // Query dengan filter
+            $query = NilaiAkhir::with(['alternatif']);
 
-        // Filter jenis kulit
-        if ($jenisKulit !== 'all') {
-            $query->whereHas('alternatif', function($q) use ($jenisKulit) {
-                $q->where('jenis_kulit', $jenisKulit);
+            // Filter jenis menu
+            if ($jenisMenu !== 'all' && $jenisMenu !== '') {
+                $query->whereHas('alternatif', function($q) use ($jenisMenu) {
+                    $q->where('jenis_menu', $jenisMenu);
+                });
+            }
+
+            // Filter harga
+            if ($filterHarga !== 'all' && $filterHarga !== '') {
+                $query->whereHas('alternatif', function($q) use ($filterHarga) {
+                    $q->where('harga', $filterHarga);
+                });
+            }
+
+            // Search by nama menu
+            if ($search !== '') {
+                $query->whereHas('alternatif', function($q) use ($search) {
+                    $q->where('nama_menu', 'LIKE', '%' . $search . '%')
+                      ->orWhere('kode_menu', 'LIKE', '%' . $search . '%');
+                });
+            }
+
+            $nilaiAkhir = $query->orderByDesc('total')->get();
+
+            // Re-rank setelah filter
+            $nilaiAkhir = $nilaiAkhir->map(function ($item, $index) {
+                $item->peringkat_filter = $index + 1;
+                return $item;
             });
+
+            // Data untuk filter dropdown
+            $jenisMenuList = [
+                'makanan' => 'Makanan',
+                'cemilan' => 'Cemilan',
+                'coffee' => 'Coffee',
+                'milkshake' => 'Milkshake',
+                'mojito' => 'Mojito',
+                'yakult' => 'Yakult',
+                'tea' => 'Tea'
+            ];
+
+            $hargaList = [
+                '<=20000' => 'Rp 20.000 ke bawah',
+                '>20000-<=25000' => 'Rp 20.001 - Rp 25.000',
+                '>25000-<=30000' => 'Rp 25.001 - Rp 30.000',
+                '>30000' => 'Di atas Rp 30.000'
+            ];
+
+            // Get top 3 recommendations
+            $topRecommendations = $nilaiAkhir->take(3);
+
+            // Get kriteria info for display
+            $kriteria = Kriteria::orderBy('urutan_prioritas')->get();
+
+            // Statistics
+            $stats = [
+                'total_menu' => Alternatif::count(),
+                'total_evaluated' => $nilaiAkhir->count(),
+                'best_score' => $nilaiAkhir->first() ? number_format($nilaiAkhir->first()->total, 4) : 0,
+                'average_score' => $nilaiAkhir->count() > 0 ? number_format($nilaiAkhir->avg('total'), 4) : 0
+            ];
+
+            return view('public.hasil-spk', compact(
+                'nilaiAkhir',
+                'jenisMenu',
+                'filterHarga',
+                'search',
+                'jenisMenuList',
+                'hargaList',
+                'topRecommendations',
+                'kriteria',
+                'stats'
+            ));
+
+        } catch (\Exception $e) {
+            Log::error('Error in PublicController@hasilSPK: ' . $e->getMessage());
+            
+            // Return empty data if error
+            return view('public.hasil-spk', [
+                'nilaiAkhir' => collect(),
+                'jenisMenu' => 'all',
+                'filterHarga' => 'all',
+                'search' => '',
+                'jenisMenuList' => [],
+                'hargaList' => [],
+                'topRecommendations' => collect(),
+                'kriteria' => collect(),
+                'stats' => [
+                    'total_menu' => 0,
+                    'total_evaluated' => 0,
+                    'best_score' => 0,
+                    'average_score' => 0
+                ],
+                'error' => 'Terjadi kesalahan saat memuat data. Silakan coba lagi.'
+            ]);
         }
-
-        // Filter harga
-        if ($filterHarga !== 'all') {
-            $hargaRange = $this->parseHargaFilter($filterHarga);
-            $query->whereHas('alternatif', function($q) use ($hargaRange) {
-                if ($hargaRange['min'] !== null) {
-                    $q->where('harga', '>=', $hargaRange['min']);
-                }
-                if ($hargaRange['max'] !== null) {
-                    $q->where('harga', '<=', $hargaRange['max']);
-                }
-            });
-        }
-
-        // Filter SPF
-        if ($filterSpf !== 'all') {
-            $query->whereHas('alternatif', function($q) use ($filterSpf) {
-                $q->where('spf', $filterSpf);
-            });
-        }
-
-        $nilaiAkhir = $query->orderByDesc('total')->get();
-
-        // Re-rank setelah filter
-        $nilaiAkhir = $nilaiAkhir->map(function ($item, $index) {
-            $item->peringkat_filter = $index + 1;
-            return $item;
-        });
-
-        $jenisKulitList = ['normal', 'berminyak', 'kering', 'kombinasi'];
-
-        return view('public.hasil-spk', compact(
-            'nilaiAkhir',
-            'jenisKulit',
-            'filterHarga',
-            'filterSpf',
-            'jenisKulitList'
-        ));
     }
 
     /**
-     * Parse filter harga
+     * Home page untuk public
      */
-    private function parseHargaFilter($hargaFilter)
+    public function home()
     {
-        switch ($hargaFilter) {
-            case '<=40000':
-                return ['min' => null, 'max' => 40000];
-            case '40001-60000':
-                return ['min' => 40001, 'max' => 60000];
-            case '60001-80000':
-                return ['min' => 60001, 'max' => 80000];
-            case '>80000':
-                return ['min' => 80001, 'max' => null];
-            default:
-                return ['min' => null, 'max' => null];
+        // Get featured menu (top 5)
+        $featuredMenu = NilaiAkhir::with('alternatif')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        // Get statistics
+        $stats = [
+            'total_menu' => Alternatif::count(),
+            'makanan' => Alternatif::where('jenis_menu', 'makanan')->count(),
+            'minuman' => Alternatif::whereIn('jenis_menu', ['coffee', 'milkshake', 'mojito', 'yakult', 'tea'])->count(),
+            'cemilan' => Alternatif::where('jenis_menu', 'cemilan')->count(),
+        ];
+
+        // Get latest menu
+        $latestMenu = Alternatif::orderBy('created_at', 'desc')->limit(6)->get();
+
+        return view('welcome', compact('featuredMenu', 'stats', 'latestMenu'));
+    }
+
+    /**
+     * Detail menu
+     */
+    public function menuDetail($id)
+    {
+        try {
+            $menu = Alternatif::findOrFail($id);
+            
+            // Get ranking info if available
+            $nilaiAkhir = NilaiAkhir::where('alternatif_id', $id)->first();
+            $ranking = null;
+            
+            if ($nilaiAkhir) {
+                $ranking = NilaiAkhir::where('total', '>', $nilaiAkhir->total)->count() + 1;
+            }
+
+            // Get similar menu (same category)
+            $similarMenu = Alternatif::where('jenis_menu', $menu->jenis_menu)
+                ->where('id', '!=', $id)
+                ->limit(4)
+                ->get();
+
+            return view('public.menu-detail', compact('menu', 'nilaiAkhir', 'ranking', 'similarMenu'));
+            
+        } catch (\Exception $e) {
+            return redirect()->route('hasil-spk')->with('error', 'Menu tidak ditemukan');
+        }
+    }
+
+    /**
+     * About page
+     */
+    public function about()
+    {
+        $kriteria = Kriteria::orderBy('urutan_prioritas')->get();
+        
+        return view('public.about', compact('kriteria'));
+    }
+
+    /**
+     * Export hasil to PDF (public version)
+     */
+    public function exportPdf(Request $request)
+    {
+        try {
+            // Same filters as hasilSPK
+            $jenisMenu = $request->get('jenis_menu', 'all');
+            $filterHarga = $request->get('harga', 'all');
+            
+            $query = NilaiAkhir::with(['alternatif']);
+            
+            if ($jenisMenu !== 'all') {
+                $query->whereHas('alternatif', function($q) use ($jenisMenu) {
+                    $q->where('jenis_menu', $jenisMenu);
+                });
+            }
+            
+            if ($filterHarga !== 'all') {
+                $query->whereHas('alternatif', function($q) use ($filterHarga) {
+                    $q->where('harga', $filterHarga);
+                });
+            }
+            
+            $nilaiAkhir = $query->orderByDesc('total')->get();
+            
+            
+        } catch (\Exception $e) {
+            Log::error('Error generating PDF: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengunduh PDF');
+        }
+    }
+
+    /**
+     * API endpoint untuk get menu recommendations (for AJAX)
+     */
+    public function apiRecommendations(Request $request)
+    {
+        try {
+            $jenisMenu = $request->get('jenis_menu', 'all');
+            $limit = $request->get('limit', 10);
+            
+            $query = NilaiAkhir::with(['alternatif']);
+            
+            if ($jenisMenu !== 'all') {
+                $query->whereHas('alternatif', function($q) use ($jenisMenu) {
+                    $q->where('jenis_menu', $jenisMenu);
+                });
+            }
+            
+            $recommendations = $query->orderByDesc('total')
+                ->limit($limit)
+                ->get()
+                ->map(function($item, $index) {
+                    return [
+                        'rank' => $index + 1,
+                        'kode' => $item->alternatif->kode_menu,
+                        'nama' => $item->alternatif->nama_menu,
+                        'jenis' => $item->alternatif->jenis_menu,
+                        'harga' => $item->alternatif->harga_label,
+                        'score' => number_format($item->total, 4),
+                        'image' => $item->alternatif->gambar_url
+                    ];
+                });
+            
+            return response()->json([
+                'success' => true,
+                'data' => $recommendations
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading recommendations'
+            ], 500);
         }
     }
 }

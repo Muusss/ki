@@ -1,5 +1,5 @@
 <?php
-// routes/web.php - CLEAN & WORKING
+// routes/web.php - COMPLETE VERSION
 
 use App\Http\Controllers\AlternatifController;
 use App\Http\Controllers\DashboardController;
@@ -7,22 +7,21 @@ use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicController;
 use App\Http\Controllers\SMARTController;
 use App\Http\Controllers\SubKriteriaController;
-use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================
 // PUBLIC ROUTES
 // ============================================
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
-
+Route::get('/', [PublicController::class, 'home'])->name('home');
 Route::get('/hasil-spk', [PublicController::class, 'hasilSPK'])->name('hasil-spk');
+Route::get('/menu/{id}', [PublicController::class, 'menuDetail'])->name('menu.detail');
+Route::get('/about', [PublicController::class, 'about'])->name('about');
 
-// PDF Public
-Route::get('/pdf-hasil-akhir', [PDFController::class, 'pdf_hasil'])->name('pdf.hasilAkhir');
+// Public API
+Route::get('/api/recommendations', [PublicController::class, 'apiRecommendations'])->name('api.recommendations');
 
 // ============================================
 // AUTHENTICATED ROUTES
@@ -58,14 +57,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/subkriteria/update', [SubKriteriaController::class, 'update'])->name('subkriteria.update');
     Route::post('/subkriteria/delete', [SubKriteriaController::class, 'delete'])->name('subkriteria.delete');
 
-    // ===== ALTERNATIF (Produk) =====
+    // ===== ALTERNATIF (Menu) =====
     Route::get('/alternatif', [AlternatifController::class, 'index'])->name('alternatif');
     Route::post('/alternatif/simpan', [AlternatifController::class, 'store'])->name('alternatif.store');
     Route::get('/alternatif/ubah', [AlternatifController::class, 'edit'])->name('alternatif.edit');
     Route::post('/alternatif/ubah', [AlternatifController::class, 'update'])->name('alternatif.update');
     Route::post('/alternatif/hapus', [AlternatifController::class, 'delete'])->name('alternatif.delete');
     Route::post('/alternatif/perhitungan', [AlternatifController::class, 'perhitunganNilaiAkhir'])->name('alternatif.perhitungan');
-    Route::post('/alternatif/perhitungan-metode', [AlternatifController::class, 'perhitunganMetode'])->name('alternatif.perhitungan-metode');
 
     // ===== PENILAIAN =====
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian');
