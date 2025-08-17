@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lupa Kata Sandi | ReGlow Beauty - Smart Sunscreen Recommendation</title>
+    <title>Lupa Kata Sandi | Buri Umah - Smart Sunscreen Recommendation</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('img/logo-ss.png') }}" />
+    <link rel="icon" type="image/jpeg" href="{{ asset('img/buri-umah.jpeg') }}" />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -182,9 +182,9 @@
             <div class="flex justify-between items-center">
                 <!-- Logo -->
                 <div class="flex items-center space-x-3" data-aos="fade-right">
-                    <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow" class="w-12 h-12 rounded-xl shadow-lg">
+                    <img src="{{ asset('img/buri-umah.jpeg') }}" alt="Buri Umah" class="w-12 h-12 rounded-xl shadow-lg">
                     <div>
-                        <h1 class="text-2xl font-bold gradient-text font-['Dancing_Script']">ReGlow Beauty</h1>
+                        <h1 class="text-2xl font-bold gradient-text font-['Dancing_Script']">Buri Umah</h1>
                         <p class="text-xs text-pink-600">Smart Sunscreen Recommendation</p>
                     </div>
                 </div>
@@ -303,7 +303,7 @@
                         <div class="text-center mb-8">
                             <div class="inline-block mb-4">
                                 <div class="relative">
-                                    <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow Beauty" class="w-20 h-20 rounded-2xl shadow-lg mx-auto">
+                                    <img src="{{ asset('img/buri-umah.jpeg') }}" alt="Buri Umah" class="w-20 h-20 rounded-2xl shadow-lg mx-auto">
                                     <!-- Email badge -->
                                     <div class="absolute -bottom-2 -right-2 bg-pink-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -371,7 +371,7 @@
                                         required 
                                         autofocus
                                         class="w-full px-4 py-3 pl-12 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all duration-300 hover:border-pink-300"
-                                        placeholder="admin@reglow.com"
+                                        placeholder="admin@Buri Umah.com"
                                     >
                                     <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -444,7 +444,7 @@
 
                     <!-- Footer -->
                     <div class="text-center mt-8 text-gray-600 text-sm" data-aos="fade-up">
-                        <p>© {{ date('Y') }} ReGlow Beauty. Made with <span class="text-pink-500">❤</span> by Selvya</p>
+                        <p>© {{ date('Y') }} Buri Umah. Made with <span class="text-pink-500">❤</span> by Selvya</p>
                     </div>
                 </div>
             </div>

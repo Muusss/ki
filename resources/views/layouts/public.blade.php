@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'ReGlow Beauty') - Smart Sunscreen Recommendation</title>
+    <title>@yield('title', 'Buri Umah') - Smart Sunscreen Recommendation</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('img/logo-ss.png') }}" />
+    <link rel="icon" type="image/jpeg" href="{{ asset('img/buri-umah.jpeg') }}" />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,9 +86,9 @@
                 <!-- Logo -->
                 <div class="flex items-center space-x-3">
                     <a href="{{ url('/') }}" class="flex items-center space-x-3">
-                        <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow" class="w-12 h-12 rounded-xl shadow-lg">
+                        <img src="{{ asset('img/buri-umah.jpeg') }}" alt="Buri Umah" class="w-12 h-12 rounded-xl shadow-lg">
                         <div>
-                            <h1 class="text-2xl font-bold gradient-text font-['Dancing_Script']">ReGlow Beauty</h1>
+                            <h1 class="text-2xl font-bold gradient-text font-['Dancing_Script']">Buri Umah</h1>
                             <p class="text-xs text-pink-600">Beauty Inside and Outside</p>
                         </div>
                     </a>
@@ -133,10 +133,10 @@
     <footer class="bg-gradient-to-br from-pink-100 to-pink-50 py-12 px-6">
         <div class="container mx-auto text-center">
             <div class="flex items-center justify-center space-x-3 mb-4">
-                <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow" class="w-10 h-10 rounded-xl">
-                <h3 class="text-2xl font-bold gradient-text font-['Dancing_Script']">ReGlow Beauty</h3>
+                <img src="{{ asset('img/buri-umah.jpeg') }}" alt="Buri Umah" class="w-10 h-10 rounded-xl">
+                <h3 class="text-2xl font-bold gradient-text font-['Dancing_Script']">Buri Umah</h3>
             </div>
-            <p class="text-gray-600 mb-6">Smart Sunscreen Recommendation System</p>
+            <p class="text-gray-600 mb-6">Smart Menu Recommendation System</p>
             <div class="flex justify-center space-x-6 mb-6">
                 <a href="{{ route('public.jenis-kulit') }}" class="text-gray-600 hover:text-pink-500 transition-colors">Informasit</a>
                 <a href="{{ route('public.permintaan') }}" class="text-gray-600 hover:text-pink-500 transition-colors">Permintaan</a>
@@ -144,7 +144,7 @@
                 <a href="{{ route('login') }}" class="text-gray-600 hover:text-pink-500 transition-colors">Admin</a>
             </div>
             <p class="text-gray-500 text-sm">
-                © {{ date('Y') }} ReGlow Beauty. Made with 
+                © {{ date('Y') }} Buri Umah. Made with 
                 <span class="text-pink-500">❤</span> by Selvya
             </p>
         </div>

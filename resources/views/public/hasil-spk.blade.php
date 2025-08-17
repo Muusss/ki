@@ -21,7 +21,7 @@
                 <!-- Jenis Kulit Filter -->
                 <div>
                     <label class="block text-gray-700 font-medium mb-2 text-sm">Jenis Kulit</label>
-                    <select name="jenis_kulit" class="w-full px-4 py-3 rounded-2xl border border-pink-200 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all">
+                    <select name="jenis_menu" class="w-full px-4 py-3 rounded-2xl border border-pink-200 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all">
                         <option value="all">Semua Jenis</option>
                         @foreach($jenisKulitList as $jenis)
                         <option value="{{ $jenis }}" {{ $jenisKulit == $jenis ? 'selected' : '' }}>
@@ -77,7 +77,7 @@
             <!-- Download PDF Button -->
             @php
                 $pdfParams = [
-                    'jenis_kulit' => $jenisKulit ?? 'all',
+                    'jenis_menu' => $jenisKulit ?? 'all',
                     'harga' => $filterHarga ?? 'all',
                     'spf' => $filterSpf ?? 'all'
                 ];
@@ -116,7 +116,7 @@
                 <!-- Product Image -->
                 @if($alt && $alt->gambar)
                 <div class="h-48 overflow-hidden">
-                    <img src="{{ asset('img/produk/' . $alt->gambar) }}" alt="{{ $alt->nama_produk }}" class="w-full h-full object-cover">
+                    <img src="{{ asset('img/menu/' . $alt->gambar) }}" alt="{{ $alt->nama_menu }}" class="w-full h-full object-cover">
                 </div>
                 @else
                 <div class="h-48 bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
@@ -128,14 +128,14 @@
 
                 <!-- Product Info -->
                 <div class="p-6">
-                    <h4 class="text-xl font-bold mb-2">{{ $alt->nama_produk ?? '-' }}</h4>
-                    <p class="text-gray-600 text-sm mb-4">{{ $alt->kode_produk ?? '-' }}</p>
+                    <h4 class="text-xl font-bold mb-2">{{ $alt->nama_menu ?? '-' }}</h4>
+                    <p class="text-gray-600 text-sm mb-4">{{ $alt->kode_menu ?? '-' }}</p>
 
                     <!-- Details -->
                     <div class="space-y-2 mb-4">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Jenis Kulit:</span>
-                            <span class="font-semibold">{{ ucfirst($alt->jenis_kulit ?? '-') }}</span>
+                            <span class="font-semibold">{{ ucfirst($alt->jenis_menu ?? '-') }}</span>
                         </div>
                         @if($alt && $alt->harga)
                         <div class="flex justify-between text-sm">
@@ -201,7 +201,7 @@
                             </td>
                             <td class="py-3 px-4 text-center">
                                 @if($alt && $alt->gambar)
-                                    <img src="{{ asset('img/produk/' . $alt->gambar) }}" alt="{{ $alt->nama_produk }}" class="w-12 h-12 rounded-lg object-cover mx-auto">
+                                    <img src="{{ asset('img/menu/' . $alt->gambar) }}" alt="{{ $alt->nama_menu }}" class="w-12 h-12 rounded-lg object-cover mx-auto">
                                 @else
                                     <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mx-auto">
                                         <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,13 +212,13 @@
                             </td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
-                                    {{ $alt->kode_produk ?? '-' }}
+                                    {{ $alt->kode_menu ?? '-' }}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 font-medium">{{ $alt->nama_produk ?? '-' }}</td>
+                            <td class="py-3 px-4 font-medium">{{ $alt->nama_menu ?? '-' }}</td>
                             <td class="py-3 px-4 text-center">
                                 <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                                    {{ ucfirst($alt->jenis_kulit ?? '-') }}
+                                    {{ ucfirst($alt->jenis_menu ?? '-') }}
                                 </span>
                             </td>
                             <td class="py-3 px-4 text-center">

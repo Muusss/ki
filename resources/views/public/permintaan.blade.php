@@ -41,10 +41,10 @@
             <!-- Nama Produk -->
             <div>
               <label class="block text-gray-700 font-medium mb-2">Nama Produk</label>
-              <input type="text" name="nama_produk" required maxlength="100"
+              <input type="text" name="nama_menu" required maxlength="100"
                      class="w-full px-4 py-3 rounded-2xl border border-pink-200 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all"
-                     placeholder="Contoh: Azarine Hydrasoothe" value="{{ old('nama_produk') }}">
-              @error('nama_produk')
+                     placeholder="Contoh: Azarine Hydrasoothe" value="{{ old('nama_menu') }}">
+              @error('nama_menu')
                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
               @enderror
             </div>
@@ -135,7 +135,7 @@
                   @foreach($permintaan as $item)
                     <tr class="border-b border-pink-100 hover:bg-pink-50 transition-colors {{ $item->status === 'rejected' ? 'bg-red-50/40' : '' }}">
                       <td class="py-3 px-4">{{ $loop->iteration }}</td>
-                      <td class="py-3 px-4 font-medium">{{ $item->nama_produk }}</td>
+                      <td class="py-3 px-4 font-medium">{{ $item->nama_menu }}</td>
                       <td class="py-3 px-4">
                         <div class="max-w-xs truncate text-sm text-gray-600">
                           {{ $item->komposisi }}

@@ -2,8 +2,8 @@
     <div class="h-19">
         <i class="ri-close-large-fill absolute right-0 top-0 cursor-pointer p-4 text-rose opacity-50 xl:hidden" sidenav-close></i>
         <a class="m-0 block whitespace-nowrap px-8 py-6 text-sm text-primary-color" href="{{ route("dashboard") }}">
-            <img src="{{ asset("img/logo.jpg") }}" class="ease-nav-brand inline w-16 rounded-lg transition-all duration-200 dark:hidden" alt="main_logo" />
-            <img src="{{ asset("img/logo.jpg") }}" class="ease-nav-brand hidden w-16 rounded-lg transition-all duration-200 dark:inline" alt="main_logo" />
+            <img src="{{ asset("img/buri-umah.jpeg") }}" class="ease-nav-brand inline w-16 rounded-lg transition-all duration-200 dark:hidden" alt="main_logo" />
+            <img src="{{ asset("img/buri-umah.jpeg") }}" class="ease-nav-brand hidden w-16 rounded-lg transition-all duration-200 dark:inline" alt="main_logo" />
             <span class="ease-nav-brand ml-2 font-bold transition-all duration-200 font-spaceGrotesk">Laravel SMART</span>
         </a>
     </div>

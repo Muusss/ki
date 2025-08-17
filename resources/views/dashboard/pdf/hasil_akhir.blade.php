@@ -173,8 +173,8 @@
                     <h4 style="margin: 0 0 5px; color: {{ $item->peringkat == 1 ? '#d4af37' : ($item->peringkat == 2 ? '#999' : '#cd7f32') }};">
                         Peringkat {{ $item->peringkat }}
                     </h4>
-                    <strong>{{ $alt->nama_produk ?? '-' }}</strong> ({{ $alt->kode_produk ?? '-' }})<br>
-                    Jenis Kulit: {{ ucfirst($alt->jenis_kulit ?? '-') }}<br>
+                    <strong>{{ $alt->nama_menu ?? '-' }}</strong> ({{ $alt->kode_menu ?? '-' }})<br>
+                    Jenis Kulit: {{ ucfirst($alt->jenis_menu ?? '-') }}<br>
                     Harga: @if($alt && $alt->harga) Rp {{ number_format($alt->harga, 0, ',', '.') }} @else - @endif<br>
                     SPF: {{ $alt->spf ?? '-' }}<br>
                     <strong>Nilai Total: {{ number_format($item->total, 4) }}</strong>
@@ -218,9 +218,9 @@
                         </div>
                     @endif
                 </td>
-                <td class="text-center">{{ $alt->kode_produk ?? '-' }}</td>
-                <td>{{ $alt->nama_produk ?? '-' }}</td>
-                <td class="text-center">{{ ucfirst($alt->jenis_kulit ?? '-') }}</td>
+                <td class="text-center">{{ $alt->kode_menu ?? '-' }}</td>
+                <td>{{ $alt->nama_menu ?? '-' }}</td>
+                <td class="text-center">{{ ucfirst($alt->jenis_menu ?? '-') }}</td>
                 <td class="text-center">
                     @if($alt && $alt->harga)
                         Rp {{ number_format($alt->harga, 0, ',', '.') }}
@@ -269,15 +269,15 @@
                     <table style="border: none; margin: 0;">
                         <tr>
                             <td style="border: none; width: 120px;"><strong>Nama Produk</strong></td>
-                            <td style="border: none;">: {{ $altTop->nama_produk ?? '-' }}</td>
+                            <td style="border: none;">: {{ $altTop->nama_menu ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td style="border: none;"><strong>Kode</strong></td>
-                            <td style="border: none;">: {{ $altTop->kode_produk ?? '-' }}</td>
+                            <td style="border: none;">: {{ $altTop->kode_menu ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td style="border: none;"><strong>Jenis Kulit</strong></td>
-                            <td style="border: none;">: {{ ucfirst($altTop->jenis_kulit ?? '-') }}</td>
+                            <td style="border: none;">: {{ ucfirst($altTop->jenis_menu ?? '-') }}</td>
                         </tr>
                         <tr>
                             <td style="border: none;"><strong>Harga</strong></td>

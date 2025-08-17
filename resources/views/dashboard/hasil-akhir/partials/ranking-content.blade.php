@@ -51,9 +51,9 @@
             
             <!-- Product Image -->
             <div class="product-image-container">
-                @if($produk->alternatif->gambar && file_exists(public_path('img/produk/'.$produk->alternatif->gambar)))
-                    <img src="{{ asset('img/produk/'.$produk->alternatif->gambar) }}" 
-                         alt="{{ $produk->alternatif->nama_produk ?? '-' }}"
+                @if($produk->alternatif->gambar && file_exists(public_path('img/menu/'.$produk->alternatif->gambar)))
+                    <img src="{{ asset('img/menu/'.$produk->alternatif->gambar) }}" 
+                         alt="{{ $produk->alternatif->nama_menu ?? '-' }}"
                          class="img-fluid">
                 @else
                     <div class="no-image">
@@ -65,12 +65,12 @@
             
             <!-- Product Info -->
             <div class="card-body text-center">
-                <h5 class="card-title mb-1">{{ $produk->alternatif->nama_produk ?? '-' }}</h5>
-                <p class="text-muted small mb-2">{{ $produk->alternatif->kode_produk ?? '-' }}</p>
+                <h5 class="card-title mb-1">{{ $produk->alternatif->nama_menu ?? '-' }}</h5>
+                <p class="text-muted small mb-2">{{ $produk->alternatif->kode_menu ?? '-' }}</p>
                 
                 <!-- Jenis Kulit Badge -->
                 @php
-                    $jenis = $produk->alternatif->jenis_kulit ?? '';
+                    $jenis = $produk->alternatif->jenis_menu ?? '';
                     $skinColor = match($jenis) {
                         'normal' => 'success',
                         'berminyak' => 'warning', 

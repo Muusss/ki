@@ -63,7 +63,7 @@
         @forelse ($permintaan as $row)
           <tr>
             <td>{{ $loop->iteration }}</td>
-            <td><strong>{{ $row->nama_produk }}</strong></td>
+            <td><strong>{{ $row->nama_menu }}</strong></td>
             <td class="text-break">
               <small>{{ Str::limit($row->komposisi, 100) }}</small>
               @if(strlen($row->komposisi) > 100)
@@ -183,13 +183,13 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Kode Produk</label>
-            <input type="text" class="form-control" name="kode_produk" id="add_kode_produk" placeholder="(Opsional) PRD001">
+            <input type="text" class="form-control" name="kode_menu" id="add_kode_menu" placeholder="(Opsional) PRD001">
             <small class="text-muted">Kosongkan untuk auto-generate.</small>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" name="nama_produk" id="add_nama_produk" required>
+            <input type="text" class="form-control" name="nama_menu" id="add_nama_menu" required>
           </div>
 
           <div class="mb-3">
@@ -201,7 +201,7 @@
 
           <div class="mb-3">
             <label class="form-label">Jenis Kulit <span class="text-danger">*</span></label>
-            <select class="form-select" name="jenis_kulit" id="add_jenis_kulit" required>
+            <select class="form-select" name="jenis_menu" id="add_jenis_menu" required>
               <option value="">Pilih...</option>
               <option value="normal">Normal</option>
               <option value="berminyak">Berminyak</option>
@@ -352,7 +352,7 @@ function openAddProduct(id){
   // Prefill dari data permintaan (GET edit -> JSON)
   $.get('{{ url("/permintaan") }}' + '/' + id + '/edit', function(data){
     $('#permintaan_id').val(id);
-    $('#add_nama_produk').val(data.nama_produk || '');
+    $('#add_nama_menu').val(data.nama_menu || '');
 
     // Default harga dari rentang
     let harga = 0, h = (data.harga || '').toString();
@@ -368,8 +368,8 @@ function openAddProduct(id){
     $('#add_gambar').val('');
     $('#preview_gambar').addClass('d-none').attr('src','');
 
-    $('#add_kode_produk').val('');
-    $('#add_jenis_kulit').val('');
+    $('#add_kode_menu').val('');
+    $('#add_jenis_menu').val('');
     $('#add_admin_notes').val('');
 
     $('#modalAddProduct').modal('show');

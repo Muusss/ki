@@ -59,7 +59,7 @@
                     <p>Produk Teratas</p>
                     @php
                         $first = isset($nilaiAkhir) && $nilaiAkhir->count() > 0 ? $nilaiAkhir->first() : null;
-                        $topName = $first ? $first->alternatif->nama_produk : '-';
+                        $topName = $first ? $first->alternatif->nama_menu : '-';
                     @endphp
                     <h6 class="mb-0">{{ $topName }}</h6>
                 </div>
@@ -74,8 +74,8 @@
                 <form action="{{ route('hasil-akhir') }}" method="GET" class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label class="form-label">Jenis Kulit</label>
-                        <select name="jenis_kulit" id="f_skin" class="form-select">
-                            @php $jenisReq = request('jenis_kulit','all'); @endphp
+                        <select name="jenis_menu" id="f_skin" class="form-select">
+                            @php $jenisReq = request('jenis_menu','all'); @endphp
                             <option value="all" {{ $jenisReq==='all' ? 'selected' : '' }}>Semua Jenis Kulit</option>
                             @foreach(($jenisKulitList ?? ['normal','berminyak','kering','kombinasi']) as $jenis)
                                 <option value="{{ $jenis }}" {{ $jenisReq===$jenis ? 'selected' : '' }}>
@@ -135,10 +135,10 @@
                     @php $alt = $item->alternatif ?? null; @endphp
                     <div class="top5-item product-card-mini h-100 mb-3">
                         <div class="product-image-mini">
-                            @if($alt && $alt->gambar && file_exists(public_path('img/produk/'.$alt->gambar)))
-                                <img src="{{ asset('img/produk/'.$alt->gambar) }}" alt="{{ $alt->nama_produk ?? '-' }}" class="img-fluid">
+                            @if($alt && $alt->gambar && file_exists(public_path('img/menu/'.$alt->gambar)))
+                                <img src="{{ asset('img/menu/'.$alt->gambar) }}" alt="{{ $alt->nama_menu ?? '-' }}" class="img-fluid">
                             @elseif($alt && method_exists($alt,'getAttribute') && $alt->has_gambar)
-                                <img src="{{ $alt->gambar_url }}" alt="{{ $alt->nama_produk ?? '-' }}" class="img-fluid">
+                                <img src="{{ $alt->gambar_url }}" alt="{{ $alt->nama_menu ?? '-' }}" class="img-fluid">
                             @else
                                 <div class="no-image-mini">
                                     <i class="bi bi-image"></i>
@@ -151,8 +151,8 @@
                         </div>
                         <div class="product-info-mini d-flex align-items-center justify-content-between">
                             <div class="me-2">
-                                <h6 class="product-name mb-0" title="{{ $alt->nama_produk ?? '-' }}">{{ $alt->nama_produk ?? '-' }}</h6>
-                                <small class="text-muted">{{ $alt->kode_produk ?? '-' }}</small>
+                                <h6 class="product-name mb-0" title="{{ $alt->nama_menu ?? '-' }}">{{ $alt->nama_menu ?? '-' }}</h6>
+                                <small class="text-muted">{{ $alt->kode_menu ?? '-' }}</small>
                             </div>
                             <span class="badge bg-primary">{{ number_format((float) ($item->total ?? 0), 3) }}</span>
                         </div>
@@ -194,7 +194,7 @@
                                 @foreach($nilaiAkhir as $row)
                                     @php
                                         $alt = $row->alternatif ?? null;
-                                        $jenis = $alt->jenis_kulit ?? '';
+                                        $jenis = $alt->jenis_menu ?? '';
                                         $skinColor = match($jenis) {
                                             'normal' => 'success',
                                             'berminyak' => 'warning',
@@ -208,16 +208,16 @@
                                             <span class="badge {{ $loop->iteration==1?'bg-warning text-dark':($loop->iteration==2?'bg-secondary':($loop->iteration==3?'bg-danger':'bg-info')) }} fs-6">{{ $loop->iteration }}</span>
                                         </td>
                                         <td>
-                                            @if($alt && $alt->gambar && file_exists(public_path('img/produk/'.$alt->gambar)))
-                                                <img src="{{ asset('img/produk/'.$alt->gambar) }}" class="table-image" alt="{{ $alt->nama_produk ?? '-' }}">
+                                            @if($alt && $alt->gambar && file_exists(public_path('img/menu/'.$alt->gambar)))
+                                                <img src="{{ asset('img/menu/'.$alt->gambar) }}" class="table-image" alt="{{ $alt->nama_menu ?? '-' }}">
                                             @elseif($alt && method_exists($alt,'getAttribute') && $alt->has_gambar)
-                                                <img src="{{ $alt->gambar_url }}" class="table-image" alt="{{ $alt->nama_produk ?? '-' }}">
+                                                <img src="{{ $alt->gambar_url }}" class="table-image" alt="{{ $alt->nama_menu ?? '-' }}">
                                             @else
                                                 <div class="table-no-image"><i class="bi bi-image"></i></div>
                                             @endif
                                         </td>
-                                        <td><span class="badge bg-primary">{{ $alt->kode_produk ?? '-' }}</span></td>
-                                        <td><strong>{{ $alt->nama_produk ?? '-' }}</strong></td>
+                                        <td><span class="badge bg-primary">{{ $alt->kode_menu ?? '-' }}</span></td>
+                                        <td><strong>{{ $alt->nama_menu ?? '-' }}</strong></td>
                                         <td><span class="badge bg-{{ $skinColor }}">{{ ucfirst($jenis ?: '-') }}</span></td>
                                         <td>
                                             @if(!is_null($alt?->spf) && $alt->spf!=='')
@@ -274,11 +274,11 @@
                 </div>
                 <div class="row g-3" id="productShowcase">
                     @php
-                        $products = \App\Models\Alternatif::orderBy('kode_produk')->limit(12)->get();
+                        $products = \App\Models\Alternatif::orderBy('kode_menu')->limit(12)->get();
                     @endphp
                     @forelse($products as $p)
                         @php
-                            $skinColor = match($p->jenis_kulit) {
+                            $skinColor = match($p->jenis_menu) {
                                 'normal' => 'success',
                                 'berminyak' => 'warning',
                                 'kering' => 'info',
@@ -289,22 +289,22 @@
                         <div class="col-xl-3 col-lg-4 col-md-6 product-item">
                             <div class="product-card h-100">
                                 <div class="product-image">
-                                    @if($p->gambar && file_exists(public_path('img/produk/'.$p->gambar)))
-                                        <img src="{{ asset('img/produk/'.$p->gambar) }}" alt="{{ $p->nama_produk }}">
+                                    @if($p->gambar && file_exists(public_path('img/menu/'.$p->gambar)))
+                                        <img src="{{ asset('img/menu/'.$p->gambar) }}" alt="{{ $p->nama_menu }}">
                                     @elseif(method_exists($p,'getAttribute') && $p->has_gambar)
-                                        <img src="{{ $p->gambar_url }}" alt="{{ $p->nama_produk }}">
+                                        <img src="{{ $p->gambar_url }}" alt="{{ $p->nama_menu }}">
                                     @else
                                         <div class="no-image">
                                             <i class="bi bi-image"></i>
                                             <span>No Image</span>
                                         </div>
                                     @endif
-                                    <span class="badge-code">{{ $p->kode_produk }}</span>
+                                    <span class="badge-code">{{ $p->kode_menu }}</span>
                                 </div>
                                 <div class="product-content">
-                                    <h6 class="product-title" title="{{ $p->nama_produk }}">{{ $p->nama_produk }}</h6>
+                                    <h6 class="product-title" title="{{ $p->nama_menu }}">{{ $p->nama_menu }}</h6>
                                     <div class="product-meta">
-                                        <span class="badge bg-{{ $skinColor }}"><i class="bi bi-droplet-fill"></i> {{ ucfirst($p->jenis_kulit) }}</span>
+                                        <span class="badge bg-{{ $skinColor }}"><i class="bi bi-droplet-fill"></i> {{ ucfirst($p->jenis_menu) }}</span>
                                         @if(!is_null($p->harga))
                                             <span class="badge bg-light text-success border"><i class="bi bi-cash"></i> Rp {{ number_format($p->harga,0,',','.') }}</span>
                                         @endif

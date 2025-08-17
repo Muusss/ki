@@ -200,7 +200,7 @@
                                 @forelse(($alternatif ?? collect())->take(10) as $alt)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $alt->nama_produk }}</td>
+                                    <td>{{ $alt->nama_menu }}</td>
                                     @forelse(($kriteria ?? []) as $k)
                                         @php
                                             $nilai = isset($penilaian) ? $penilaian->where('alternatif_id', $alt->id)
@@ -277,7 +277,7 @@
                                 <tr>
                                     <td>
                                         <p class="text-left align-middle text-base font-semibold leading-tight">
-                                            {{ $alt->nama_produk }}
+                                            {{ $alt->nama_menu }}
                                         </p>
                                     </td>
                                     @foreach ($kriteria as $krit)

@@ -48,9 +48,9 @@
                 <tbody>
                 @forelse($alternatif as $alt)
                     <tr>
-                        <td>{{ ($alt->kode_produk ?? '-') . ' - ' . ($alt->nama_produk ?? '-') }}</td>
-                        <td class="text-capitalize" data-skin="{{ $alt->jenis_kulit ?? '' }}">
-                            {{ $alt->jenis_kulit ? ucfirst($alt->jenis_kulit) : '-' }}
+                        <td>{{ ($alt->kode_menu ?? '-') . ' - ' . ($alt->nama_menu ?? '-') }}</td>
+                        <td class="text-capitalize" data-skin="{{ $alt->jenis_menu ?? '' }}">
+                            {{ $alt->jenis_menu ? ucfirst($alt->jenis_menu) : '-' }}
                         </td>
 
                         @forelse($kriteria as $k)
@@ -77,7 +77,7 @@
                                 type="button"
                                 class="btn btn-sm btn-warning"
                                 data-id="{{ (int) $alt->id }}"
-                                data-name="{{ $alt->nama_produk }}"
+                                data-name="{{ $alt->nama_menu }}"
                                 data-url="{{ route('penilaian.edit', ['id' => $alt->id]) }}"
                                 onclick="editPenilaian(this)">
                                 Edit
@@ -102,7 +102,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Penilaian: <span id="nama_produk">-</span></h5>
+                <h5 class="modal-title">Edit Penilaian: <span id="nama_menu">-</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body">
@@ -184,7 +184,7 @@ function editPenilaian(btn) {
     const url  = $btn.data('url');
 
     const $modal = $('#modalPenilaian');
-    $modal.find('#nama_produk').text(nama);
+    $modal.find('#nama_menu').text(nama);
     $modal.find('.modal-body').html('<div class="text-center py-4">Memuat formulir...</div>');
     $modal.modal('show');
 

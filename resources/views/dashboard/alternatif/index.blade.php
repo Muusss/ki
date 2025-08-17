@@ -8,18 +8,18 @@
         <div class="row align-items-center">
             <div class="col-sm-6">
                 <h3 class="page-title mb-0">
-                    <i class="bi bi-box-seam text-primary"></i> Data Produk Sunscreen
+                    <i class="bi bi-cup-hot text-primary"></i> Data Menu Cafe
                 </h3>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0 mt-2">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Produk</li>
+                        <li class="breadcrumb-item active">Menu</li>
                     </ol>
                 </nav>
             </div>
             <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                 <button class="btn btn-primary btn-rounded shadow-sm" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="create_button()">
-                    <i class="bi bi-plus-circle me-2"></i>Tambah Produk
+                    <i class="bi bi-plus-circle me-2"></i>Tambah Menu
                 </button>
             </div>
         </div>
@@ -30,44 +30,44 @@
         <div class="col-xl-3 col-md-6 mb-3">
             <div class="stats-card bg-gradient-primary">
                 <div class="stats-icon">
-                    <i class="bi bi-box-seam"></i>
+                    <i class="bi bi-cup-hot"></i>
                 </div>
                 <div class="stats-content">
-                    <h4>{{ $alternatif->count() }}</h4>
-                    <p>Total Produk</p>
+                    <h4>{{ $items->total() ?? 0 }}</h4>
+                    <p>Total Menu</p>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
             <div class="stats-card bg-gradient-success">
                 <div class="stats-icon">
-                    <i class="bi bi-droplet"></i>
+                    <i class="bi bi-egg-fried"></i>
                 </div>
                 <div class="stats-content">
-                    <h4>{{ $alternatif->where('jenis_kulit', 'normal')->count() }}</h4>
-                    <p>Kulit Normal</p>
+                    <h4>{{ $items->where('jenis_menu', 'makanan')->count() ?? 0 }}</h4>
+                    <p>Makanan</p>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
             <div class="stats-card bg-gradient-warning">
                 <div class="stats-icon">
-                    <i class="bi bi-droplet-half"></i>
+                    <i class="bi bi-cup-straw"></i>
                 </div>
                 <div class="stats-content">
-                    <h4>{{ $alternatif->where('jenis_kulit', 'berminyak')->count() }}</h4>
-                    <p>Kulit Berminyak</p>
+                    <h4>{{ $items->where('jenis_menu', 'coffee')->count() + $items->where('jenis_menu', 'milkshake')->count() + $items->where('jenis_menu', 'mojito')->count() ?? 0 }}</h4>
+                    <p>Minuman</p>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
             <div class="stats-card bg-gradient-info">
                 <div class="stats-icon">
-                    <i class="bi bi-moisture"></i>
+                    <i class="bi bi-cookie"></i>
                 </div>
                 <div class="stats-content">
-                    <h4>{{ $alternatif->where('jenis_kulit', 'kering')->count() }}</h4>
-                    <p>Kulit Kering</p>
+                    <h4>{{ $items->where('jenis_menu', 'cemilan')->count() ?? 0 }}</h4>
+                    <p>Cemilan</p>
                 </div>
             </div>
         </div>
@@ -79,7 +79,7 @@
             <div class="col-md-6">
                 <div class="search-box">
                     <i class="bi bi-search search-icon"></i>
-                    <input type="text" id="searchInput" class="form-control" placeholder="Cari produk...">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Cari menu...">
                 </div>
             </div>
             <div class="col-md-6 text-md-end mt-3 mt-md-0">
@@ -92,17 +92,21 @@
                     </button>
                 </div>
                 
+                {{-- Filter Jenis Menu --}}
                 <div class="btn-group ms-2" role="group">
                     <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="bi bi-funnel"></i> Filter
+                        <i class="bi bi-funnel"></i> Jenis Menu
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item filter-skin" href="#" data-filter="all">Semua Jenis</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="all">Semua Menu</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item filter-skin" href="#" data-filter="normal">Kulit Normal</a></li>
-                        <li><a class="dropdown-item filter-skin" href="#" data-filter="berminyak">Kulit Berminyak</a></li>
-                        <li><a class="dropdown-item filter-skin" href="#" data-filter="kering">Kulit Kering</a></li>
-                        <li><a class="dropdown-item filter-skin" href="#" data-filter="kombinasi">Kulit Kombinasi</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="makanan">Makanan</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="cemilan">Cemilan</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="coffee">Coffee</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="milkshake">Milkshake</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="mojito">Mojito</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="yakult">Yakult</a></li>
+                        <li><a class="dropdown-item filter-jenis" href="#" data-filter="tea">Tea</a></li>
                     </ul>
                 </div>
 
@@ -112,107 +116,89 @@
                         <i class="bi bi-cash"></i> Harga
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item filter-price" href="#" data-min="0" data-max="">Semua</a></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-filter="all">Semua</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item filter-price" href="#" data-min="0" data-max="50000">< Rp 50.000</a></li>
-                        <li><a class="dropdown-item filter-price" href="#" data-min="50000" data-max="100000">Rp 50.000 - 100.000</a></li>
-                        <li><a class="dropdown-item filter-price" href="#" data-min="100000" data-max="">> Rp 100.000</a></li>
-                    </ul>
-                </div>
-
-                {{-- Filter SPF --}}
-                <div class="btn-group ms-2" role="group">
-                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="bi bi-sun"></i> SPF
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item filter-spf" href="#" data-spf="all">Semua</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item filter-spf" href="#" data-spf="30">SPF 30</a></li>
-                        <li><a class="dropdown-item filter-spf" href="#" data-spf="35">SPF 35</a></li>
-                        <li><a class="dropdown-item filter-spf" href="#" data-spf="40">SPF 40</a></li>
-                        <li><a class="dropdown-item filter-spf" href="#" data-spf="50">SPF 50</a></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-filter="<=20000">≤ Rp 20.000</a></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-filter=">20000-<=25000">Rp 20.001 - 25.000</a></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-filter=">25000-<=30000">Rp 25.001 - 30.000</a></li>
+                        <li><a class="dropdown-item filter-price" href="#" data-filter=">30000">> Rp 30.000</a></li>
                     </ul>
                 </div>
             </div>
         </div>
-        </div>
-        <div class="row mt-2">
-    <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <div class="chips">
-        <span id="chip-search" class="chip" aria-hidden="true">
-            <i class="bi bi-search"></i><span class="chip-text"></span>
-            <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-search',()=>{ currentFilters.search=''; $('#searchInput').val(''); })" aria-label="Hapus filter pencarian">
-            <i class="bi bi-x-lg"></i>
-            </button>
-        </span>
-        <span id="chip-skin" class="chip" aria-hidden="true">
-            <i class="bi bi-droplet"></i><span class="chip-text"></span>
-            <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-skin',()=> currentFilters.skin='all')" aria-label="Hapus filter kulit">
-            <i class="bi bi-x-lg"></i>
-            </button>
-        </span>
-        <span id="chip-price" class="chip" aria-hidden="true">
-            <i class="bi bi-cash"></i><span class="chip-text"></span>
-            <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-price',()=>{ currentFilters.priceMin=0; currentFilters.priceMax=null; })" aria-label="Hapus filter harga">
-            <i class="bi bi-x-lg"></i>
-            </button>
-        </span>
-        <span id="chip-spf" class="chip" aria-hidden="true">
-            <i class="bi bi-sun"></i><span class="chip-text"></span>
-            <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-spf',()=> currentFilters.spf='all')" aria-label="Hapus filter SPF">
-            <i class="bi bi-x-lg"></i>
-            </button>
-        </span>
-        </div>
-        <div id="resultCount" class="result-count">0 produk ditampilkan</div>
     </div>
+
+    {{-- Filter Chips --}}
+    <div class="row mt-2">
+        <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="chips">
+                <span id="chip-search" class="chip" aria-hidden="true">
+                    <i class="bi bi-search"></i><span class="chip-text"></span>
+                    <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-search',()=>{ currentFilters.search=''; $('#searchInput').val(''); })" aria-label="Hapus filter pencarian">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </span>
+                <span id="chip-jenis" class="chip" aria-hidden="true">
+                    <i class="bi bi-cup-hot"></i><span class="chip-text"></span>
+                    <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-jenis',()=> currentFilters.jenis='all')" aria-label="Hapus filter jenis">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </span>
+                <span id="chip-price" class="chip" aria-hidden="true">
+                    <i class="bi bi-cash"></i><span class="chip-text"></span>
+                    <button class="btn btn-link btn-sm p-0 ms-2" onclick="clearChip('#chip-price',()=> currentFilters.price='all')" aria-label="Hapus filter harga">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </span>
+            </div>
+            <div id="resultCount" class="result-count">0 menu ditampilkan</div>
+        </div>
     </div>
 
     {{-- Grid View --}}
     <div id="gridView" class="row product-grid">
-        @forelse ($alternatif as $row)
+        @forelse ($items as $row)
         <div class="col-xl-3 col-lg-4 col-md-6 mb-4 product-item" 
-             data-skin="{{ $row->jenis_kulit }}"
-             data-price="{{ $row->harga ?? 0 }}"
-             data-spf="{{ $row->spf ?? 0 }}">
+             data-jenis="{{ $row->jenis_menu }}"
+             data-price="{{ $row->harga }}">
             <div class="product-card h-100">
                 <div class="product-image">
                     @if($row->gambar)
-                        <img src="{{ asset('img/produk/' . $row->gambar) }}" alt="{{ $row->nama_produk }}" loading="lazy">
+                        <img src="{{ asset('img/menu/' . $row->gambar) }}" alt="{{ $row->nama_menu }}" loading="lazy">
                     @else
                         <div class="no-image">
                             <i class="bi bi-image"></i>
                             <span>No Image</span>
                         </div>
                     @endif
-                    <span class="badge-code">{{ $row->kode_produk }}</span>
+                    <span class="badge-code">{{ $row->kode_menu }}</span>
                 </div>
                 <div class="product-content">
-                    <h5 class="product-title">{{ $row->nama_produk }}</h5>
+                    <h5 class="product-title">{{ $row->nama_menu }}</h5>
                     <div class="product-meta mb-2">
-                        {{-- Jenis Kulit --}}
-                        <span class="skin-type badge bg-{{ 
-                            $row->jenis_kulit == 'normal' ? 'success' : 
-                            ($row->jenis_kulit == 'berminyak' ? 'warning' : 
-                            ($row->jenis_kulit == 'kering' ? 'info' : 'secondary')) 
+                        {{-- Jenis Menu --}}
+                        <span class="badge bg-{{ 
+                            $row->jenis_menu == 'makanan' ? 'success' : 
+                            ($row->jenis_menu == 'cemilan' ? 'warning' : 
+                            ($row->jenis_menu == 'coffee' ? 'dark' : 
+                            ($row->jenis_menu == 'milkshake' ? 'info' : 
+                            ($row->jenis_menu == 'mojito' ? 'danger' : 
+                            ($row->jenis_menu == 'yakult' ? 'primary' : 'secondary'))))) 
                         }}">
-                            <i class="bi bi-droplet-fill"></i> {{ ucfirst($row->jenis_kulit) }}
+                            <i class="bi bi-{{ 
+                                $row->jenis_menu == 'makanan' ? 'egg-fried' : 
+                                ($row->jenis_menu == 'cemilan' ? 'cookie' : 
+                                ($row->jenis_menu == 'coffee' ? 'cup-hot-fill' : 
+                                ($row->jenis_menu == 'milkshake' ? 'cup-straw' : 
+                                ($row->jenis_menu == 'mojito' ? 'tropical-drink' : 
+                                ($row->jenis_menu == 'yakult' ? 'cup' : 'cup-fill'))))) 
+                            }}"></i> {{ $row->jenis_menu_label }}
                         </span>
 
-                        {{-- Harga (tampilkan jika ada) --}}
-                        @if(!is_null($row->harga))
-                            <span class="badge bg-light text-success border ms-1">
-                                <i class="bi bi-cash"></i> Rp {{ number_format($row->harga, 0, ',', '.') }}
-                            </span>
-                        @endif
-
-                        {{-- SPF (tampilkan jika ada) --}}
-                        @if(!is_null($row->spf) && $row->spf !== '')
-                            <span class="badge bg-warning text-dark ms-1">
-                                <i class="bi bi-sun"></i> SPF {{ $row->spf }}
-                            </span>
-                        @endif
+                        {{-- Harga --}}
+                        <span class="badge bg-light text-success border ms-1">
+                            <i class="bi bi-cash"></i> {{ $row->harga_label }}
+                        </span>
                     </div>
                     <div class="product-actions">
                         <button class="btn btn-sm btn-outline-warning" 
@@ -225,7 +211,7 @@
                             @csrf
                             <input type="hidden" name="id" value="{{ $row->id }}">
                             <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirmDelete('{{ $row->nama_produk }}')">
+                                    onclick="return confirmDelete('{{ $row->nama_menu }}')">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -237,10 +223,10 @@
         <div class="col-12">
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
-                <h4>Belum Ada Data Produk</h4>
-                <p>Mulai tambahkan produk sunscreen untuk sistem rekomendasi</p>
+                <h4>Belum Ada Data Menu</h4>
+                <p>Mulai tambahkan menu untuk sistem rekomendasi</p>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="create_button()">
-                    <i class="bi bi-plus-circle"></i> Tambah Produk Pertama
+                    <i class="bi bi-plus-circle"></i> Tambah Menu Pertama
                 </button>
             </div>
         </div>
@@ -256,24 +242,22 @@
                         <th width="60">#</th>
                         <th width="100">Gambar</th>
                         <th>Kode</th>
-                        <th>Nama Produk</th>
-                        <th>Jenis Kulit</th>
+                        <th>Nama Menu</th>
+                        <th>Jenis Menu</th>
                         <th>Harga</th>
-                        <th>SPF</th>
                         <th width="120" class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($alternatif as $row)
+                    @forelse ($items as $row)
                     <tr class="product-item" 
-                        data-skin="{{ $row->jenis_kulit }}"
-                        data-price="{{ $row->harga ?? 0 }}"
-                        data-spf="{{ $row->spf ?? 0 }}">
+                        data-jenis="{{ $row->jenis_menu }}"
+                        data-price="{{ $row->harga }}">
                         <td>{{ $loop->iteration }}</td>
                         <td>
                             @if($row->has_gambar)
                                 <img src="{{ $row->gambar_url }}" 
-                                     alt="{{ $row->nama_produk }}" 
+                                     alt="{{ $row->nama_menu }}" 
                                      class="table-image"
                                      loading="lazy">
                             @else
@@ -282,30 +266,19 @@
                                 </div>
                             @endif
                         </td>
-                        <td><span class="badge bg-primary">{{ $row->kode_produk }}</span></td>
-                        <td><strong>{{ $row->nama_produk }}</strong></td>
+                        <td><span class="badge bg-primary">{{ $row->kode_menu }}</span></td>
+                        <td><strong>{{ $row->nama_menu }}</strong></td>
                         <td>
                             <span class="badge bg-{{ 
-                                $row->jenis_kulit == 'normal' ? 'success' : 
-                                ($row->jenis_kulit == 'berminyak' ? 'warning' : 
-                                ($row->jenis_kulit == 'kering' ? 'info' : 'secondary')) 
+                                $row->jenis_menu == 'makanan' ? 'success' : 
+                                ($row->jenis_menu == 'cemilan' ? 'warning' : 
+                                ($row->jenis_menu == 'coffee' ? 'dark' : 'info')) 
                             }}">
-                                {{ ucfirst($row->jenis_kulit) }}
+                                {{ $row->jenis_menu_label }}
                             </span>
                         </td>
                         <td>
-                            @if(!is_null($row->harga))
-                                <span class="text-success">Rp {{ number_format($row->harga, 0, ',', '.') }}</span>
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if(!is_null($row->spf) && $row->spf !== '')
-                                <span class="badge bg-warning text-dark">SPF {{ $row->spf }}</span>
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
+                            <span class="text-success">{{ $row->harga_label }}</span>
                         </td>
                         <td class="text-center">
                             <div class="btn-group">
@@ -319,7 +292,7 @@
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $row->id }}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                            onclick="return confirmDelete('{{ $row->nama_produk }}')">
+                                            onclick="return confirmDelete('{{ $row->nama_menu }}')">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
@@ -328,7 +301,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <div class="empty-state">
                                 <i class="bi bi-inbox"></i>
                                 <h4>Belum Ada Data</h4>
@@ -340,6 +313,13 @@
             </table>
         </div>
     </div>
+
+    {{-- Pagination --}}
+    @if($items->hasPages())
+    <div class="d-flex justify-content-center mt-4">
+        {{ $items->links() }}
+    </div>
+    @endif
 </div>
 
 {{-- Modern Modal --}}
@@ -352,7 +332,7 @@
                 
                 <div class="modal-header border-0 bg-gradient-primary text-white">
                     <h5 class="modal-title" id="modalTitle">
-                        <i class="bi bi-plus-circle"></i> Tambah Produk
+                        <i class="bi bi-plus-circle"></i> Tambah Menu
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -361,14 +341,14 @@
                     {{-- Image Upload Section --}}
                     <div class="image-upload-section mb-4">
                         <label class="form-label fw-bold">
-                            <i class="bi bi-image text-primary"></i> Gambar Produk
+                            <i class="bi bi-image text-primary"></i> Gambar Menu
                         </label>
                         <div class="image-upload-container">
                             <input type="file" 
                                    id="imageInput" 
                                    name="gambar" 
                                    class="d-none" 
-                                   accept="image/jpeg,image/jpg,image/png"
+                                   accept="image/jpeg,image/jpg,image/png,image/webp"
                                    onchange="handleImageSelect(this)">
                             
                             <div class="image-preview" id="imagePreview" onclick="document.getElementById('imageInput').click()">
@@ -376,7 +356,7 @@
                                 <div class="upload-placeholder" id="uploadPlaceholder">
                                     <i class="bi bi-cloud-arrow-up"></i>
                                     <p>Klik untuk upload gambar</p>
-                                    <small>JPG, PNG (Max: 2MB)</small>
+                                    <small>JPG, PNG, WebP (Max: 2MB)</small>
                                 </div>
                             </div>
                             
@@ -396,12 +376,12 @@
                             <div class="form-floating">
                                 <input type="text" 
                                        class="form-control" 
-                                       id="kode_produk"
-                                       name="kode_produk" 
+                                       id="kode_menu"
+                                       name="kode_menu" 
                                        placeholder="Kode"
                                        required>
-                                <label for="kode_produk">
-                                    <i class="bi bi-upc"></i> Kode Produk
+                                <label for="kode_menu">
+                                    <i class="bi bi-upc"></i> Kode Menu
                                 </label>
                             </div>
                         </div>
@@ -410,55 +390,48 @@
                             <div class="form-floating">
                                 <input type="text" 
                                        class="form-control" 
-                                       id="nama_produk"
-                                       name="nama_produk" 
+                                       id="nama_menu"
+                                       name="nama_menu" 
                                        placeholder="Nama"
                                        required>
-                                <label for="nama_produk">
-                                    <i class="bi bi-box"></i> Nama Produk
+                                <label for="nama_menu">
+                                    <i class="bi bi-cup-hot"></i> Nama Menu
                                 </label>
                             </div>
                         </div>
                         
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <div class="form-floating">
                                 <select class="form-select" 
-                                        id="jenis_kulit"
-                                        name="jenis_kulit" 
+                                        id="jenis_menu"
+                                        name="jenis_menu" 
                                         required>
-                                    <option value="">Pilih jenis kulit...</option>
-                                    <option value="normal">Normal</option>
-                                    <option value="berminyak">Berminyak</option>
-                                    <option value="kering">Kering</option>
-                                    <option value="kombinasi">Kombinasi</option>
+                                    <option value="">Pilih jenis menu...</option>
+                                    <option value="makanan">Makanan</option>
+                                    <option value="cemilan">Cemilan</option>
+                                    <option value="coffee">Coffee</option>
+                                    <option value="milkshake">Milkshake</option>
+                                    <option value="mojito">Mojito</option>
+                                    <option value="yakult">Yakult</option>
+                                    <option value="tea">Tea</option>
                                 </select>
-                                <label for="jenis_kulit">
-                                    <i class="bi bi-droplet"></i> Jenis Kulit
+                                <label for="jenis_menu">
+                                    <i class="bi bi-tags"></i> Jenis Menu
                                 </label>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input type="number" class="form-control" id="harga"
-                                       name="harga" placeholder="Harga" min="0">
+                                <select class="form-select" id="harga" name="harga" required>
+                                    <option value="">Pilih kategori harga...</option>
+                                    <option value="<=20000">≤ Rp 20.000</option>
+                                    <option value=">20000-<=25000">Rp 20.001 - Rp 25.000</option>
+                                    <option value=">25000-<=30000">Rp 25.001 - Rp 30.000</option>
+                                    <option value=">30000">> Rp 30.000</option>
+                                </select>
                                 <label for="harga">
-                                    <i class="bi bi-cash"></i> Harga (Rp)
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <select class="form-select" id="spf" name="spf">
-                                    <option value="">Pilih SPF...</option>
-                                    <option value="30">SPF 30</option>
-                                    <option value="35">SPF 35</option>
-                                    <option value="40">SPF 40</option>
-                                    <option value="50">SPF 50</option>
-                                </select>
-                                <label for="spf">
-                                    <i class="bi bi-sun"></i> SPF Protection
+                                    <i class="bi bi-cash"></i> Kategori Harga
                                 </label>
                             </div>
                         </div>
@@ -488,6 +461,7 @@
 
 @section('css')
 <style>
+/* Keep the existing styles from the original file */
 /* =============== Design Tokens =============== */
 :root{
   --radius:16px;
@@ -501,11 +475,14 @@
   --shadow-sm:0 4px 10px rgba(17,24,39,.08);
   --shadow-md:0 8px 24px rgba(17,24,39,.12);
   --transition:all .25s cubic-bezier(.22,.61,.36,1);
-  --grad-primary:linear-gradient(135deg,#7069f4 0%,#9c68f5 100%);
+  --grad-primary:linear-gradient(135deg,#8B4513 0%,#D2691E 100%);
   --grad-success:linear-gradient(135deg,#34d399 0%,#22c55e 100%);
   --grad-warning:linear-gradient(135deg,#f59e0b 0%,#fbbf24 100%);
   --grad-info:linear-gradient(135deg,#60a5fa 0%,#38bdf8 100%);
 }
+
+/* Keep all other existing styles... */
+/* Page Header, Stats, Product Cards, etc. */
 
 /* =============== Page Header =============== */
 .page-header{
@@ -517,7 +494,7 @@
 }
 .page-title{color:var(--text);font-weight:800;letter-spacing:.2px}
 .breadcrumb{--bs-breadcrumb-divider: "›"; font-size:.925rem}
-.breadcrumb a{color:#6670f0}
+.breadcrumb a{color:#8B4513}
 .breadcrumb .active{color:var(--muted)}
 
 /* =============== Stats =============== */
@@ -579,7 +556,7 @@
   padding-left:40px; border-radius:999px; border:1.5px solid var(--line); height:42px;
   transition:var(--transition); background:#fff
 }
-.search-box input:focus{border-color:#8d8df6; box-shadow:0 0 0 6px rgba(141,141,246,.08)}
+.search-box input:focus{border-color:#8B4513; box-shadow:0 0 0 6px rgba(139,69,19,.08)}
 
 /* =============== Product Card =============== */
 .product-card{
@@ -590,7 +567,7 @@
 .product-card:hover{transform:translateY(-6px); box-shadow:var(--shadow-md)}
 .product-card::before{
   content:""; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(180deg,rgba(112,105,244,.08),transparent 35%);
+  background:linear-gradient(180deg,rgba(139,69,19,.08),transparent 35%);
   opacity:0; transition:var(--transition);
 }
 .product-card:hover::before{opacity:1}
@@ -632,9 +609,10 @@
 .image-preview{
   width:100%; max-width:420px; height:260px; margin:0 auto;
   border:2px dashed #dfe6f0; border-radius:var(--radius);
-  display:flex; align-items:center; justify-content:center; background:#fafbff; transition:var(--transition)
+  display:flex; align-items:center; justify-content:center; background:#fafbff; transition:var(--transition);
+  cursor: pointer;
 }
-.image-preview:hover{border-color:#8d8df6; background:#f4f6ff}
+.image-preview:hover{border-color:#8B4513; background:#f4f6ff}
 .image-preview img{width:100%; height:100%; object-fit:contain; border-radius:12px}
 .upload-placeholder{color:#8a94a6}
 .upload-placeholder i{font-size:2.6rem; color:#d3daea}
@@ -655,7 +633,7 @@
 /* =============== Buttons =============== */
 .btn-rounded{border-radius:999px}
 .btn-outline-secondary.active, .btn-outline-secondary[aria-pressed="true"]{
-  background:#eef1ff; border-color:#cfd5ff; color:#4f58f7;
+  background:#fff8dc; border-color:#D2691E; color:#8B4513;
 }
 
 /* =============== Animations =============== */
@@ -669,7 +647,6 @@
 </style>
 @endsection
 
-
 @section('js')
 <script>
 // =============== Utils ===============
@@ -679,10 +656,8 @@ const debounce = (fn, wait=250) => {
 
 // =============== State ===============
 let currentFilters = {
-  skin: 'all',
-  priceMin: 0,
-  priceMax: null,
-  spf: 'all',
+  jenis: 'all',
+  price: 'all',
   search: ''
 };
 
@@ -699,34 +674,31 @@ $(function(){
   $('#gridViewBtn').on('click', ()=>toggleView('grid'));
   $('#listViewBtn').on('click', ()=>toggleView('list'));
 
-  // Skin
-  $('.filter-skin').on('click', function(e){
+  // Jenis Menu Filter
+  $('.filter-jenis').on('click', function(e){
     e.preventDefault();
-    currentFilters.skin = $(this).data('filter');
+    currentFilters.jenis = $(this).data('filter');
     applyFilters();
-    setChip('#chip-skin', currentFilters.skin==='all' ? null : `Kulit: ${capitalize(currentFilters.skin)}`);
+    setChip('#chip-jenis', currentFilters.jenis==='all' ? null : `Jenis: ${capitalize(currentFilters.jenis)}`);
   });
 
-  // Price
+  // Price Filter
   $('.filter-price').on('click', function(e){
     e.preventDefault();
-    currentFilters.priceMin = parseInt($(this).data('min')) || 0;
-    currentFilters.priceMax = $(this).data('max') ? parseInt($(this).data('max')) : null;
+    currentFilters.price = $(this).data('filter');
     applyFilters();
-
-    let label = 'Harga: Semua';
-    if(currentFilters.priceMax===null && currentFilters.priceMin>0) label = `Harga ≥ Rp ${formatIDR(currentFilters.priceMin)}`;
-    if(currentFilters.priceMax!==null && currentFilters.priceMin===0) label = `Harga ≤ Rp ${formatIDR(currentFilters.priceMax)}`;
-    if(currentFilters.priceMax!==null && currentFilters.priceMin>0) label = `Harga Rp ${formatIDR(currentFilters.priceMin)}–${formatIDR(currentFilters.priceMax)}`;
-    setChip('#chip-price', (currentFilters.priceMin===0 && currentFilters.priceMax===null) ? null : label);
-  });
-
-  // SPF
-  $('.filter-spf').on('click', function(e){
-    e.preventDefault();
-    currentFilters.spf = $(this).data('spf');
-    applyFilters();
-    setChip('#chip-spf', currentFilters.spf==='all' ? null : `SPF ${currentFilters.spf}`);
+    
+    let label = null;
+    if (currentFilters.price !== 'all') {
+        const priceLabels = {
+            '<=20000': '≤ Rp 20.000',
+            '>20000-<=25000': 'Rp 20.001-25.000',
+            '>25000-<=30000': 'Rp 25.001-30.000',
+            '>30000': '> Rp 30.000'
+        };
+        label = `Harga: ${priceLabels[currentFilters.price] || currentFilters.price}`;
+    }
+    setChip('#chip-price', label);
   });
 
   // Search
@@ -757,19 +729,12 @@ function applyFilters(){
     let show = true;
     const $item = $(this);
 
-    // Skin
-    if(currentFilters.skin!=='all' && ($item.data('skin') !== currentFilters.skin)) show = false;
+    // Jenis Filter
+    if(currentFilters.jenis!=='all' && ($item.data('jenis') !== currentFilters.jenis)) show = false;
 
-    // Price
-    const price = parseInt($item.data('price')) || 0;
-    if(currentFilters.priceMin && price < currentFilters.priceMin) show = false;
-    if(currentFilters.priceMax!==null && price > currentFilters.priceMax) show = false;
-
-    // SPF
-    if(currentFilters.spf!=='all'){
-      const itemSpf = String($item.data('spf')||'');
-      if(itemSpf != String(currentFilters.spf)) show = false;
-    }
+    // Price Filter
+    const price = $item.data('price');
+    if(currentFilters.price!=='all' && price !== currentFilters.price) show = false;
 
     // Search
     if(currentFilters.search){
@@ -782,7 +747,7 @@ function applyFilters(){
   });
 
   // Update counter
-  $('#resultCount').text(`${visible} produk ditampilkan`);
+  $('#resultCount').text(`${visible} menu ditampilkan`);
 }
 
 // =============== Chips helper ===============
@@ -801,13 +766,13 @@ function clearChip(selector, clearFn){
 function handleImageSelect(input){
   if(input.files && input.files[0]){
     const file = input.files[0];
-    const validTypes = ['image/jpeg','image/jpg','image/png'];
+    const validTypes = ['image/jpeg','image/jpg','image/png','image/webp'];
     if(!validTypes.includes(file.type)){
-      Swal.fire({icon:'error',title:'Format Tidak Valid',text:'Hanya JPG & PNG',confirmButtonColor:'#667eea'});
+      Swal.fire({icon:'error',title:'Format Tidak Valid',text:'Hanya JPG, PNG & WebP',confirmButtonColor:'#8B4513'});
       input.value = ''; return;
     }
     if(file.size > 2*1024*1024){
-      Swal.fire({icon:'error',title:'File Terlalu Besar',text:'Maksimal 2MB',confirmButtonColor:'#667eea'});
+      Swal.fire({icon:'error',title:'File Terlalu Besar',text:'Maksimal 2MB',confirmButtonColor:'#8B4513'});
       input.value=''; return;
     }
     const reader = new FileReader();
@@ -828,13 +793,13 @@ function removeImage(){
 
 // =============== Create / Edit ===============
 function create_button(){
-  $('#modalTitle').html('<i class="bi bi-plus-circle"></i> Tambah Produk');
+  $('#modalTitle').html('<i class="bi bi-plus-circle"></i> Tambah Menu');
   $('#formAlternatif')[0].reset();
   $('#formAlternatif').attr('action','{{ route("alternatif.store") }}');
   removeImage();
 }
 function show_button(id){
-  $('#modalTitle').html('<i class="bi bi-pencil"></i> Edit Produk');
+  $('#modalTitle').html('<i class="bi bi-pencil"></i> Edit Menu');
   $('#formAlternatif').attr('action','{{ route("alternatif.update") }}');
 
   Swal.fire({title:'Memuat data...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
@@ -843,14 +808,13 @@ function show_button(id){
     data:{ _token:'{{ csrf_token() }}', alternatif_id:id },
     success:function(data){
       $('#formAlternatif input[name=id]').val(data.id);
-      $('#kode_produk').val(data.kode_produk);
-      $('#nama_produk').val(data.nama_produk);
-      $('#jenis_kulit').val(data.jenis_kulit);
+      $('#kode_menu').val(data.kode_menu);
+      $('#nama_menu').val(data.nama_menu);
+      $('#jenis_menu').val(data.jenis_menu);
       $('#harga').val(data.harga);
-      $('#spf').val(data.spf);
 
       if(data.gambar){
-        $('#previewImg').attr('src','/img/produk/'+data.gambar).show();
+        $('#previewImg').attr('src','/img/menu/'+data.gambar).show();
         $('#uploadPlaceholder').hide();
         $('#removeImageBtn').show();
       }else{ removeImage(); }
@@ -867,8 +831,8 @@ function confirmDelete(name){
   event.preventDefault(); // stop default submit
   const form = event.target.closest('form');
   Swal.fire({
-    title:'Hapus Produk?',
-    html:`Produk <b>${name}</b> akan dihapus.`,
+    title:'Hapus Menu?',
+    html:`Menu <b>${name}</b> akan dihapus.`,
     icon:'warning', showCancelButton:true,
     confirmButtonText:'Ya, hapus', cancelButtonText:'Batal',
     confirmButtonColor:'#ef4444'

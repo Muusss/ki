@@ -2,8 +2,8 @@
 
 @section('content')
 @php
-    $skinVal   = strtolower($alternatif->jenis_kulit ?? '');
-    $skinLabel = $alternatif->jenis_kulit ? ucfirst($alternatif->jenis_kulit) : '-';
+    $skinVal   = strtolower($alternatif->jenis_menu ?? '');
+    $skinLabel = $alternatif->jenis_menu ? ucfirst($alternatif->jenis_menu) : '-';
     $skinClass = match ($skinVal) {
         'normal' => 'success', 'berminyak' => 'warning',
         'kering' => 'info', 'kombinasi' => 'secondary',
@@ -20,7 +20,7 @@
         </div>
         <div class="vr d-none d-md-block"></div>
         <div>
-            <div class="fw-semibold">{{ $alternatif->kode_produk }} — {{ $alternatif->nama_produk }}</div>
+            <div class="fw-semibold">{{ $alternatif->kode_menu }} — {{ $alternatif->nama_menu }}</div>
             <span class="badge bg-{{ $skinClass }}"><i class="bi bi-droplet-fill me-1"></i>{{ $skinLabel }}</span>
         </div>
     </div>

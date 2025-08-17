@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>ReGlow Beauty | {{ $title ?? 'Dashboard' }}</title>
+  <title>Buri Umah | {{ $title ?? 'Dashboard' }}</title>
 
   <!-- Favicon -->
-  <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/logo-ss.png') }}" />
-  <link rel="icon" type="image/png" href="{{ asset('img/logo-ss.png') }}" />
+  <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/buri-umah.jpeg') }}" />
+  <link rel="icon" type="image/jpeg" href="{{ asset('img/buri-umah.jpeg') }}" />
 
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -260,9 +260,9 @@
   <!-- Sidebar -->
   <nav class="sidebar" id="sidebar" aria-label="Primary">
     <div class="logo-section">
-      <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow Logo">
-      <h2 class="brand-name">ReGlow Beauty</h2>
-      <p class="brand-tagline">Beauty Inside & Outside</p>
+      <img src="{{ asset('img/buri-umah.jpeg') }}" alt="Buri Umah Logo">
+      <h2 class="brand-name">Buri Umah</h2>
+      <p class="brand-tagline">Cafe & Restaurant</p>
     </div>
 
     <div class="sidebar-menu">
@@ -380,10 +380,10 @@
     <footer class="footer">
       <div class="footer-content">
         <div class="footer-logo">
-          <img src="{{ asset('img/logo-ss.png') }}" alt="ReGlow">
+          <img src="{{ asset('img/buri-umah.jpeg') }}" alt="Buri Umah">
           <div>
-            <h5 class="mb-0" style="color: var(--primary); font-family: 'Dancing Script', cursive;">ReGlow Beauty</h5>
-            <small class="text-muted">Smart Sunscreen Recommendation System</small>
+            <h5 class="mb-0" style="color: var(--primary); font-family: 'Dancing Script', cursive;">Buri Umah</h5>
+            <small class="text-muted">Smart Menu Recommendation System</small>
           </div>
         </div>
 
@@ -404,7 +404,7 @@
 
         <div class="text-center">
           <p class="mb-0" style="color: var(--primary);">
-            <strong>© {{ date('Y') }} ReGlow Beauty</strong>
+            <strong>© {{ date('Y') }} Buri Umah</strong>
           </p>
           <small class="text-muted">
             Developed with <i class="bi bi-heart-fill" style="color:#ff1744" aria-hidden="true"></i> by Selvya

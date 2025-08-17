@@ -22,7 +22,7 @@
                     @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
                         @php
                             $pdfParams = [
-                                'jenis_kulit' => $jenisKulit ?? 'all',
+                                'jenis_menu' => $jenisKulit ?? 'all',
                                 'harga' => $filterHarga ?? 'all',
                                 'spf' => $filterSpf ?? 'all'
                             ];
@@ -62,7 +62,7 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label">Jenis Kulit</label>
-                                <select name="jenis_kulit" class="form-select">
+                                <select name="jenis_menu" class="form-select">
                                     <option value="all">Semua Jenis Kulit</option>
                                     @foreach(($jenisKulitList ?? ['normal', 'berminyak', 'kering', 'kombinasi']) as $jenis)
                                     <option value="{{ $jenis }}" {{ ($jenisKulit ?? 'all') == $jenis ? 'selected' : '' }}>
@@ -141,7 +141,7 @@
                 @php
                     $rank = $index + 1;
                     $alt = $row->alternatif ?? null;
-                    $jenis = $alt->jenis_kulit ?? '';
+                    $jenis = $alt->jenis_menu ?? '';
                     $skinColor = match($jenis) {
                         'normal' => 'success',
                         'berminyak' => 'warning',
@@ -161,22 +161,22 @@
                         {{-- Gambar --}}
                         <div class="product-image">
                             @if(optional($alt)->has_gambar)
-                                <img src="{{ $alt->gambar_url }}" alt="{{ $alt->nama_produk }}" loading="lazy">
+                                <img src="{{ $alt->gambar_url }}" alt="{{ $alt->nama_menu }}" loading="lazy">
                             @elseif(!empty($alt?->gambar))
-                                <img src="{{ asset('img/produk/'.$alt->gambar) }}" alt="{{ $alt->nama_produk }}" loading="lazy">
+                                <img src="{{ asset('img/menu/'.$alt->gambar) }}" alt="{{ $alt->nama_menu }}" loading="lazy">
                             @else
                                 <div class="no-image">
                                     <i class="bi bi-image"></i>
                                     <span>No Image</span>
                                 </div>
                             @endif
-                            <span class="badge-code">{{ $alt->kode_produk ?? '-' }}</span>
+                            <span class="badge-code">{{ $alt->kode_menu ?? '-' }}</span>
                         </div>
 
                         {{-- Konten --}}
                         <div class="product-content">
-                            <h6 class="product-title mb-1" title="{{ $alt->nama_produk ?? '-' }}">
-                                {{ $alt->nama_produk ?? '-' }}
+                            <h6 class="product-title mb-1" title="{{ $alt->nama_menu ?? '-' }}">
+                                {{ $alt->nama_menu ?? '-' }}
                             </h6>
 
                             <div class="product-meta">
@@ -236,7 +236,7 @@
                         @php
                             $rank = $index + 1;
                             $alt = $row->alternatif ?? null;
-                            $jenis = $alt->jenis_kulit ?? '';
+                            $jenis = $alt->jenis_menu ?? '';
                             $skinColor = match($jenis) {
                                 'normal' => 'success',
                                 'berminyak' => 'warning',
@@ -251,15 +251,15 @@
                             </td>
                             <td>
                                 @if(optional($alt)->has_gambar)
-                                    <img src="{{ $alt->gambar_url }}" class="table-image" alt="{{ $alt->nama_produk }}">
+                                    <img src="{{ $alt->gambar_url }}" class="table-image" alt="{{ $alt->nama_menu }}">
                                 @elseif(!empty($alt?->gambar))
-                                    <img src="{{ asset('img/produk/'.$alt->gambar) }}" class="table-image" alt="{{ $alt->nama_produk }}">
+                                    <img src="{{ asset('img/menu/'.$alt->gambar) }}" class="table-image" alt="{{ $alt->nama_menu }}">
                                 @else
                                     <div class="table-no-image"><i class="bi bi-image"></i></div>
                                 @endif
                             </td>
-                            <td><span class="badge bg-primary">{{ $alt->kode_produk ?? '-' }}</span></td>
-                            <td><strong>{{ $alt->nama_produk ?? '-' }}</strong></td>
+                            <td><span class="badge bg-primary">{{ $alt->kode_menu ?? '-' }}</span></td>
+                            <td><strong>{{ $alt->nama_menu ?? '-' }}</strong></td>
                             <td><span class="badge bg-{{ $skinColor }}">{{ ucfirst($jenis ?: '-') }}</span></td>
                             <td class="text-center">
                                 @if($alt && !is_null($alt->harga))
@@ -301,8 +301,8 @@
                         <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
                         <h4 class="mt-3">Tidak Ada Data</h4>
                         <p class="text-muted">
-                            @if(request()->hasAny(['jenis_kulit', 'harga', 'spf']) && 
-                                (request('jenis_kulit') != 'all' || request('harga') != 'all' || request('spf') != 'all'))
+                            @if(request()->hasAny(['jenis_menu', 'harga', 'spf']) && 
+                                (request('jenis_menu') != 'all' || request('harga') != 'all' || request('spf') != 'all'))
                                 Tidak ada produk yang sesuai dengan filter.
                                 <a href="{{ route('hasil-akhir') }}">Reset filter</a>
                             @else

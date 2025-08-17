@@ -7,8 +7,8 @@
 
     @php
         // Badge jenis kulit
-        $skin = strtolower($alternatif->jenis_kulit ?? '');
-        $skinLabel = $alternatif->jenis_kulit ? ucfirst($alternatif->jenis_kulit) : '-';
+        $skin = strtolower($alternatif->jenis_menu ?? '');
+        $skinLabel = $alternatif->jenis_menu ? ucfirst($alternatif->jenis_menu) : '-';
         $skinClass = match ($skin) {
             'normal'    => 'success',
             'berminyak' => 'warning',
@@ -19,7 +19,7 @@
     @endphp
 
     <div class="mb-2">
-        <strong>{{ $alternatif->kode_produk }} - {{ $alternatif->nama_produk }}</strong><br>
+        <strong>{{ $alternatif->kode_menu }} - {{ $alternatif->nama_menu }}</strong><br>
         <span class="badge bg-{{ $skinClass }}">
             <i class="bi bi-droplet-fill me-1"></i>{{ $skinLabel }}
         </span>
